@@ -20,6 +20,7 @@
       <itemPath>../ringBuffer.h</itemPath>
       <itemPath>../usart.h</itemPath>
       <itemPath>../main.h</itemPath>
+      <itemPath>../eeprom.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -37,6 +38,7 @@
       <itemPath>../usb_descriptors.c</itemPath>
       <itemPath>../ringBuffer.c</itemPath>
       <itemPath>../usart.c</itemPath>
+      <itemPath>../eeprom.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

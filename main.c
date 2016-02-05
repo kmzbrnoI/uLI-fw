@@ -17,7 +17,7 @@
 #include "usart.h"
 #include "main.h"
 #include "ringBuffer.h"
-
+#include "eeprom.h"
 
 /** CONFIGURATION **************************************************/
 
@@ -64,6 +64,10 @@
 #pragma config EBTR1 = OFF      // Table Read Protection bit (Block 1 not protected from table reads executed in other blocks)
 #pragma config EBTRB = OFF      // Boot Block Table Read Protection bit (Boot block not protected from table reads executed in other blocks)
 
+/*#pragma romdata rom_variables=0xF00000
+rom unsigned char MISVALORES[3]= {0x11,0x22,0x33};
+#pragma romdata*/
+
 /** V A R I A B L E S ********************************************************/
 #pragma udata
 char USB_Out_Buffer[32];
@@ -87,6 +91,7 @@ volatile BYTE usart_last_byte_sent = 0;
 // timeslot errors
 volatile WORD timeslot_timeout = 0;       // timeslot timeout is 1s -> 100 000
 volatile BOOL timeslot_err = FALSE;       // TRUE if timeslot error
+volatile BYTE xpressnet_addr = DEFAULT_XPRESSNET_ADDR;
 
 // XpressNET framing error counting
 #ifdef FERR_FEATURE
@@ -111,6 +116,7 @@ void Timer2(void);
 void ProcessIO(void);
 void dumpBufToUSB(ring_generic* buf);
 void checkResponseToPC(BYTE header, BYTE id);
+void InitEEPROM(void);
 
 void respondOK(void);
 void respondXORerror(void);
@@ -305,6 +311,8 @@ void UserInit(void)
 	LATCbits.LATC0 = 0;
     LATBbits.LATB6 = 0;         // receive on RS485
 
+    InitEEPROM();
+    
     // setup timer2 on 100 us
     T2CONbits.T2CKPS = 0b11;    // prescaler 16x
 	PR2 = 75;                   // setup timer period register to interrupt every 100 us
@@ -501,7 +509,7 @@ void USART_receive(void)
         // 9 bit is 1 -> header byte
         // we are waiting for call byte with our address
         
-        if (((received.data & 0x1F) == XPRESSNET_ADDR) || ((received.data & 0x1F) == 0)) {
+        if (((received.data & 0x1F) == xpressnet_addr) || ((received.data & 0x1F) == 0)) {
             // new message for us -> check for parity
             for(i = 0, parity = 0; i < 8; i++) if ((received.data >> i) & 1) parity = !parity;
             if (parity != 0) {
@@ -510,7 +518,7 @@ void USART_receive(void)
                 return;
             }
             
-            if ((((received.data >> 5) & 0b11) == 0b10) && ((received.data & 0x1F) == XPRESSNET_ADDR)) {
+            if ((((received.data >> 5) & 0b11) == 0b10) && ((received.data & 0x1F) == xpressnet_addr)) {
                 // normal inquiry
                 timeslot_timeout = 0;
                 if (timeslot_err) {
@@ -522,7 +530,7 @@ void USART_receive(void)
                     XPRESSNET_DIR = XPRESSNET_OUT;
                     USART_send();                    
                 }
-            } else if ((((received.data >> 5) & 0b11) == 0b00) && ((received.data & 0x1F) == XPRESSNET_ADDR)) {
+            } else if ((((received.data >> 5) & 0b11) == 0b00) && ((received.data & 0x1F) == xpressnet_addr)) {
                 // request acknowledgement
                 // send Acknowledgement Response to command station (this should be done by LI)
                 // TODO: is this really working ??
@@ -694,9 +702,14 @@ BOOL USB_parse_data(BYTE start, BYTE len)
             (ring_USB_datain.data[(start+1)&ring_USB_datain.max] == 0x01)) {
         // Instruction for setting the LI101’s XpressNet address
         ringRemoveFromMiddle(&ring_USB_datain, start, 4);
+
+        // set xpressnet addr
+        xpressnet_addr = ring_USB_datain.data[(start+2)&ring_USB_datain.max] & 0x1F;
+        WriteEEPROM(XN_EEPROM_ADDR, xpressnet_addr);
+        
         USB_Out_Buffer[0] = 0xF2;
         USB_Out_Buffer[1] = 0x01;
-        USB_Out_Buffer[2] = 0x1F;   // TODO: send real xpressnet device address
+        USB_Out_Buffer[2] = xpressnet_addr;
         USB_Out_Buffer[3] = calc_xor(USB_Out_Buffer, 3);
         if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 4);
     } else if ((ring_USB_datain.data[start] == 0xF2) &&
@@ -705,7 +718,7 @@ BOOL USB_parse_data(BYTE start, BYTE len)
         ringRemoveFromMiddle(&ring_USB_datain, start, 4);
         USB_Out_Buffer[0] = 0xF2;
         USB_Out_Buffer[1] = 0x02;
-        USB_Out_Buffer[2] = ring_USB_datain.data[(start+2)&ring_USB_datain.max];// is it necessary to do anything more?
+        USB_Out_Buffer[2] = ring_USB_datain.data[(start+2)&ring_USB_datain.max];
         USB_Out_Buffer[3] = calc_xor(USB_Out_Buffer, 3);        
         if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 4);
     
@@ -819,6 +832,17 @@ void checkResponseToPC(BYTE header, BYTE id)
             respondOK();
             return;            
         }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void InitEEPROM(void)
+{
+    xpressnet_addr = ReadEEPROM(XN_EEPROM_ADDR);
+    if ((xpressnet_addr < 1) || (xpressnet_addr > 31)) {
+        xpressnet_addr = DEFAULT_XPRESSNET_ADDR;
+        WriteEEPROM(XN_EEPROM_ADDR, xpressnet_addr);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

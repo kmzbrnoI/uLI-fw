@@ -45,17 +45,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=../usb_function_cdc.c ../usb_device.c ../main.c ../usb_descriptors.c ../ringBuffer.c ../usart.c
+SOURCEFILES_QUOTED_IF_SPACED=../usb_function_cdc.c ../usb_device.c ../main.c ../usb_descriptors.c ../ringBuffer.c ../usart.c ../eeprom.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/_ext/1472/usb_function_cdc.o ${OBJECTDIR}/_ext/1472/usb_device.o ${OBJECTDIR}/_ext/1472/main.o ${OBJECTDIR}/_ext/1472/usb_descriptors.o ${OBJECTDIR}/_ext/1472/ringBuffer.o ${OBJECTDIR}/_ext/1472/usart.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/_ext/1472/usb_function_cdc.o.d ${OBJECTDIR}/_ext/1472/usb_device.o.d ${OBJECTDIR}/_ext/1472/main.o.d ${OBJECTDIR}/_ext/1472/usb_descriptors.o.d ${OBJECTDIR}/_ext/1472/ringBuffer.o.d ${OBJECTDIR}/_ext/1472/usart.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/_ext/1472/usb_function_cdc.o ${OBJECTDIR}/_ext/1472/usb_device.o ${OBJECTDIR}/_ext/1472/main.o ${OBJECTDIR}/_ext/1472/usb_descriptors.o ${OBJECTDIR}/_ext/1472/ringBuffer.o ${OBJECTDIR}/_ext/1472/usart.o ${OBJECTDIR}/_ext/1472/eeprom.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/_ext/1472/usb_function_cdc.o.d ${OBJECTDIR}/_ext/1472/usb_device.o.d ${OBJECTDIR}/_ext/1472/main.o.d ${OBJECTDIR}/_ext/1472/usb_descriptors.o.d ${OBJECTDIR}/_ext/1472/ringBuffer.o.d ${OBJECTDIR}/_ext/1472/usart.o.d ${OBJECTDIR}/_ext/1472/eeprom.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/_ext/1472/usb_function_cdc.o ${OBJECTDIR}/_ext/1472/usb_device.o ${OBJECTDIR}/_ext/1472/main.o ${OBJECTDIR}/_ext/1472/usb_descriptors.o ${OBJECTDIR}/_ext/1472/ringBuffer.o ${OBJECTDIR}/_ext/1472/usart.o
+OBJECTFILES=${OBJECTDIR}/_ext/1472/usb_function_cdc.o ${OBJECTDIR}/_ext/1472/usb_device.o ${OBJECTDIR}/_ext/1472/main.o ${OBJECTDIR}/_ext/1472/usb_descriptors.o ${OBJECTDIR}/_ext/1472/ringBuffer.o ${OBJECTDIR}/_ext/1472/usart.o ${OBJECTDIR}/_ext/1472/eeprom.o
 
 # Source Files
-SOURCEFILES=../usb_function_cdc.c ../usb_device.c ../main.c ../usb_descriptors.c ../ringBuffer.c ../usart.c
+SOURCEFILES=../usb_function_cdc.c ../usb_device.c ../main.c ../usb_descriptors.c ../ringBuffer.c ../usart.c ../eeprom.c
 
 
 CFLAGS=
@@ -137,6 +137,14 @@ ${OBJECTDIR}/_ext/1472/usart.o: ../usart.c  nbproject/Makefile-${CND_CONF}.mk
 	@${DEP_GEN} -d ${OBJECTDIR}/_ext/1472/usart.o 
 	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/usart.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
 	
+${OBJECTDIR}/_ext/1472/eeprom.o: ../eeprom.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
+	@${RM} ${OBJECTDIR}/_ext/1472/eeprom.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1472/eeprom.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_SIMULATOR=1 -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}\\..\\h  -fo ${OBJECTDIR}/_ext/1472/eeprom.o   ../eeprom.c 
+	@${DEP_GEN} -d ${OBJECTDIR}/_ext/1472/eeprom.o 
+	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/eeprom.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
+	
 else
 ${OBJECTDIR}/_ext/1472/usb_function_cdc.o: ../usb_function_cdc.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
@@ -185,6 +193,14 @@ ${OBJECTDIR}/_ext/1472/usart.o: ../usart.c  nbproject/Makefile-${CND_CONF}.mk
 	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}\\..\\h  -fo ${OBJECTDIR}/_ext/1472/usart.o   ../usart.c 
 	@${DEP_GEN} -d ${OBJECTDIR}/_ext/1472/usart.o 
 	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/usart.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
+	
+${OBJECTDIR}/_ext/1472/eeprom.o: ../eeprom.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
+	@${RM} ${OBJECTDIR}/_ext/1472/eeprom.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1472/eeprom.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}\\..\\h  -fo ${OBJECTDIR}/_ext/1472/eeprom.o   ../eeprom.c 
+	@${DEP_GEN} -d ${OBJECTDIR}/_ext/1472/eeprom.o 
+	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/eeprom.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
 	
 endif
 
