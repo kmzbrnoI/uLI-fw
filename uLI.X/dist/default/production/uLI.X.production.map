@@ -1,5 +1,5 @@
 MPLINK 5.00, LINKER
-Linker Map File - Created Fri Feb 05 21:24:11 2016
+Linker Map File - Created Fri Feb 05 21:48:50 2016
 
                                  Section Info
                   Section       Type    Address   Location Size(Bytes)
@@ -113,7 +113,7 @@ REMAPPED_LOW_INTERRUPT_VECTOR       code   0x000018    program   0x000006
                  FXD1616S   0x003eda    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
                  FXD1616U   0x003f5a    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616u.c
                InitEEPROM   0x002f1a    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-         InitializeSystem   0x002290    program     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
+         InitializeSystem   0x00228e    program     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
                ReadEEPROM   0x003e80    program     extern D:\UsersData\Vlak\FW\ULI\uLI\eeprom.c
         Remapped_High_ISR   0x000008    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
          Remapped_Low_ISR   0x000018    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
@@ -121,16 +121,16 @@ REMAPPED_LOW_INTERRUPT_VECTOR       code   0x000018    program   0x000006
            USARTInputData   0x003cd8    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usart.c
             USARTReadByte   0x003ce2    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usart.c
            USARTWriteByte   0x003cb6    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usart.c
-            USART_receive   0x00242e    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+            USART_receive   0x00242c    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
                USART_send   0x002cd4    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-       USBCBCheckOtherReq   0x0022f2    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-        USBCBErrorHandler   0x0022f0    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-              USBCBInitEP   0x0022f8    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-          USBCBSendResume   0x0022fc    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-    USBCBStdSetDscHandler   0x0022f6    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-             USBCBSuspend   0x0022ea    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-     USBCBWakeFromSuspend   0x0022ec    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-        USBCB_SOF_Handler   0x0022ee    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+       USBCBCheckOtherReq   0x0022f0    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+        USBCBErrorHandler   0x0022ee    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+              USBCBInitEP   0x0022f6    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+          USBCBSendResume   0x0022fa    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+    USBCBStdSetDscHandler   0x0022f4    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+             USBCBSuspend   0x0022e8    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+     USBCBWakeFromSuspend   0x0022ea    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+        USBCB_SOF_Handler   0x0022ec    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
               USBCancelIO   0x002034    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
        USBCheckCDCRequest   0x00384e    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
        USBCheckStdRequest   0x001548    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
@@ -162,30 +162,30 @@ USBPrepareForNextSetupTrf   0x0014e4    program     extern D:\UsersData\Vlak\FW\
            USB_parse_data   0x002a40    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
               USB_receive   0x0027ee    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
                  USB_send   0x002732    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-USER_USB_CALLBACK_EVENT_HANDLER   0x002318    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                 UserInit   0x0022a2    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+USER_USB_CALLBACK_EVENT_HANDLER   0x002316    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                 UserInit   0x0022a0    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
               WriteEEPROM   0x003e9c    program     extern D:\UsersData\Vlak\FW\ULI\uLI\eeprom.c
   YourHighPriorityISRCode   0x00211e    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
    YourLowPriorityISRCode   0x0021c4    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
               _2jContinue   0x003f46    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\memset.asm
                    _3jEnd   0x003f50    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\memset.asm
-     ___case_114_lbl00043   0x00239c    program     static                          
-     ___case_115_lbl00039   0x00238c    program     static                          
-     ___case_116_lbl00041   0x002394    program     static                          
-     ___case_117_lbl00040   0x002390    program     static                          
-       ___case_1_lbl00036   0x002380    program     static                          
-       ___case_2_lbl00037   0x002384    program     static                          
-   ___case_32767_lbl00042   0x002398    program     static                          
-       ___case_3_lbl00038   0x002388    program     static                          
-      ___default_lbl00044   0x0023a0    program     static                          
+     ___case_114_lbl00043   0x00239a    program     static                          
+     ___case_115_lbl00039   0x00238a    program     static                          
+     ___case_116_lbl00041   0x002392    program     static                          
+     ___case_117_lbl00040   0x00238e    program     static                          
+       ___case_1_lbl00036   0x00237e    program     static                          
+       ___case_2_lbl00037   0x002382    program     static                          
+   ___case_32767_lbl00042   0x002396    program     static                          
+       ___case_3_lbl00038   0x002386    program     static                          
+      ___default_lbl00044   0x00239e    program     static                          
        ___return_lbl00000   0x00000c    program     static                          
        ___return_lbl00000   0x000004    program     static                          
        ___return_lbl00000   0x003f84    program     static                          
        ___return_lbl00001   0x00001c    program     static                          
        ___return_lbl00001   0x003fc0    program     static                          
        ___return_lbl00002   0x003de0    program     static                          
-       ___return_lbl00034   0x0023a6    program     static                          
-   ___switchexit_lbl00035   0x0023a2    program     static                          
+       ___return_lbl00034   0x0023a4    program     static                          
+   ___switchexit_lbl00035   0x0023a0    program     static                          
                __config_0   0x300000    program     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
                __config_1   0x300001    program     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
               __config_10   0x30000c    program     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
@@ -199,19 +199,19 @@ USER_USB_CALLBACK_EVENT_HANDLER   0x002318    program     extern D:\UsersData\Vl
                __config_8   0x30000a    program     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
                __config_9   0x30000b    program     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
                    __init   0x003fc2    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\__init.c
-              __tmplbl_10   0x00235e    program     static                          
-              __tmplbl_11   0x002368    program     static                          
-              __tmplbl_12   0x002372    program     static                          
-              __tmplbl_13   0x00237c    program     static                          
-               __tmplbl_6   0x002334    program     static                          
-               __tmplbl_7   0x002340    program     static                          
-               __tmplbl_8   0x00234a    program     static                          
-               __tmplbl_9   0x002354    program     static                          
+              __tmplbl_10   0x00235c    program     static                          
+              __tmplbl_11   0x002366    program     static                          
+              __tmplbl_12   0x002370    program     static                          
+              __tmplbl_13   0x00237a    program     static                          
+               __tmplbl_6   0x002332    program     static                          
+               __tmplbl_7   0x00233e    program     static                          
+               __tmplbl_8   0x002348    program     static                          
+               __tmplbl_9   0x002352    program     static                          
             __zero_memory   0x003f86    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                 _do_cinit   0x003d44    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
                    _entry   0x000000    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
                  _startup   0x003fa6    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
-                 calc_xor   0x0023ae    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                 calc_xor   0x0023ac    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
         checkResponseToPC   0x002e82    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
                 compare_l   0x003f9c    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
         configDescriptor1   0x003df4    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
@@ -229,7 +229,7 @@ USER_USB_CALLBACK_EVENT_HANDLER   0x002318    program     extern D:\UsersData\Vl
                      loop   0x003fb6    program     static                          
                    loop_h   0x003f94    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                    loop_l   0x003f9e    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                     main   0x002278    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                     main   0x002276    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
                    memset   0x003f26    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\memset.asm
               putUSBUSART   0x003a0c    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
             putrsUSBUSART   0x003ac2    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
@@ -615,39 +615,39 @@ USBPrepareForNextSetupTrf   0x0014e4    program     extern D:\UsersData\Vlak\FW\
           USBDeviceAttach   0x0020ee    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
   YourHighPriorityISRCode   0x00211e    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
    YourLowPriorityISRCode   0x0021c4    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                     main   0x002278    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-         InitializeSystem   0x002290    program     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                 UserInit   0x0022a2    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-             USBCBSuspend   0x0022ea    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-     USBCBWakeFromSuspend   0x0022ec    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-        USBCB_SOF_Handler   0x0022ee    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-        USBCBErrorHandler   0x0022f0    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-       USBCBCheckOtherReq   0x0022f2    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-    USBCBStdSetDscHandler   0x0022f6    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-              USBCBInitEP   0x0022f8    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-          USBCBSendResume   0x0022fc    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-USER_USB_CALLBACK_EVENT_HANDLER   0x002318    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-               __tmplbl_6   0x002334    program     static                          
-               __tmplbl_7   0x002340    program     static                          
-               __tmplbl_8   0x00234a    program     static                          
-               __tmplbl_9   0x002354    program     static                          
-              __tmplbl_10   0x00235e    program     static                          
-              __tmplbl_11   0x002368    program     static                          
-              __tmplbl_12   0x002372    program     static                          
-              __tmplbl_13   0x00237c    program     static                          
-       ___case_1_lbl00036   0x002380    program     static                          
-       ___case_2_lbl00037   0x002384    program     static                          
-       ___case_3_lbl00038   0x002388    program     static                          
-     ___case_115_lbl00039   0x00238c    program     static                          
-     ___case_117_lbl00040   0x002390    program     static                          
-     ___case_116_lbl00041   0x002394    program     static                          
-   ___case_32767_lbl00042   0x002398    program     static                          
-     ___case_114_lbl00043   0x00239c    program     static                          
-      ___default_lbl00044   0x0023a0    program     static                          
-   ___switchexit_lbl00035   0x0023a2    program     static                          
-       ___return_lbl00034   0x0023a6    program     static                          
-                 calc_xor   0x0023ae    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-            USART_receive   0x00242e    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                     main   0x002276    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+         InitializeSystem   0x00228e    program     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                 UserInit   0x0022a0    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+             USBCBSuspend   0x0022e8    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+     USBCBWakeFromSuspend   0x0022ea    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+        USBCB_SOF_Handler   0x0022ec    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+        USBCBErrorHandler   0x0022ee    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+       USBCBCheckOtherReq   0x0022f0    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+    USBCBStdSetDscHandler   0x0022f4    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+              USBCBInitEP   0x0022f6    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+          USBCBSendResume   0x0022fa    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+USER_USB_CALLBACK_EVENT_HANDLER   0x002316    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+               __tmplbl_6   0x002332    program     static                          
+               __tmplbl_7   0x00233e    program     static                          
+               __tmplbl_8   0x002348    program     static                          
+               __tmplbl_9   0x002352    program     static                          
+              __tmplbl_10   0x00235c    program     static                          
+              __tmplbl_11   0x002366    program     static                          
+              __tmplbl_12   0x002370    program     static                          
+              __tmplbl_13   0x00237a    program     static                          
+       ___case_1_lbl00036   0x00237e    program     static                          
+       ___case_2_lbl00037   0x002382    program     static                          
+       ___case_3_lbl00038   0x002386    program     static                          
+     ___case_115_lbl00039   0x00238a    program     static                          
+     ___case_117_lbl00040   0x00238e    program     static                          
+     ___case_116_lbl00041   0x002392    program     static                          
+   ___case_32767_lbl00042   0x002396    program     static                          
+     ___case_114_lbl00043   0x00239a    program     static                          
+      ___default_lbl00044   0x00239e    program     static                          
+   ___switchexit_lbl00035   0x0023a0    program     static                          
+       ___return_lbl00034   0x0023a4    program     static                          
+                 calc_xor   0x0023ac    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+            USART_receive   0x00242c    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
                  USB_send   0x002732    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
               USB_receive   0x0027ee    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
            USB_parse_data   0x002a40    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c

@@ -219,7 +219,6 @@ void respondXORerror(void);
                 if (usart_last_byte_sent == 5) {
                     XPRESSNET_DIR = XPRESSNET_IN;
                     usart_last_byte_sent = 0;
-                    mLED_Out_Off();
                 }
             }
             
@@ -533,6 +532,7 @@ void USART_receive(void)
                 mLED_In_Off();
                 mLED_In_Timeout = 0;                
             }
+            mLED_Out_Off();
             
             if ((((received.data >> 5) & 0b11) == 0b10) && ((received.data & 0x1F) == xpressnet_addr)) {
                 // normal inquiry
