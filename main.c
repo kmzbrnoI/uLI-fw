@@ -79,14 +79,14 @@ volatile WORD usb_timeout = 0;
     // increment every 100 us -> 100 ms timeout = 1 000
 volatile WORD usart_timeout = 0;
     // increment every 100 us -> 100 ms timeout = 1 000
-//volatile BOOL mTXIE = 0;
 volatile BYTE usart_to_send = 0;
-
-//volatile BYTE usart_to_send = 0;
+    // byte to send to USART
+    // I rather made this public volatile variable, beacause it is accessed in interrupts and in main too.
 volatile BYTE usart_last_byte_sent = 0;
+    // wheter the last byte of message to command station was sent and bus could be switched to IN direction
 
 // timeslot errors
-volatile WORD timeslot_timeout = 0;     // timeslot timeout is 1s -> 100 000
+volatile WORD timeslot_timeout = 0;       // timeslot timeout is 1s -> 100 000
 volatile BOOL timeslot_err = FALSE;       // TRUE if timeslot error
 
 
@@ -116,8 +116,7 @@ void respondXORerror(void);
 #define USB_msg_len(start)      ((ring_USB_datain.data[start] & 0x0F)+2)      // len WITH header byte and WITH xor byte
 #define USB_last_message_len    ringDistance(&ring_USB_datain, last_start, ring_USB_datain.ptr_e)
 
-#define USART_msg_len(start)    ((ring_USART_datain.data[(start+1) & ring_USART_datain.max] & 0x0F)+3)
-    // length of xpressnet message is 4-lower bits in second byte
+#define USART_msg_len(start)    ((ring_USART_datain.data[(start+1) & ring_USART_datain.max] & 0x0F)+3)  // length of xpressnet message is 4-lower bits in second byte
 #define USART_last_message_len  ringDistance(&ring_USART_datain, last_start, ring_USART_datain.ptr_e)
 #define USART_msg_to_send       ((ringLength(&ring_USB_datain) >= 2) && (ringLength(&ring_USB_datain) >= USB_msg_len(ring_USB_datain.ptr_b)))
 
@@ -669,8 +668,8 @@ BOOL USB_parse_data(BYTE start, BYTE len)
         // Instruction for the determination of the version and code number of LI
         ringRemoveFromMiddle(&ring_USB_datain, start, 2);
         USB_Out_Buffer[0] = 0x02;
-        USB_Out_Buffer[1] = 0x20;   // hardware version 2.0
-        USB_Out_Buffer[2] = 0x10;   // software version 1.0
+        USB_Out_Buffer[1] = VERSION_HW;
+        USB_Out_Buffer[2] = VERSION_FW;
         USB_Out_Buffer[3] = calc_xor(USB_Out_Buffer, 3);        
         if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 4);
     } else if ((ring_USB_datain.data[start] == 0xF2) &&

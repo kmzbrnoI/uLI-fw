@@ -13,6 +13,9 @@ extern "C" {
 #endif
 
 #define XPRESSNET_ADDR  25
+    
+#define VERSION_FW      0x10        // firmware version 1.0
+#define VERSION_HW      0x20        // hardware version 2.0
 
 #define DEBUG 1
 
