@@ -56,22 +56,27 @@
     #define GetSystemClock() CLOCK_FREQ
     
     /** LED ************************************************************/
-    #define mInitAllLEDs()      LATC &= 0xCF; TRISC &= 0xCF;
+    #define mInitAllLEDs()       /*LATC &= 0xF8;*/ TRISC &= 0xF8;
     
-    #define mLED_1              LATCbits.LATC4
-    #define mLED_2              LATCbits.LATC5
-      
-    #define mGetLED_1()         mLED_1
-    #define mGetLED_2()         mLED_2
+    /*#define mLED_In              LATCbits.LATC0
+    #define mLED_Out             LATCbits.LATC1
+    #define mLED_Pwr             LATCbits.LATC2*/
 
-    #define mLED_1_On()         mLED_1 = 1;
-    #define mLED_2_On()         mLED_2 = 1;
+    #define mLED_In              PORTCbits.RC0
+    #define mLED_Out             PORTCbits.RC1
+    #define mLED_Pwr             PORTCbits.RC2
+
+    #define mLED_In_On();        mLED_In = 1;
+    #define mLED_Out_On();       mLED_Out = 1;
+    #define mLED_Pwr_On();       mLED_Pwr = 1;
     
-    #define mLED_1_Off()        mLED_1 = 0;
-    #define mLED_2_Off()        mLED_2 = 0;
+    #define mLED_In_Off();       mLED_In = 0;
+    #define mLED_Out_Off();      mLED_Out = 0;
+    #define mLED_Pwr_Off();      mLED_Pwr = 0;
     
-    #define mLED_1_Toggle()     mLED_1 = !mLED_1;
-    #define mLED_2_Toggle()     mLED_2 = !mLED_2;
+    #define mLED_In_Toggle();    mLED_In = !mLED_In;
+    #define mLED_Out_Toggle();   mLED_Out = !mLED_Out;
+    #define mLED_Pwr_Toggle();   mLED_Pwr = !mLED_Pwr;
    
 
 #endif  //HARDWARE_PROFILE_H

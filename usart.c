@@ -11,19 +11,15 @@ void USARTInit(void)
 {
 	// Baud Rate = 62500 Baud per second
 	// on 48 MHz
+
+    TRISBbits.TRISB5 = 1;   // RB5/RX is for read
+	TRISBbits.TRISB6 = 0;   // RB7/TX is for write
+    TRISBbits.TRISB7 = 0;   // RB6/RS485 direction set is for write
     
     // timing: 8-bit / asynchronous (based on datasheet p. 187)
     TXSTAbits.BRGH = 0;
     BAUDCONbits.BRG16 = 0;
 	SPBRG = 11;
-
-    // switch off AD convertors (USART is not working when not switched off manually)
-    ANSEL = 0x00;
-    ANSELH = 0x00;
-    
-    TRISBbits.RB5 = 1;    // RB5/RX is for read
-    TRISBbits.RB7 = 0;    // RB7/TX is for write
-    TRISBbits.RB6 = 0;    // RB6/RS485 direction set is for write
     
     XPRESSNET_DIR = XPRESSNET_IN;       // switch bus for read
     

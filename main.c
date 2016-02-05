@@ -68,6 +68,21 @@
 rom unsigned char MISVALORES[3]= {0x11,0x22,0x33};
 #pragma romdata*/
 
+/** DEFINES *******************************************************/
+#define USB_msg_len(start)      ((ring_USB_datain.data[start] & 0x0F)+2)      // len WITH header byte and WITH xor byte
+#define USB_last_message_len    ringDistance(&ring_USB_datain, last_start, ring_USB_datain.ptr_e)
+
+#define USART_msg_len(start)    ((ring_USART_datain.data[(start+1) & ring_USART_datain.max] & 0x0F)+3)  // length of xpressnet message is 4-lower bits in second byte
+#define USART_last_message_len  ringDistance(&ring_USART_datain, last_start, ring_USART_datain.ptr_e)
+#define USART_msg_to_send       ((ringLength(&ring_USB_datain) >= 2) && (ringLength(&ring_USB_datain) >= USB_msg_len(ring_USB_datain.ptr_b)))
+
+#define USB_MAX_TIMEOUT         1000        // 100 ms
+#define USART_MAX_TIMEOUT       1000        // 100 ms
+#define TIMESLOT_MAX_TIMEOUT    10000       // 1 s
+#define FERR_TIMEOUT            100000      // 10 s
+
+#define MLED_IN_MAX_TIMEOUT     500         // 50 ms
+
 /** V A R I A B L E S ********************************************************/
 #pragma udata
 char USB_Out_Buffer[32];
@@ -91,13 +106,16 @@ volatile BYTE usart_last_byte_sent = 0;
 // timeslot errors
 volatile WORD timeslot_timeout = 0;       // timeslot timeout is 1s -> 100 000
 volatile BOOL timeslot_err = FALSE;       // TRUE if timeslot error
-volatile BYTE xpressnet_addr = DEFAULT_XPRESSNET_ADDR;
 
 // XpressNET framing error counting
 #ifdef FERR_FEATURE
     volatile UINT24 ferr_in_10_s = 0;         // number of framing errors in 10 seconds
     volatile UINT24 ferr_counter = 0;
 #endif    
+    
+volatile WORD mLED_In_Timeout = 2*MLED_IN_MAX_TIMEOUT;
+BYTE xpressnet_addr = DEFAULT_XPRESSNET_ADDR;
+
 
 /** P R I V A T E  P R O T O T Y P E S ***************************************/
 static void InitializeSystem(void);
@@ -120,21 +138,6 @@ void InitEEPROM(void);
 
 void respondOK(void);
 void respondXORerror(void);
-
-
-/** DEFINES *******************************************************/
-#define USB_msg_len(start)      ((ring_USB_datain.data[start] & 0x0F)+2)      // len WITH header byte and WITH xor byte
-#define USB_last_message_len    ringDistance(&ring_USB_datain, last_start, ring_USB_datain.ptr_e)
-
-#define USART_msg_len(start)    ((ring_USART_datain.data[(start+1) & ring_USART_datain.max] & 0x0F)+3)  // length of xpressnet message is 4-lower bits in second byte
-#define USART_last_message_len  ringDistance(&ring_USART_datain, last_start, ring_USART_datain.ptr_e)
-#define USART_msg_to_send       ((ringLength(&ring_USB_datain) >= 2) && (ringLength(&ring_USB_datain) >= USB_msg_len(ring_USB_datain.ptr_b)))
-
-#define USB_MAX_TIMEOUT         1000        // 100 ms
-#define USART_MAX_TIMEOUT       1000        // 100 ms
-#define TIMESLOT_MAX_TIMEOUT    10000       // 1 s
-#define FERR_TIMEOUT            100000      // 10 s
-
 
 /** VECTOR REMAPPING ***********************************************/
 #if defined(__18CXX)
@@ -208,9 +211,18 @@ void respondXORerror(void);
                 usart_last_byte_sent++;
             
                 // wait 600 us after last byte has been transmitted
-                if (usart_last_byte_sent > 3) {
+                if (usart_last_byte_sent == 3) {
                     XPRESSNET_DIR = XPRESSNET_IN;
                     usart_last_byte_sent = 0;
+                    mLED_Out_Off();
+                }
+            }
+            
+            // mLEDIn timeout
+            if (mLED_In_Timeout < 2*MLED_IN_MAX_TIMEOUT) {
+                mLED_In_Timeout++;                
+                if (mLED_In_Timeout == MLED_IN_MAX_TIMEOUT) {
+                    mLED_In_On();
                 }
             }
             
@@ -279,40 +291,33 @@ void InitializeSystem(void)
     #if defined(USE_SELF_POWER_SENSE_IO)
         tris_self_power = INPUT_PIN;	// See HardwareProfile.h
     #endif
-    
+
+    InitEEPROM();
+        
     UserInit();
     USBDeviceInit();
     USARTInit();
 }
 
 void UserInit(void)
-{
+{    
     // init ring buffers
     ringBufferInit(ring_USB_datain, 32);
     ringBufferInit(ring_USART_datain, 32);
-  
+ 
+    // switch off AD convertors (USART is not working when not switched off manually)
+    ANSEL = 0x00;
+    ANSELH = 0x00;
+    
     // Initialize all of the LED pins
     mInitAllLEDs();
-	mLED_1_Off();
-	mLED_2_Off();
-	 
+	mLED_In_On();
+    mLED_Out_On();
+    mLED_Pwr_On();
+	     
     // init IO
-	TRISBbits.TRISB4 = 1;		// sdi
-	TRISBbits.TRISB6 = 0;		// sck
-	TRISBbits.TRISB5 = 0;		// ce
-	TRISCbits.TRISC7 = 0;		// sdo
+    // TODO: init power sense
 
-	TRISBbits.TRISB7 = 1;		// Tx
-	TRISCbits.TRISC2 = 1;		// an6
-
-	TRISCbits.TRISC6 = 1;		// pull up
-	TRISCbits.TRISC0 = 0;		// pull up
-	LATCbits.LATC6 = 0;
-	LATCbits.LATC0 = 0;
-    LATBbits.LATB6 = 0;         // receive on RS485
-
-    InitEEPROM();
-    
     // setup timer2 on 100 us
     T2CONbits.T2CKPS = 0b11;    // prescaler 16x
 	PR2 = 75;                   // setup timer period register to interrupt every 100 us
@@ -322,7 +327,7 @@ void UserInit(void)
     IPR1bits.TMR2IP = 0;        // timer2 interrupt low level	
     
     RCONbits.IPEN = 1;          // enable high and low priority interrupts
-    INTCONbits.PEIE = 1;        // Enable peripheral interrupts
+    //INTCONbits.PEIE = 1;        // Enable peripheral interrupts
     INTCONbits.GIE = 1;         // enable global interrupts
     INTCONbits.GIEH = 1;
     INTCONbits.GIEL = 1;
@@ -517,6 +522,12 @@ void USART_receive(void)
                 respondXORerror();
                 return;
             }
+
+            // toggle LED
+            if (mLED_In_Timeout >= 2*MLED_IN_MAX_TIMEOUT) { 
+                mLED_In_Off();
+                mLED_In_Timeout = 0;                
+            }
             
             if ((((received.data >> 5) & 0b11) == 0b10) && ((received.data & 0x1F) == xpressnet_addr)) {
                 // normal inquiry
@@ -626,7 +637,7 @@ void USB_receive(void)
             // inform PC about full buffer
             USB_Out_Buffer[0] = 0x01;
             USB_Out_Buffer[1] = 0x06;
-            USB_Out_Buffer[2] = 0x08; // TODO: 0x07 should be here
+            USB_Out_Buffer[2] = 0x07;
             if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 3);
             
             // TODO: what to do here? remove whole buffer? or delete only last message ??? 
@@ -776,10 +787,11 @@ void USART_send(void)
         checkResponseToPC(head, id); // send OK response to PC
                 
         PIE1bits.TXIE = 0;
-        usart_last_byte_sent = 1;        
+        usart_last_byte_sent = 1;
     } else {
         // other-than-last byte sending
         PIE1bits.TXIE = 1;
+        mLED_Out_On();
     }
 }
 
