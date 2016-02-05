@@ -1,11 +1,10 @@
 /********************************************************************
  FileName:      main.c
- Dependencies:  See INCLUDES section
  Processor:		PIC18F14K50
- Hardware:		uLI 2 - JH2015
+ Hardware:		uLI 2 - JH&MP 2015
  Complier:  	Microchip C18
- Author:		Jan Horacek, Michal Petrilak
- 
+ Author:		Jan Horacek, Michal Petrilak 
+ * 
 /** INCLUDES *******************************************************/
 #include "usb.h"
 #include "usb_function_cdc.h"
@@ -89,6 +88,11 @@ volatile BYTE usart_last_byte_sent = 0;
 volatile WORD timeslot_timeout = 0;       // timeslot timeout is 1s -> 100 000
 volatile BOOL timeslot_err = FALSE;       // TRUE if timeslot error
 
+// XpressNET framing error counting
+#ifdef FERR_FEATURE
+    volatile UINT24 ferr_in_10_s = 0;         // number of framing errors in 10 seconds
+    volatile UINT24 ferr_counter = 0;
+#endif    
 
 /** P R I V A T E  P R O T O T Y P E S ***************************************/
 static void InitializeSystem(void);
@@ -123,6 +127,7 @@ void respondXORerror(void);
 #define USB_MAX_TIMEOUT         1000        // 100 ms
 #define USART_MAX_TIMEOUT       1000        // 100 ms
 #define TIMESLOT_MAX_TIMEOUT    10000       // 1 s
+#define FERR_TIMEOUT            100000      // 10 s
 
 
 /** VECTOR REMAPPING ***********************************************/
@@ -181,6 +186,16 @@ void respondXORerror(void);
             
             // timeslot timeout
             if (!timeslot_err) timeslot_timeout++;
+            
+            #ifdef FERR_FEATURE
+                // framing error counting
+                ferr_counter++;
+                if (ferr_counter >= FERR_TIMEOUT) {
+                    mLED_1_Toggle();
+                    ferr_in_10_s = 0;
+                    ferr_counter = 0;
+                }
+            #endif
             
             // XPRESSNET_DIR is set to XPRESSNET_IN after some time of
             // successful tranfer of last byte (to be sure)
@@ -475,6 +490,11 @@ void USART_receive(void)
     usart_timeout = 0;
         
     received = USARTReadByte();
+    
+    #ifdef FERR_FEATURE
+        // increment framing eror counter in case of framing error
+        ferr_counter += received.FERR;
+    #endif
         
     if ((!received.ninth) && (RCSTAbits.ADDEN)) return; // is this necessary?
     
@@ -690,6 +710,23 @@ BOOL USB_parse_data(BYTE start, BYTE len)
         USB_Out_Buffer[2] = ring_USB_datain.data[(start+2)&ring_USB_datain.max];// is it necessary to do anything more?
         USB_Out_Buffer[3] = calc_xor(USB_Out_Buffer, 3);        
         if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 4);
+    
+    #ifdef FERR_FEATURE    
+    } else if ((ring_USB_datain.data[start] == 0xF1) &&
+            (ring_USB_datain.data[(start+1)&ring_USB_datain.max] == 0x05)) {
+        // special feture of uLI: framing error response
+        // FERR is sent as response to 0xF1 0x05 0xF4 as 0xF4 0x05 FERR_HH FERR_H FERR_L XOR
+        ringRemoveFromMiddle(&ring_USB_datain, start, 3);
+
+        USB_Out_Buffer[0] = 0xF4;
+        USB_Out_Buffer[1] = 0x05;
+        USB_Out_Buffer[2] = (ferr_in_10_s >> 16) & 0xFF;
+        USB_Out_Buffer[3] = (ferr_in_10_s >> 8) & 0xFF;
+        USB_Out_Buffer[4] = ferr_in_10_s & 0xFF;
+        USB_Out_Buffer[5] = calc_xor(USB_Out_Buffer, 5);
+        if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 6);
+    #endif    
+
     } else {
         // command for command station
         return TRUE;
