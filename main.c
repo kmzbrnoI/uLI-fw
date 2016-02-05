@@ -191,7 +191,6 @@ void respondXORerror(void);
                 // framing error counting
                 ferr_counter++;
                 if (ferr_counter >= FERR_TIMEOUT) {
-                    mLED_1_Toggle();
                     ferr_in_10_s = 0;
                     ferr_counter = 0;
                 }
@@ -530,7 +529,6 @@ void USART_receive(void)
                 USB_Out_Buffer[0] = 0x20;
                 USB_Out_Buffer[1] = 0x20;
                 ringAddToStart(&ring_USB_datain, USB_Out_Buffer, 2);                
-                mLED_2_On();    
                         
                 // send message to PC
                 USB_Out_Buffer[0] = 0x01;
@@ -750,9 +748,6 @@ void USART_send(void)
 {
     static BYTE head = 0, id = 0;
     
-    // DEBUG
-    mLED_1_Toggle();
-     
     // according to specification, ninth bit is always 0
     USARTWriteByte(0, ring_USB_datain.data[usart_to_send]);
     usart_to_send = (usart_to_send+1)&ring_USB_datain.max;
