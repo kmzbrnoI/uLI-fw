@@ -76,9 +76,9 @@ volatile BYTE our_frame = 0;
     // 0 = we cannot send messages
     // 1..80 = we can send messages
 volatile WORD usb_timeout = 0;
-    // increment every 5 us -> 100 ms timeout = 20 000
+    // increment every 100 us -> 100 ms timeout = 1 000
 volatile WORD usart_timeout = 0;
-    // increment every 5 us -> 100 ms timeout = 20 000
+    // increment every 100 us -> 100 ms timeout = 1 000
 //volatile BOOL mTXIE = 0;
 volatile BYTE usart_to_send = 0;
 
@@ -86,8 +86,9 @@ volatile BYTE usart_to_send = 0;
 volatile BYTE usart_last_byte_sent = 0;
 
 // timeslot errors
-volatile UINT32 timeslot_timeout = 0;     // timeslot timeout is 1s -> 100 000
+volatile WORD timeslot_timeout = 0;     // timeslot timeout is 1s -> 100 000
 volatile BOOL timeslot_err = FALSE;       // TRUE if timeslot error
+
 
 /** P R I V A T E  P R O T O T Y P E S ***************************************/
 static void InitializeSystem(void);
@@ -105,9 +106,11 @@ BYTE calc_xor(BYTE* data, BYTE len);
 void Timer2(void);
 void ProcessIO(void);
 void dumpBufToUSB(ring_generic* buf);
+void checkResponseToPC(BYTE header, BYTE id);
 
 void respondOK(void);
 void respondXORerror(void);
+
 
 /** DEFINES *******************************************************/
 #define USB_msg_len(start)      ((ring_USB_datain.data[start] & 0x0F)+2)      // len WITH header byte and WITH xor byte
@@ -117,6 +120,10 @@ void respondXORerror(void);
     // length of xpressnet message is 4-lower bits in second byte
 #define USART_last_message_len  ringDistance(&ring_USART_datain, last_start, ring_USART_datain.ptr_e)
 #define USART_msg_to_send       ((ringLength(&ring_USB_datain) >= 2) && (ringLength(&ring_USB_datain) >= USB_msg_len(ring_USB_datain.ptr_b)))
+
+#define USB_MAX_TIMEOUT         1000        // 100 ms
+#define USART_MAX_TIMEOUT       1000        // 100 ms
+#define TIMESLOT_MAX_TIMEOUT    10000       // 1 s
 
 
 /** VECTOR REMAPPING ***********************************************/
@@ -164,17 +171,29 @@ void respondXORerror(void);
 		//Clear the interrupt flag
 		//Etc.
         
-        // Timer2 on 5 us
+        // Timer2 on 100 us
         if ((PIE1bits.TMR2IE) && (PIR1bits.TMR2IF)) {
             
             // usb receive timeout
-            usb_timeout++;
+            if (usb_timeout < USB_MAX_TIMEOUT) usb_timeout++;
     
             // usart receive timeout
-            usart_timeout++;
+            if (usart_timeout < USART_MAX_TIMEOUT) usart_timeout++;
             
             // timeslot timeout
             if (!timeslot_err) timeslot_timeout++;
+            
+            // XPRESSNET_DIR is set to XPRESSNET_IN after some time of
+            // successful tranfer of last byte (to be sure)
+            if ((usart_last_byte_sent) && (PIR1bits.TXIF)) {
+                usart_last_byte_sent++;
+            
+                // wait 600 us after last byte has been transmitted
+                if (usart_last_byte_sent > 3) {
+                    XPRESSNET_DIR = XPRESSNET_IN;
+                    usart_last_byte_sent = 0;
+                }
+            }
             
             PIR1bits.TMR2IF = 0;        // reset overflow flag
         }
@@ -224,17 +243,6 @@ void main(void)
         USB_receive();
         USB_send();
                        
-        // XPRESSNET_DIR is set to XPRESSNET_IN after some time of
-        // successful tranfer of last byte (to be sure)
-        if ((usart_last_byte_sent) && (PIR1bits.TXIF)) {
-            usart_last_byte_sent++;
-            if (usart_last_byte_sent > 3) {
-                XPRESSNET_DIR = XPRESSNET_IN;
-                usart_last_byte_sent = 0;
-            }
-        }
-            
-        
         CDCTxService();        
     }//end while
 }//end main
@@ -284,8 +292,9 @@ void UserInit(void)
 	LATCbits.LATC0 = 0;
     LATBbits.LATB6 = 0;         // receive on RS485
 
-    // setup timer2 on 5 us
-	PR2 = 60;                   // setup timer period register to interrupt every 5 us
+    // setup timer2 on 100 us
+    T2CONbits.T2CKPS = 0b11;    // prescaler 16x
+	PR2 = 75;                   // setup timer period register to interrupt every 100 us
     TMR2 = 0x00;                // reset timer counter
     PIR1bits.TMR2IF = 0;        // reset overflow flag
     PIE1bits.TMR2IE = 1;        // enable timer2 interrupts
@@ -297,7 +306,7 @@ void UserInit(void)
     INTCONbits.GIEH = 1;
     INTCONbits.GIEL = 1;
     
-    T2CONbits.TMR2ON = 1;       // enable timer2*/
+    T2CONbits.TMR2ON = 1;       // enable timer2
 }//end UserInit
 
 // ******************************************************************************************************
@@ -437,9 +446,10 @@ void USART_receive(void)
     BYTE i, parity;
     
     // check for timeout
-    if ((usart_timeout > 20000) && (last_start != ring_USART_datain.ptr_e)) {
+    if ((usart_timeout >= USART_MAX_TIMEOUT) && (last_start != ring_USART_datain.ptr_e)) {
         // delete last incoming message and wait for next message
         ring_USART_datain.ptr_e = last_start;
+        if (ring_USART_datain.ptr_e == ring_USART_datain.ptr_b) ring_USART_datain.empty = TRUE;
         usart_timeout = 0;
         RCSTAbits.ADDEN = 1;    // receive just first message
         
@@ -453,17 +463,15 @@ void USART_receive(void)
     }
     
     // check timeslot_timeout
-    if ((timeslot_timeout > 100000) && (!timeslot_err)) {
+    if ((timeslot_timeout >= TIMESLOT_MAX_TIMEOUT) && (!timeslot_err)) {
         timeslot_err = TRUE;
         // Command station is no loger providing timeslot for communication.
         USB_Out_Buffer[0] = 0x01;
         USB_Out_Buffer[1] = 0x05;
         USB_Out_Buffer[2] = 0x04;
         if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 3);
-        
     }
     
-    // TODO: timeout when dir OUT
     if ((XPRESSNET_DIR == XPRESSNET_OUT) || (!USARTInputData())) return;
     usart_timeout = 0;
         
@@ -498,6 +506,14 @@ void USART_receive(void)
                 }
             } else if ((((received.data >> 5) & 0b11) == 0b00) && ((received.data & 0x1F) == XPRESSNET_ADDR)) {
                 // request acknowledgement
+                // send Acknowledgement Response to command station (this should be done by LI)
+                // TODO: is this really working ??
+                USB_Out_Buffer[0] = 0x20;
+                USB_Out_Buffer[1] = 0x20;
+                ringAddToStart(&ring_USB_datain, USB_Out_Buffer, 2);                
+                mLED_2_On();    
+                        
+                // send message to PC
                 USB_Out_Buffer[0] = 0x01;
                 USB_Out_Buffer[1] = 0x03;
                 USB_Out_Buffer[2] = 0x02;
@@ -532,13 +548,15 @@ void USART_receive(void)
         
         if (USART_last_message_len >= USART_msg_len(last_start)) {
             // whole message received
-            //if(mUSBUSARTIsTxTrfReady()) dumpBufToUSB(&ring_USART_datain);
             
             if (xor != 0) {
                 // xor error
                 ring_USART_datain.ptr_e = last_start;
                 if (ring_USART_datain.ptr_e == ring_USART_datain.ptr_b) ring_USART_datain.empty = TRUE;
-                respondXORerror();
+                respondXORerror();                
+            } else {
+                // xor ok
+                last_start = ring_USART_datain.ptr_e;   // whole message succesfully received
             }
 
             // listen for beginning of message (9. bit == 1)
@@ -579,12 +597,11 @@ void USB_receive(void)
     if(mUSBUSARTIsTxTrfReady())
     {
         // ring_USB_datain overflow check
-        // TODO: check if this overflow check works
-        if (ringFreeSpace(&ring_USB_datain) == 0) {
+        if (ringFull(&ring_USB_datain)) {
             // inform PC about full buffer
             USB_Out_Buffer[0] = 0x01;
             USB_Out_Buffer[1] = 0x06;
-            USB_Out_Buffer[2] = 0x07;
+            USB_Out_Buffer[2] = 0x08; // TODO: 0x07 should be here
             if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 3);
             
             // TODO: what to do here? remove whole buffer? or delete only last message ??? 
@@ -595,7 +612,7 @@ void USB_receive(void)
         received_len = getsUSBUSART(&ring_USB_datain, ringFreeSpace(&ring_USB_datain));
         if (received_len == 0) {
             // check for timeout
-            if ((usb_timeout > 20000) && (last_start != ring_USB_datain.ptr_e)) {
+            if ((usb_timeout >= USB_MAX_TIMEOUT) && (last_start != ring_USB_datain.ptr_e)) {
                 ring_USB_datain.ptr_e = last_start;
                 usb_timeout = 0;
                 if (ring_USB_datain.ptr_e == ring_USB_datain.ptr_b) ring_USB_datain.empty = TRUE;
@@ -648,7 +665,6 @@ void USB_receive(void)
 
 BOOL USB_parse_data(BYTE start, BYTE len)
 {
-    int i; // DEBUG
     if (ring_USB_datain.data[start] == 0xF0) {
         // Instruction for the determination of the version and code number of LI
         ringRemoveFromMiddle(&ring_USB_datain, start, 2);
@@ -696,6 +712,8 @@ BOOL USB_parse_data(BYTE start, BYTE len)
  */ 
 void USART_send(void)
 {
+    static BYTE head = 0, id = 0;
+    
     // DEBUG
     mLED_1_Toggle();
      
@@ -704,12 +722,19 @@ void USART_send(void)
     usart_to_send = (usart_to_send+1)&ring_USB_datain.max;
     
     if (usart_to_send == ((ring_USB_datain.ptr_b + USB_msg_len(ring_USB_datain.ptr_b))&ring_USB_datain.max)) {
+        // last byte sending 
+        head = ring_USB_datain.data[ring_USB_datain.ptr_b];
+        id = ring_USB_datain.data[(ring_USB_datain.ptr_b+1)&ring_USB_datain.max];
+        
         ring_USB_datain.ptr_b = usart_to_send;    // whole message sent
         if (ring_USB_datain.ptr_b == ring_USB_datain.ptr_e) ring_USB_datain.empty = TRUE;
         
+        checkResponseToPC(head, id); // send OK response to PC
+                
         PIE1bits.TXIE = 0;
-        usart_last_byte_sent = 1;
+        usart_last_byte_sent = 1;        
     } else {
+        // other-than-last byte sending
         PIE1bits.TXIE = 1;
     }
 }
@@ -740,6 +765,29 @@ void respondXORerror(void)
     USB_Out_Buffer[1] = 0x03;
     USB_Out_Buffer[2] = 0x02;
     if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 3);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/* LI is supposed to answer 01/04/05 when some commands were succesfully
+ * transmitted from LI to command station. This function takes care about it
+ */
+void checkResponseToPC(BYTE header, BYTE id)
+{
+    static BYTE respond_ok[] = {0x22, 0x52, 0x83, 0x84, 0xE4, 0xE6, 0xE3};
+    int i;
+    
+    // DO send OK in this cases HEADER: 0x91, 0x92, 0x9N, 0x22, 0x52, 0x83, 0x84, 0xE4, 0xE6, 0xE3
+    
+    if ((header >= 0x90) && (header <= 0x9F)) {
+        respondOK();
+        return;
+    }
+    
+    for (i = 0; i < sizeof(respond_ok); i++)
+        if ((header == respond_ok[i]) && ((header != 0xE3) || (id == 0x44))) {
+            respondOK();
+            return;            
+        }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

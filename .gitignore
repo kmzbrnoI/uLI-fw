@@ -31,3 +31,5 @@
 *.dSYM/
 
 *.err
+*.d
+private.xml

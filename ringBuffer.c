@@ -80,6 +80,19 @@ void ringRemoveFromMiddle(ring_generic* buf, BYTE start, BYTE length)
     if (buf->ptr_b == buf->ptr_e) buf->empty = TRUE;
 }
 
+void ringAddToStart(ring_generic* buf, BYTE* data, BYTE len)
+{
+    int i;
+    buf->ptr_b = (buf->ptr_b-len)&buf->max;
+    for (i = 0; i < len; i++) {
+        buf->data[(buf->ptr_b+i)&buf->max] = data[i];
+        
+        // check full buffer
+        if (((buf->ptr_b+i)&buf->max) == buf->ptr_e) buf->ptr_e = buf->ptr_b;
+    }
+    if (len > 0) buf->empty = FALSE;
+}
+
 void ringClear(ring_generic* buf)
 {
     buf->ptr_b = buf->ptr_e;
