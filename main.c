@@ -68,6 +68,11 @@
 rom unsigned char MISVALORES[3]= {0x11,0x22,0x33};
 #pragma romdata*/
 
+/* TODO:
+ * Beter computation of time after which the bus dir can be changen back to RECEIVE.
+ * Timeout: are really sufficient?
+ */ 
+
 /** DEFINES *******************************************************/
 #define USB_msg_len(start)      ((ring_USB_datain.data[start] & 0x0F)+2)      // len WITH header byte and WITH xor byte
 #define USB_last_message_len    ringDistance(&ring_USB_datain, last_start, ring_USB_datain.ptr_e)
@@ -78,7 +83,7 @@ rom unsigned char MISVALORES[3]= {0x11,0x22,0x33};
 
 #define USB_MAX_TIMEOUT         1000        // 100 ms
 #define USART_MAX_TIMEOUT       1000        // 100 ms
-#define TIMESLOT_MAX_TIMEOUT    10000       // 1 s
+#define TIMESLOT_MAX_TIMEOUT    30000       // 3 s
 #define FERR_TIMEOUT            100000      // 10 s
 
 #define MLED_IN_MAX_TIMEOUT     500         // 50 ms
@@ -210,8 +215,8 @@ void respondXORerror(void);
             if ((usart_last_byte_sent) && (PIR1bits.TXIF)) {
                 usart_last_byte_sent++;
             
-                // wait 600 us after last byte has been transmitted
-                if (usart_last_byte_sent == 3) {
+                // wait 1 ms after last byte has been transmitted
+                if (usart_last_byte_sent == 5) {
                     XPRESSNET_DIR = XPRESSNET_IN;
                     usart_last_byte_sent = 0;
                     mLED_Out_Off();
@@ -840,7 +845,11 @@ void checkResponseToPC(BYTE header, BYTE id)
     }
     
     for (i = 0; i < sizeof(respond_ok); i++)
-        if ((header == respond_ok[i]) && ((header != 0xE3) || (id == 0x44))) {
+        if ((header == respond_ok[i]) && ((header != 0xE3) || (id == 0x44)) && ((header != 0x22) || (id == 0x22))) {
+            /* response is sent only if
+             *  0x44 follows 0xE3
+             *  0x22 follows 0x22
+             */ 
             respondOK();
             return;            
         }
