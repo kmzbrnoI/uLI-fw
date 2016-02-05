@@ -1,7 +1,7 @@
-/*****************************************************************
-
-
-*****************************************************************/
+/*
+ * Usart communication library implementation
+ * (c) Jan Horacek 2016
+ */
 
 #include <p18f14k50.h>
 #include "usart.h"
@@ -57,7 +57,10 @@ BOOL USARTInputData(void)
 nine_data USARTReadByte(void)
 {
     nine_data received;
-    
+
+    // Framing error bit must be read before RCREG
+    received.FERR = RCSTAbits.FERR;
+
     // error in RCSTA
     received.ninth = RCSTAbits.RX9D;    // ninth bit (most significant) must be read before reading RCREG
     received.data  = RCREG;

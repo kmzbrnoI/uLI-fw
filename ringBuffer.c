@@ -1,7 +1,6 @@
 /*
  * Ring buffer implementation
  * (c) Michal Petrilak, Jan Horacek 2015
- * Version: 1.0.1
  */
 
 #include "ringBuffer.h"
