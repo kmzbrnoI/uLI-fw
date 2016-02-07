@@ -18,8 +18,8 @@ extern "C" {
 #define VERSION_HW      0x20        // hardware version 2.0
 
 #define FERR_FEATURE                // undef to disable FERR feature
-   
-    
+
+
 #ifdef	__cplusplus
 }
 #endif

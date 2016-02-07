@@ -81,12 +81,13 @@ rom unsigned char MISVALORES[3]= {0x11,0x22,0x33};
 #define USART_last_message_len  ringDistance(&ring_USART_datain, last_start, ring_USART_datain.ptr_e)
 #define USART_msg_to_send       ((ringLength(&ring_USB_datain) >= 2) && (ringLength(&ring_USB_datain) >= USB_msg_len(ring_USB_datain.ptr_b)))
 
-#define USB_MAX_TIMEOUT         1000        // 100 ms
-#define USART_MAX_TIMEOUT       1000        // 100 ms
-#define TIMESLOT_MAX_TIMEOUT    30000       // 3 s
-#define FERR_TIMEOUT            100000      // 10 s
+#define USB_MAX_TIMEOUT                 1000        // 100 ms
+#define USART_MAX_TIMEOUT               1000        // 100 ms
+#define TIMESLOT_MAX_TIMEOUT            5000        // 500 ms
+#define TIMESLOT_LONG_MAX_TIMEOUT      30000        // 3 s
+#define FERR_TIMEOUT                  100000        // 10 s
 
-#define MLED_IN_MAX_TIMEOUT     500         // 50 ms
+#define MLED_IN_MAX_TIMEOUT              500        // 50 ms
 
 /** V A R I A B L E S ********************************************************/
 #pragma udata
@@ -94,6 +95,8 @@ char USB_Out_Buffer[32];
 
 ring_generic ring_USB_datain;
 ring_generic ring_USART_datain;
+
+#pragma idata
 
 volatile BYTE our_frame = 0;
     // 0 = we cannot send messages
@@ -120,6 +123,7 @@ volatile BOOL timeslot_err = FALSE;       // TRUE if timeslot error
     
 volatile WORD mLED_In_Timeout = 2*MLED_IN_MAX_TIMEOUT;
 BYTE xpressnet_addr = DEFAULT_XPRESSNET_ADDR;
+volatile BOOL usart_longer_timeout = FALSE;
 
 
 /** P R I V A T E  P R O T O T Y P E S ***************************************/
@@ -140,6 +144,7 @@ void ProcessIO(void);
 void dumpBufToUSB(ring_generic* buf);
 void checkResponseToPC(BYTE header, BYTE id);
 void InitEEPROM(void);
+void Check_XN_timeout_supress(BYTE ring_USB_msg_start);
 
 void respondOK(void);
 void respondXORerror(void);
@@ -199,7 +204,7 @@ void respondXORerror(void);
             if (usart_timeout < USART_MAX_TIMEOUT) usart_timeout++;
             
             // timeslot timeout
-            if (!timeslot_err) timeslot_timeout++;
+            if (timeslot_timeout < TIMESLOT_LONG_MAX_TIMEOUT) timeslot_timeout++;
             
             #ifdef FERR_FEATURE
                 // framing error counting
@@ -396,16 +401,7 @@ void USBCBInitEP(void)
 
 void USBCBSendResume(void)
 {
-    static WORD delay_count;
     
-    USBResumeControl = 1;                // Start RESUME signaling
-    
-    delay_count = 1800U;                // Set RESUME line for 1-13 ms
-    do
-    {
-        delay_count--;
-    }while(delay_count);
-    USBResumeControl = 0;
 }
 
 #if defined(ENABLE_EP0_DATA_RECEIVED_CALLBACK)
@@ -475,8 +471,8 @@ void USART_receive(void)
     static BYTE xor = 0;            // we calculate xor dynamically    
     BYTE i, parity;
     
-    // check for timeout
-    if ((usart_timeout >= USART_MAX_TIMEOUT) && (last_start != ring_USART_datain.ptr_e)) {
+    // check for (short) timeout
+    if ((last_start != ring_USART_datain.ptr_e) && (usart_timeout >= USART_MAX_TIMEOUT)) {
         // delete last incoming message and wait for next message
         ring_USART_datain.ptr_e = last_start;
         if (ring_USART_datain.ptr_e == ring_USART_datain.ptr_b) ring_USART_datain.empty = TRUE;
@@ -487,15 +483,17 @@ void USART_receive(void)
         USB_Out_Buffer[0] = 0x01;
         USB_Out_Buffer[1] = 0x02;
         USB_Out_Buffer[2] = 0x03;
-        if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 3);                
+        if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 3);
         
         return;
     }
     
     // check timeslot_timeout
-    if ((timeslot_timeout >= TIMESLOT_MAX_TIMEOUT) && (!timeslot_err)) {
+    // shorter timeout is default, longer timeout is for programming commands
+    if ((((timeslot_timeout >= TIMESLOT_MAX_TIMEOUT) && (!usart_longer_timeout)) || (timeslot_timeout >= TIMESLOT_LONG_MAX_TIMEOUT))
+            && (!timeslot_err)) {
         timeslot_err = TRUE;
-        // Command station is no loger providing timeslot for communication.
+        // Command station is no longer providing timeslot for communication.
         USB_Out_Buffer[0] = 0x01;
         USB_Out_Buffer[1] = 0x05;
         USB_Out_Buffer[2] = 0x04;
@@ -513,7 +511,7 @@ void USART_receive(void)
     #endif
         
     if ((!received.ninth) && (RCSTAbits.ADDEN)) return; // is this necessary?
-    
+        
     if (received.ninth) {        
         // 9 bit is 1 -> header byte
         // we are waiting for call byte with our address
@@ -534,16 +532,28 @@ void USART_receive(void)
             }
             mLED_Out_Off();
             
+            if (ring_USART_datain.ptr_e != last_start) {
+                // beginning of new message received before previous mesage was completely received -> delete previous message
+                // TODO: send any info to PC ?
+                ring_USART_datain.ptr_e = last_start;
+                if (ring_USART_datain.ptr_e == ring_USART_datain.ptr_b) ring_USART_datain.empty = TRUE;
+            }
+            
             if ((((received.data >> 5) & 0b11) == 0b10) && ((received.data & 0x1F) == xpressnet_addr)) {
-                // normal inquiry
-                timeslot_timeout = 0;
-                if (timeslot_err) {
+                // normal inquiry                
+                if (timeslot_timeout >= TIMESLOT_MAX_TIMEOUT) {
+                    // ok response must be sent always after short timeout
                     timeslot_err = FALSE;
-                    respondOK();                    
+                    usart_longer_timeout = FALSE;
+                    respondOK();
                 }
+                timeslot_timeout = 0;
                 
-                if (USART_msg_to_send) {
+                // any dara to send?
+                if (USART_msg_to_send) {                    
+                    // change direction and send data
                     XPRESSNET_DIR = XPRESSNET_OUT;
+                    Check_XN_timeout_supress(ring_USB_datain.ptr_b);
                     USART_send();                    
                 }
             } else if ((((received.data >> 5) & 0b11) == 0b00) && ((received.data & 0x1F) == xpressnet_addr)) {
@@ -555,10 +565,7 @@ void USART_receive(void)
                 ringAddToStart(&ring_USB_datain, USB_Out_Buffer, 2);                
                         
                 // send message to PC
-                USB_Out_Buffer[0] = 0x01;
-                USB_Out_Buffer[1] = 0x03;
-                USB_Out_Buffer[2] = 0x02;
-                if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 3);
+                respondXORerror();
             } else {
                 // start of message for us (or broadcast)
                 RCSTAbits.ADDEN = 0;    // receive all messages
@@ -834,16 +841,14 @@ void respondXORerror(void)
  */
 void checkResponseToPC(BYTE header, BYTE id)
 {
-    static BYTE respond_ok[] = {0x22, 0x52, 0x83, 0x84, 0xE4, 0xE6, 0xE3};
+    static BYTE respond_ok[] = {0x22, /*0x23,*/ 0x52, 0x83, 0x84, 0xE4, 0xE6, 0xE3};        
     int i;
-    
-    // DO send OK in this cases HEADER: 0x91, 0x92, 0x9N, 0x22, 0x52, 0x83, 0x84, 0xE4, 0xE6, 0xE3
     
     if ((header >= 0x90) && (header <= 0x9F)) {
         respondOK();
         return;
     }
-    
+
     for (i = 0; i < sizeof(respond_ok); i++)
         if ((header == respond_ok[i]) && ((header != 0xE3) || (id == 0x44)) && ((header != 0x22) || (id == 0x22))) {
             /* response is sent only if
@@ -864,6 +869,17 @@ void InitEEPROM(void)
         xpressnet_addr = DEFAULT_XPRESSNET_ADDR;
         WriteEEPROM(XN_EEPROM_ADDR, xpressnet_addr);
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Check_XN_timeout_supress(BYTE ring_USB_msg_start)
+{
+    // 0x22 and 0x23 should move supress sending of "no longer providing timeslot" message
+    // however, "normal operations resumed" should be sent after normal operations resumed
+    // DO send OK in this cases HEADER: 0x91, 0x92, 0x9N, 0x22, 0x52, 0x83, 0x84, 0xE4, 0xE6, 0xE3
+    
+    if ((ring_USB_datain.data[ring_USB_msg_start] == 0x22) || (ring_USB_datain.data[ring_USB_msg_start] == 0x23)) usart_longer_timeout = TRUE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
