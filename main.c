@@ -215,16 +215,10 @@ void respondXORerror(void);
                 }
             #endif
             
-            // XPRESSNET_DIR is set to XPRESSNET_IN after some time of
-            // successful tranfer of last byte (to be sure)
-            if ((usart_last_byte_sent) && (PIR1bits.TXIF)) {
-                usart_last_byte_sent++;
-            
-                // wait 1 ms after last byte has been transmitted
-                if (usart_last_byte_sent == 5) {
-                    XPRESSNET_DIR = XPRESSNET_IN;
-                    usart_last_byte_sent = 0;
-                }
+            // XPRESSNET_DIR is set to XPRESSNET_IN after successful tranfer of last byte
+            if ((usart_last_byte_sent) && (TXSTAbits.TRMT)) {
+                XPRESSNET_DIR = XPRESSNET_IN;
+                usart_last_byte_sent = 0;
             }
             
             // mLEDIn timeout
@@ -554,7 +548,7 @@ void USART_receive(void)
                     // change direction and send data
                     XPRESSNET_DIR = XPRESSNET_OUT;
                     Check_XN_timeout_supress(ring_USB_datain.ptr_b);
-                    USART_send();                    
+                    USART_send();
                 }
             } else if ((((received.data >> 5) & 0b11) == 0b00) && ((received.data & 0x1F) == xpressnet_addr)) {
                 // request acknowledgement
