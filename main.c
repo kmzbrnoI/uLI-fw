@@ -139,6 +139,7 @@ void Check_XN_timeout_supress(BYTE ring_USB_msg_start);
 
 void respondOK(void);
 void respondXORerror(void);
+void respondBufferFull(void);
 
 /** VECTOR REMAPPING ***********************************************/
 #if defined(__18CXX)
@@ -627,15 +628,13 @@ void USB_receive(void)
     if(mUSBUSARTIsTxTrfReady())
     {
         // ring_USB_datain overflow check
-        if (ringFull(&ring_USB_datain)) {
-            // inform PC about full buffer
-            USB_Out_Buffer[0] = 0x01;
-            USB_Out_Buffer[1] = 0x06;
-            USB_Out_Buffer[2] = 0x07;
-            if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 3);
-            
+        if (ringFull(&ring_USB_datain)) {            
             // TODO: what to do here? remove whole buffer? or delete only last message ??? 
             ringClear(&ring_USB_datain);
+            
+            // inform PC about full buffer
+            respondBufferFull();
+            
             return;
         }
         
@@ -670,6 +669,13 @@ void USB_receive(void)
                 // here, we need to delete content in the middle of ring buffer
                 ringRemoveFromMiddle(&ring_USB_datain, last_start, USB_msg_len(last_start));
                 respondXORerror();
+                return;
+            }
+            
+            // timeslot not available -> respond "Buffer full"
+            if (timeslot_err) {
+                ringRemoveFromMiddle(&ring_USB_datain, last_start, USB_msg_len(last_start));
+                respondBufferFull();
                 return;
             }
             
@@ -815,6 +821,14 @@ void respondXORerror(void)
     USB_Out_Buffer[1] = 0x03;
     USB_Out_Buffer[2] = 0x02;
     if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 3);
+}
+
+void respondBufferFull(void)
+{
+    USB_Out_Buffer[0] = 0x01;
+    USB_Out_Buffer[1] = 0x06;
+    USB_Out_Buffer[2] = 0x07;
+    if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 3);    
 }
 
 ////////////////////////////////////////////////////////////////////////////////
