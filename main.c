@@ -64,16 +64,7 @@
 #pragma config EBTR1 = OFF      // Table Read Protection bit (Block 1 not protected from table reads executed in other blocks)
 #pragma config EBTRB = OFF      // Boot Block Table Read Protection bit (Boot block not protected from table reads executed in other blocks)
 
-/*#pragma romdata rom_variables=0xF00000
-rom unsigned char MISVALORES[3]= {0x11,0x22,0x33};
-#pragma romdata*/
-
-/* TODO:
- * Beter computation of time after which the bus dir can be changen back to RECEIVE.
- * Timeout: are really sufficient?
- */ 
-
-/** DEFINES *******************************************************/
+/** D E F I N E S ************************************************************/
 #define USB_msg_len(start)      ((ring_USB_datain.data[start] & 0x0F)+2)      // len WITH header byte and WITH xor byte
 #define USB_last_message_len    ringDistance(&ring_USB_datain, last_start, ring_USB_datain.ptr_e)
 
@@ -82,7 +73,7 @@ rom unsigned char MISVALORES[3]= {0x11,0x22,0x33};
 #define USART_msg_to_send       ((ringLength(&ring_USB_datain) >= 2) && (ringLength(&ring_USB_datain) >= USB_msg_len(ring_USB_datain.ptr_b)))
 
 #define USB_MAX_TIMEOUT                 1000        // 100 ms
-#define USART_MAX_TIMEOUT               1000        // 100 ms
+#define USART_MAX_TIMEOUT                200        // 20 ms
 #define TIMESLOT_MAX_TIMEOUT            5000        // 500 ms
 #define TIMESLOT_LONG_MAX_TIMEOUT      30000        // 3 s
 #define FERR_TIMEOUT                  100000        // 10 s
@@ -318,9 +309,6 @@ void UserInit(void)
     mLED_Out_On();
     mLED_Pwr_On();
 	     
-    // init IO
-    // TODO: init power sense
-
     // setup timer2 on 100 us
     T2CONbits.T2CKPS = 0b11;    // prescaler 16x
 	PR2 = 75;                   // setup timer period register to interrupt every 100 us
