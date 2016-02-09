@@ -579,6 +579,9 @@ void USART_receive(void)
                 USB_Out_Buffer[1] = 0x20;
                 ringAddToStart(&ring_USB_datain, USB_Out_Buffer, 2);                
                         
+                XPRESSNET_DIR = XPRESSNET_OUT;
+                USART_send();
+                
                 // send message to PC
                 respondXORerror();
             } else {
