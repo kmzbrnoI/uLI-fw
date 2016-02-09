@@ -340,8 +340,8 @@ void UserInit(void)
     // Initialize all of the LED pins
     mInitAllLEDs();
 	mLED_In_On();
-    mLED_Out_On();
-    mLED_Pwr_On();
+    mLED_Out_Off();
+    mLED_Pwr_Off();
 	     
     // setup timer2 on 100 us
     T2CONbits.T2CKPS = 0b11;    // prescaler 16x
@@ -599,10 +599,7 @@ void USART_receive(void)
             if (ring_USART_datain.ptr_e == ring_USART_datain.ptr_b) ring_USART_datain.empty = TRUE;
             
             // inform PC about buffer overflow
-            USB_Out_Buffer[0] = 0x01;
-            USB_Out_Buffer[1] = 0x06;
-            USB_Out_Buffer[2] = 0x07;
-            if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 3);
+            respondBufferFull();
             
             return;
         }
@@ -704,15 +701,15 @@ void USB_receive(void)
                 return;
             }
             
-            // timeslot not available -> respond "Buffer full"
-            if (timeslot_err) {
-                ringRemoveFromMiddle(&ring_USB_datain, last_start, USB_msg_len(last_start));
-                respondBufferFull();
-                return;
-            }
-            
             // xor ok -> parse data
             if (USB_parse_data(last_start, USB_msg_len(last_start))) {
+                // timeslot not available -> respond "Buffer full"
+                if (timeslot_err) {
+                    ringRemoveFromMiddle(&ring_USB_datain, last_start, USB_msg_len(last_start));
+                    respondBufferFull();
+                    return;
+                }
+                
                 // data waiting for sending to xpressnet -> move last_start
                 last_start = (last_start+USB_msg_len(last_start))&ring_USB_datain.max;
             }
@@ -747,8 +744,14 @@ BOOL USB_parse_data(BYTE start, BYTE len)
         ringRemoveFromMiddle(&ring_USB_datain, start, 4);
 
         // set xpressnet addr
-        xpressnet_addr = ring_USB_datain.data[(start+2)&ring_USB_datain.max] & 0x1F;
-        WriteEEPROM(XN_EEPROM_ADDR, xpressnet_addr);
+        if ((ring_USB_datain.data[(start+2)&ring_USB_datain.max] > 0) && (ring_USB_datain.data[(start+2)&ring_USB_datain.max] < 32)) {
+            xpressnet_addr = ring_USB_datain.data[(start+2)&ring_USB_datain.max] & 0x1F;
+            WriteEEPROM(XN_EEPROM_ADDR, xpressnet_addr);
+        }
+        
+        // according to specification, when invalid address is passed to LI
+        // LI should not change its address, but respond with current address
+        // This allows PC to determine LI`s address.
         
         USB_Out_Buffer[0] = 0xF2;
         USB_Out_Buffer[1] = 0x01;
