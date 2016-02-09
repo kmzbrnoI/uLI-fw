@@ -80,6 +80,10 @@
 
 #define MLED_IN_MAX_TIMEOUT              500        // 50 ms
 
+#define PWR_LED_SHORT_COUNT             1500        // 150 ms
+#define PWR_LED_LONG_COUNT              4000        // 400 ms
+#define PWR_LED_FERR_COUNT                10        // status led indicates >10 framing errors
+
 /** V A R I A B L E S ********************************************************/
 #pragma udata
 char USB_Out_Buffer[32];
@@ -116,6 +120,13 @@ volatile WORD mLED_In_Timeout = 2*MLED_IN_MAX_TIMEOUT;
 BYTE xpressnet_addr = DEFAULT_XPRESSNET_ADDR;
 volatile BOOL usart_longer_timeout = FALSE;
 
+// Power led blinks pwr_led_status times, then stays blank for some time
+//  and then repeats the whole cycle. This lets user to see software status.
+volatile WORD pwr_led_base_timeout = PWR_LED_SHORT_COUNT;
+volatile WORD pwr_led_base_counter = 0;
+volatile BYTE pwr_led_status_counter = 0;
+volatile BYTE pwr_led_status = 1;
+
 
 /** P R I V A T E  P R O T O T Y P E S ***************************************/
 static void InitializeSystem(void);
@@ -136,6 +147,7 @@ void dumpBufToUSB(ring_generic* buf);
 void checkResponseToPC(BYTE header, BYTE id);
 void InitEEPROM(void);
 void Check_XN_timeout_supress(BYTE ring_USB_msg_start);
+void CheckPwrLEDStatus(void);
 
 void respondOK(void);
 void respondXORerror(void);
@@ -221,6 +233,26 @@ void respondBufferFull(void);
                 }
             }
             
+            // pwrLED toggling
+            pwr_led_base_counter++;
+            if (pwr_led_base_counter >= pwr_led_base_timeout) {                
+                pwr_led_base_counter = 0;
+                pwr_led_status_counter++;
+                
+                if (pwr_led_status_counter == 2*pwr_led_status) {
+                    // wait between cycles
+                    pwr_led_base_timeout = PWR_LED_LONG_COUNT;
+                    mLED_Pwr_Off();
+                } else if (pwr_led_status_counter > 2*pwr_led_status) {
+                    // new base cycle
+                    pwr_led_base_timeout = PWR_LED_SHORT_COUNT;                    
+                    pwr_led_status_counter = 0;
+                    mLED_Pwr_On();
+                } else {
+                    mLED_Pwr_Toggle();
+                }
+            }
+                
             PIR1bits.TMR2IF = 0;        // reset overflow flag
         }
         
@@ -268,7 +300,8 @@ void main(void)
         USART_receive();
         USB_receive();
         USB_send();
-                       
+
+        CheckPwrLEDStatus();
         CDCTxService();        
     }//end while
 }//end main
@@ -523,10 +556,10 @@ void USART_receive(void)
             
             if ((((received.data >> 5) & 0b11) == 0b10) && ((received.data & 0x1F) == xpressnet_addr)) {
                 // normal inquiry                
+                timeslot_err = FALSE;
+                usart_longer_timeout = FALSE;                
                 if (timeslot_timeout >= TIMESLOT_MAX_TIMEOUT) {
                     // ok response must be sent always after short timeout
-                    timeslot_err = FALSE;
-                    usart_longer_timeout = FALSE;
                     respondOK();
                 }
                 timeslot_timeout = 0;
@@ -875,6 +908,17 @@ void Check_XN_timeout_supress(BYTE ring_USB_msg_start)
     // DO send OK in this cases HEADER: 0x91, 0x92, 0x9N, 0x22, 0x52, 0x83, 0x84, 0xE4, 0xE6, 0xE3
     
     if ((ring_USB_datain.data[ring_USB_msg_start] == 0x22) || (ring_USB_datain.data[ring_USB_msg_start] == 0x23)) usart_longer_timeout = TRUE;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CheckPwrLEDStatus(void)
+{
+    BYTE new;
+    new = (ferr_in_10_s > PWR_LED_FERR_COUNT) << 1;
+    new |= ((ringLength(&ring_USART_datain) >= (ring_USART_datain.max+1)/2) || (ringLength(&ring_USB_datain) >= (ring_USB_datain.max+1)/2)) << 2;
+    if (new == 0) new = 1;
+    pwr_led_status = new;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

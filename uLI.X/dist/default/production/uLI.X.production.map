@@ -1,5 +1,5 @@
 MPLINK 5.00, LINKER
-Linker Map File - Created Mon Feb 08 23:37:16 2016
+Linker Map File - Created Tue Feb 09 20:30:05 2016
 
                                  Section Info
                   Section       Type    Address   Location Size(Bytes)
@@ -9,40 +9,40 @@ REMAPPED_HIGH_INTERRUPT_VECTOR       code   0x000008    program   0x000006
 REMAPPED_LOW_INTERRUPT_VECTOR       code   0x000018    program   0x000006
                    .cinit    romdata   0x000020    program   0x00000e
        .code_usb_device.o       code   0x00002e    program   0x0010e6
-             .code_main.o       code   0x001114    program   0x000ea4
-       .code_ringBuffer.o       code   0x001fb8    program   0x00090a
- .code_usb_function_cdc.o       code   0x0028c2    program   0x000448
-            .code_usart.o       code   0x002d0a    program   0x0000ae
-               _cinit_scn       code   0x002db8    program   0x00009e
-.romdata_usb_descriptors.o    romdata   0x002e56    program   0x00009d
-.idata_usb_descriptors.o_i    romdata   0x002ef3    program   0x000000
-    .idata_ringBuffer.o_i    romdata   0x002ef3    program   0x000000
-    .romdata_ringBuffer.o    romdata   0x002ef3    program   0x000000
-        .romdata___init.o    romdata   0x002ef3    program   0x000000
-        .idata___init.o_i    romdata   0x002ef3    program   0x000000
-         .idata_usart.o_i    romdata   0x002ef3    program   0x000000
-         .romdata_usart.o    romdata   0x002ef3    program   0x000000
-      .romdata_fxd1616u.o    romdata   0x002ef3    program   0x000000
-        .idata_eeprom.o_i    romdata   0x002ef3    program   0x000000
-        .romdata_eeprom.o    romdata   0x002ef3    program   0x000000
-      .idata_fxd1616u.o_i    romdata   0x002ef3    program   0x000000
-         .idata_c018i.o_i    romdata   0x002ef3    program   0x000000
-         .romdata_c018i.o    romdata   0x002ef3    program   0x000000
-.idata_usb_function_cdc.o_i    romdata   0x002ef3    program   0x000000
-.romdata_usb_function_cdc.o    romdata   0x002ef3    program   0x000000
-          .romdata_main.o    romdata   0x002ef3    program   0x000000
-    .idata_usb_device.o_i    romdata   0x002ef3    program   0x000000
-    .romdata_usb_device.o    romdata   0x002ef3    program   0x000000
-            .code_c018i.o       code   0x002ef4    program   0x000000
-  .code_usb_descriptors.o       code   0x002ef4    program   0x000000
-           .code_eeprom.o       code   0x002ef4    program   0x00005a
-                     PROG       code   0x002f4e    program   0x00004c
-                   STRING       code   0x002f9a    program   0x000034
-         .code_fxd1616u.o       code   0x002fce    program   0x00002c
-                    .code       code   0x002ffa    program   0x000020
-             _startup_scn       code   0x00301a    program   0x00001c
-           .code___init.o       code   0x003036    program   0x000002
-          .idata_main.o_i    romdata   0x003038    program   0x000023
+             .code_main.o       code   0x001114    program   0x000f70
+       .code_ringBuffer.o       code   0x002084    program   0x00090a
+ .code_usb_function_cdc.o       code   0x00298e    program   0x000448
+            .code_usart.o       code   0x002dd6    program   0x0000ae
+               _cinit_scn       code   0x002e84    program   0x00009e
+.romdata_usb_descriptors.o    romdata   0x002f22    program   0x00009d
+.idata_usb_descriptors.o_i    romdata   0x002fbf    program   0x000000
+    .idata_ringBuffer.o_i    romdata   0x002fbf    program   0x000000
+    .romdata_ringBuffer.o    romdata   0x002fbf    program   0x000000
+        .romdata___init.o    romdata   0x002fbf    program   0x000000
+        .idata___init.o_i    romdata   0x002fbf    program   0x000000
+         .idata_usart.o_i    romdata   0x002fbf    program   0x000000
+         .romdata_usart.o    romdata   0x002fbf    program   0x000000
+      .romdata_fxd1616u.o    romdata   0x002fbf    program   0x000000
+        .idata_eeprom.o_i    romdata   0x002fbf    program   0x000000
+        .romdata_eeprom.o    romdata   0x002fbf    program   0x000000
+      .idata_fxd1616u.o_i    romdata   0x002fbf    program   0x000000
+         .idata_c018i.o_i    romdata   0x002fbf    program   0x000000
+         .romdata_c018i.o    romdata   0x002fbf    program   0x000000
+.idata_usb_function_cdc.o_i    romdata   0x002fbf    program   0x000000
+.romdata_usb_function_cdc.o    romdata   0x002fbf    program   0x000000
+          .romdata_main.o    romdata   0x002fbf    program   0x000000
+    .idata_usb_device.o_i    romdata   0x002fbf    program   0x000000
+    .romdata_usb_device.o    romdata   0x002fbf    program   0x000000
+            .code_c018i.o       code   0x002fc0    program   0x000000
+  .code_usb_descriptors.o       code   0x002fc0    program   0x000000
+           .code_eeprom.o       code   0x002fc0    program   0x00005a
+                     PROG       code   0x00301a    program   0x00004c
+                   STRING       code   0x003066    program   0x000034
+         .code_fxd1616u.o       code   0x00309a    program   0x00002c
+                    .code       code   0x0030c6    program   0x000020
+             _startup_scn       code   0x0030e6    program   0x00001c
+           .code___init.o       code   0x003102    program   0x000002
+          .idata_main.o_i    romdata   0x003104    program   0x000029
     .config_300000_main.o    romdata   0x300000    program   0x000001
     .config_300001_main.o    romdata   0x300001    program   0x000001
     .config_300002_main.o    romdata   0x300002    program   0x000001
@@ -75,9 +75,9 @@ REMAPPED_LOW_INTERRUPT_VECTOR       code   0x000018    program   0x000006
 .idata_usb_function_cdc.o      idata   0x0000fe       data   0x000000
            .idata_c018i.o      idata   0x0000fe       data   0x000000
                    .stack      udata   0x000100       data   0x000040
-            .idata_main.o      idata   0x000140       data   0x000023
-.udata_usb_function_cdc.o      udata   0x000163       data   0x000019
-           .udata_c018i.o      udata   0x00017c       data   0x00000a
+            .idata_main.o      idata   0x000140       data   0x000029
+.udata_usb_function_cdc.o      udata   0x000169       data   0x000019
+           .udata_c018i.o      udata   0x000182       data   0x00000a
                   USB_BDT      udata   0x000200       data   0x000050
                   usbram2      udata   0x000250       data   0x00008f
               SFR_BANKED0      udata   0x000f53       data   0x00000d
@@ -91,49 +91,50 @@ REMAPPED_LOW_INTERRUPT_VECTOR       code   0x000018    program   0x000006
                             0x000000    0x000005      
                             0x000008    0x00000d      
                             0x000018    0x00001d      
-                            0x000020    0x002ef2      
-                            0x002ef4    0x00305a      
+                            0x000020    0x002fbe      
+                            0x002fc0    0x00312c      
                             0x300000    0x300003      
                             0x300005    0x300006      
                             0x300008    0x30000d      
-            12376 out of 16408 program addresses used, program memory utilization is 75%
+            12586 out of 16408 program addresses used, program memory utilization is 76%
 
 
 
                               Symbols - Sorted by Name
                      Name    Address   Location    Storage File                     
                 ---------  ---------  ---------  --------- ---------                
-                CDCInitEP   0x00295e    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-             CDCTxService   0x002bbc    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
- Check_XN_timeout_supress   0x001f7a    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                   D1616S   0x002f70    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
-                D1616SNEG   0x002f7e    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
-                 D1616SOK   0x002f7a    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
-                  D1616SX   0x002f90    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
-                  DA1616S   0x002f60    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
-                 FXD1616S   0x002f4e    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
-                 FXD1616U   0x002fce    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616u.c
-               InitEEPROM   0x001f50    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-         InitializeSystem   0x001282    program     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
-               ReadEEPROM   0x002ef4    program     extern D:\UsersData\Vlak\FW\ULI\uLI\eeprom.c
+                CDCInitEP   0x002a2a    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+             CDCTxService   0x002c88    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+        CheckPwrLEDStatus   0x002000    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+ Check_XN_timeout_supress   0x001fc2    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                   D1616S   0x00303c    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
+                D1616SNEG   0x00304a    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
+                 D1616SOK   0x003046    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
+                  D1616SX   0x00305c    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
+                  DA1616S   0x00302c    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
+                 FXD1616S   0x00301a    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
+                 FXD1616U   0x00309a    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616u.c
+               InitEEPROM   0x001f98    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+         InitializeSystem   0x0012ca    program     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
+               ReadEEPROM   0x002fc0    program     extern D:\UsersData\Vlak\FW\ULI\uLI\eeprom.c
         Remapped_High_ISR   0x000008    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
          Remapped_Low_ISR   0x000018    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                USARTInit   0x002d0a    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usart.c
-           USARTInputData   0x002d4c    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usart.c
-            USARTReadByte   0x002d56    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usart.c
-           USARTWriteByte   0x002d2a    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usart.c
-            USART_receive   0x001406    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-               USART_send   0x001cde    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-       USBCBCheckOtherReq   0x0012e4    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-        USBCBErrorHandler   0x0012e2    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-              USBCBInitEP   0x0012ea    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-          USBCBSendResume   0x0012ee    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-    USBCBStdSetDscHandler   0x0012e8    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-             USBCBSuspend   0x0012dc    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-     USBCBWakeFromSuspend   0x0012de    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-        USBCB_SOF_Handler   0x0012e0    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                USARTInit   0x002dd6    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usart.c
+           USARTInputData   0x002e18    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usart.c
+            USARTReadByte   0x002e22    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usart.c
+           USARTWriteByte   0x002df6    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usart.c
+            USART_receive   0x00144e    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+               USART_send   0x001d26    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+       USBCBCheckOtherReq   0x00132c    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+        USBCBErrorHandler   0x00132a    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+              USBCBInitEP   0x001332    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+          USBCBSendResume   0x001336    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+    USBCBStdSetDscHandler   0x001330    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+             USBCBSuspend   0x001324    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+     USBCBWakeFromSuspend   0x001326    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+        USBCB_SOF_Handler   0x001328    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
               USBCancelIO   0x00102a    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
-       USBCheckCDCRequest   0x0028c2    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+       USBCheckCDCRequest   0x00298e    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
        USBCheckStdRequest   0x00053e    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
      USBConfigureEndpoint   0x000d26    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
          USBCtrlEPService   0x0002d4    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
@@ -158,35 +159,35 @@ USBPrepareForNextSetupTrf   0x0004da    program     extern D:\UsersData\Vlak\FW\
                USBSuspend   0x000286    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
      USBTransferOnePacket   0x000f38    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
        USBWakeFromSuspend   0x0002aa    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
-               USB_CD_Ptr   0x002eeb    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
-               USB_SD_Ptr   0x002eed    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
-           USB_parse_data   0x001a4a    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-              USB_receive   0x0017ec    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                 USB_send   0x001730    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-USER_USB_CALLBACK_EVENT_HANDLER   0x0012f0    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                 UserInit   0x001294    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-              WriteEEPROM   0x002f10    program     extern D:\UsersData\Vlak\FW\ULI\uLI\eeprom.c
+               USB_CD_Ptr   0x002fb7    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
+               USB_SD_Ptr   0x002fb9    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
+           USB_parse_data   0x001a92    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+              USB_receive   0x001834    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                 USB_send   0x001778    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+USER_USB_CALLBACK_EVENT_HANDLER   0x001338    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                 UserInit   0x0012dc    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+              WriteEEPROM   0x002fdc    program     extern D:\UsersData\Vlak\FW\ULI\uLI\eeprom.c
   YourHighPriorityISRCode   0x001114    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
    YourLowPriorityISRCode   0x0011ba    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-              _2jContinue   0x002fba    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\memset.asm
-                   _3jEnd   0x002fc4    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\memset.asm
-     ___case_114_lbl00039   0x001374    program     static                          
-     ___case_115_lbl00035   0x001364    program     static                          
-     ___case_116_lbl00037   0x00136c    program     static                          
-     ___case_117_lbl00036   0x001368    program     static                          
-       ___case_1_lbl00032   0x001358    program     static                          
-       ___case_2_lbl00033   0x00135c    program     static                          
-   ___case_32767_lbl00038   0x001370    program     static                          
-       ___case_3_lbl00034   0x001360    program     static                          
-      ___default_lbl00040   0x001378    program     static                          
+              _2jContinue   0x003086    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\memset.asm
+                   _3jEnd   0x003090    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\memset.asm
+     ___case_114_lbl00044   0x0013bc    program     static                          
+     ___case_115_lbl00040   0x0013ac    program     static                          
+     ___case_116_lbl00042   0x0013b4    program     static                          
+     ___case_117_lbl00041   0x0013b0    program     static                          
+       ___case_1_lbl00037   0x0013a0    program     static                          
+       ___case_2_lbl00038   0x0013a4    program     static                          
+   ___case_32767_lbl00043   0x0013b8    program     static                          
+       ___case_3_lbl00039   0x0013a8    program     static                          
+      ___default_lbl00045   0x0013c0    program     static                          
        ___return_lbl00000   0x00000c    program     static                          
-       ___return_lbl00000   0x002ff8    program     static                          
        ___return_lbl00000   0x000004    program     static                          
+       ___return_lbl00000   0x0030c4    program     static                          
        ___return_lbl00001   0x00001c    program     static                          
-       ___return_lbl00001   0x003034    program     static                          
-       ___return_lbl00002   0x002e54    program     static                          
-       ___return_lbl00030   0x00137e    program     static                          
-   ___switchexit_lbl00031   0x00137a    program     static                          
+       ___return_lbl00001   0x003100    program     static                          
+       ___return_lbl00002   0x002f20    program     static                          
+       ___return_lbl00035   0x0013c6    program     static                          
+   ___switchexit_lbl00036   0x0013c2    program     static                          
                __config_0   0x300000    program     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
                __config_1   0x300001    program     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
               __config_10   0x30000c    program     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
@@ -199,63 +200,63 @@ USER_USB_CALLBACK_EVENT_HANDLER   0x0012f0    program     extern D:\UsersData\Vl
                __config_7   0x300009    program     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
                __config_8   0x30000a    program     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
                __config_9   0x30000b    program     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                   __init   0x003036    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\__init.c
-              __tmplbl_10   0x001336    program     static                          
-              __tmplbl_11   0x001340    program     static                          
-              __tmplbl_12   0x00134a    program     static                          
-              __tmplbl_13   0x001354    program     static                          
-               __tmplbl_6   0x00130c    program     static                          
-               __tmplbl_7   0x001318    program     static                          
-               __tmplbl_8   0x001322    program     static                          
-               __tmplbl_9   0x00132c    program     static                          
-            __zero_memory   0x002ffa    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                _do_cinit   0x002db8    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
+                   __init   0x003102    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\__init.c
+              __tmplbl_10   0x00137e    program     static                          
+              __tmplbl_11   0x001388    program     static                          
+              __tmplbl_12   0x001392    program     static                          
+              __tmplbl_13   0x00139c    program     static                          
+               __tmplbl_6   0x001354    program     static                          
+               __tmplbl_7   0x001360    program     static                          
+               __tmplbl_8   0x00136a    program     static                          
+               __tmplbl_9   0x001374    program     static                          
+            __zero_memory   0x0030c6    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                _do_cinit   0x002e84    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
                    _entry   0x000000    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
-                 _startup   0x00301a    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
-                 calc_xor   0x001386    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-        checkResponseToPC   0x001eb8    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                compare_l   0x003010    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-        configDescriptor1   0x002e68    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
-                copy_loop   0x002e2a    program     static                          
-            copy_one_byte   0x002e30    program     static                          
-               device_dsc   0x002e56    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
-                     done   0x002e54    program     static                          
-             done_copying   0x002e3e    program     static                          
-             dumpBufToUSB   0x001d7a    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                  endloop   0x002ff4    program     static                          
-             getsUSBUSART   0x0029c6    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-                     jEnd   0x002fcc    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\memset.asm
-                    jLoop   0x002fae    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\memset.asm
-                     loop   0x00302a    program     static                          
-                     loop   0x002fd8    program     static                          
-                   loop_h   0x003008    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                   loop_l   0x003012    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                     main   0x00126a    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                   memset   0x002f9a    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\memset.asm
-              putUSBUSART   0x002a80    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-            putrsUSBUSART   0x002b36    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-             putsUSBUSART   0x002ab2    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-        respondBufferFull   0x001e8c    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                respondOK   0x001e34    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-          respondXORerror   0x001e60    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-              ringAddByte   0x001fb8    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-           ringAddToStart   0x0026be    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-                ringClear   0x00286e    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-             ringDistance   0x002420    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-                ringEmpty   0x002348    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-            ringFreeSpace   0x0023a2    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-                 ringFull   0x0022ee    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-               ringLength   0x002266    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-             ringReadByte   0x002202    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-           ringRemoveByte   0x002064    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-          ringRemoveFrame   0x00214c    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-     ringRemoveFromMiddle   0x00250c    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-            ringSerialize   0x002450    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-                    sd000   0x002eab    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
-                    sd001   0x002eaf    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
-                    sd002   0x002ee3    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
-                     test   0x002dd2    program     static                          
-               zero_block   0x003008    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                 _startup   0x0030e6    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
+                 calc_xor   0x0013ce    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+        checkResponseToPC   0x001f00    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                compare_l   0x0030dc    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+        configDescriptor1   0x002f34    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
+                copy_loop   0x002ef6    program     static                          
+            copy_one_byte   0x002efc    program     static                          
+               device_dsc   0x002f22    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
+                     done   0x002f20    program     static                          
+             done_copying   0x002f0a    program     static                          
+             dumpBufToUSB   0x001dc2    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                  endloop   0x0030c0    program     static                          
+             getsUSBUSART   0x002a92    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+                     jEnd   0x003098    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\memset.asm
+                    jLoop   0x00307a    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\memset.asm
+                     loop   0x0030f6    program     static                          
+                     loop   0x0030a4    program     static                          
+                   loop_h   0x0030d4    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                   loop_l   0x0030de    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                     main   0x0012ae    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                   memset   0x003066    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\memset.asm
+              putUSBUSART   0x002b4c    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+            putrsUSBUSART   0x002c02    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+             putsUSBUSART   0x002b7e    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+        respondBufferFull   0x001ed4    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                respondOK   0x001e7c    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+          respondXORerror   0x001ea8    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+              ringAddByte   0x002084    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+           ringAddToStart   0x00278a    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+                ringClear   0x00293a    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+             ringDistance   0x0024ec    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+                ringEmpty   0x002414    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+            ringFreeSpace   0x00246e    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+                 ringFull   0x0023ba    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+               ringLength   0x002332    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+             ringReadByte   0x0022ce    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+           ringRemoveByte   0x002130    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+          ringRemoveFrame   0x002218    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+     ringRemoveFromMiddle   0x0025d8    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+            ringSerialize   0x00251c    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+                    sd000   0x002f77    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
+                    sd001   0x002f7b    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
+                    sd002   0x002faf    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
+                     test   0x002e9e    program     static                          
+               zero_block   0x0030d4    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                    ADCON0   0x000fc2       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                ADCON0bits   0x000fc2       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                    ADCON1   0x000fc1       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
@@ -275,15 +276,15 @@ USER_USB_CALLBACK_EVENT_HANDLER   0x0012f0    program     extern D:\UsersData\Vl
               BAUDCTLbits   0x000fb8       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                       BDT   0x000200       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
                       BSR   0x000fe0       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-              BaudRateGen   0x000170       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+              BaudRateGen   0x000176       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
        BothEP0OutUOWNsSet   0x0000f1       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
                   CCP1CON   0x000fbd       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
               CCP1CONbits   0x000fbd       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                     CCPR1   0x000fbe       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                    CCPR1H   0x000fbf       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                    CCPR1L   0x000fbe       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-          CDCDataInHandle   0x00016d       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-         CDCDataOutHandle   0x00016b       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+          CDCDataInHandle   0x000173       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+         CDCDataOutHandle   0x000171       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
                   CM1CON0   0x000f6d       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
               CM1CON0bits   0x000f6d       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                   CM2CON0   0x000f6b       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
@@ -527,31 +528,31 @@ USER_USB_CALLBACK_EVENT_HANDLER   0x0012f0    program     extern D:\UsersData\Vl
                   __REMB1   0x000004       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\math\aarg.asm
                   __REMB2   0x000003       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\math\aarg.asm
                   __REMB3   0x000002       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\math\aarg.asm
-                  __tmp_0   0x000010       data     static D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
                   __tmp_0   0x000010       data     static D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-                  __tmp_0   0x000010       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                  __tmp_0   0x000010       data     static D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+                  __tmp_0   0x000010       data     static D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
                   __tmp_0   0x000010       data     static D:\UsersData\Vlak\FW\ULI\uLI\usart.c
+                  __tmp_0   0x000010       data     static D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+                  __tmp_0   0x000010       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
               cdc_data_rx   0x000258       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
               cdc_data_tx   0x000298       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-             cdc_mem_type   0x00016a       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+             cdc_mem_type   0x000170       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
                cdc_notice   0x000250       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-               cdc_rx_len   0x000163       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-            cdc_trf_state   0x000164       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-               cdc_tx_len   0x000169       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+               cdc_rx_len   0x000169       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+            cdc_trf_state   0x00016a       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+               cdc_tx_len   0x00016f       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
      controlTransferState   0x0000e0       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
-    control_signal_bitmap   0x00016f       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-                curr_byte   0x00017f       data     static E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
-               curr_entry   0x000181       data     static E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
-                 data_ptr   0x000183       data     static E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
-dummy_encapsulated_cmd_response   0x000174       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+    control_signal_bitmap   0x000175       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+                curr_byte   0x000185       data     static E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
+               curr_entry   0x000187       data     static E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
+                 data_ptr   0x000189       data     static E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
+dummy_encapsulated_cmd_response   0x00017a       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
              ferr_counter   0x00014d       data     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
              ferr_in_10_s   0x00014a       data     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                     head   0x00015a       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                       id   0x00015b       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                     head   0x000160       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                       id   0x000161       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
                   inPipes   0x0000e1       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
-               last_start   0x000157       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
-               last_start   0x000159       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
+               last_start   0x00015f       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
+               last_start   0x00015d       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
               line_coding   0x0002d8       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
           mLED_In_Timeout   0x000150       data     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
                 our_frame   0x000140       data     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
@@ -560,12 +561,16 @@ dummy_encapsulated_cmd_response   0x000174       data     extern D:\UsersData\Vl
       pBDTEntryEP0OutNext   0x0000cd       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
               pBDTEntryIn   0x0000d7       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
              pBDTEntryOut   0x0000cf       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
-                  pCDCDst   0x000167       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-                  pCDCSrc   0x000165       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+                  pCDCDst   0x00016d       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+                  pCDCSrc   0x00016b       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
                      pDst   0x0000ed       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
-                     prom   0x00017c       data     static E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
-                 received   0x000154       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
-               respond_ok   0x00015c       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                     prom   0x000182       data     static E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
+     pwr_led_base_counter   0x000156       data     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+     pwr_led_base_timeout   0x000154       data     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+           pwr_led_status   0x000159       data     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+   pwr_led_status_counter   0x000158       data     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                 received   0x00015a       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
+               respond_ok   0x000162       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
         ring_USART_datain   0x0000a4       data     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
           ring_USB_datain   0x000080       data     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
         shortPacketStatus   0x0000df       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
@@ -576,7 +581,7 @@ dummy_encapsulated_cmd_response   0x000174       data     extern D:\UsersData\Vl
             usart_timeout   0x000143       data     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
             usart_to_send   0x000145       data     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
               usb_timeout   0x000141       data     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                      xor   0x000158       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                      xor   0x00015e       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
            xpressnet_addr   0x000152       data     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
 
 
@@ -617,114 +622,115 @@ USBPrepareForNextSetupTrf   0x0004da    program     extern D:\UsersData\Vlak\FW\
           USBDeviceAttach   0x0010e4    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
   YourHighPriorityISRCode   0x001114    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
    YourLowPriorityISRCode   0x0011ba    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                     main   0x00126a    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-         InitializeSystem   0x001282    program     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                 UserInit   0x001294    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-             USBCBSuspend   0x0012dc    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-     USBCBWakeFromSuspend   0x0012de    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-        USBCB_SOF_Handler   0x0012e0    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-        USBCBErrorHandler   0x0012e2    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-       USBCBCheckOtherReq   0x0012e4    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-    USBCBStdSetDscHandler   0x0012e8    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-              USBCBInitEP   0x0012ea    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-          USBCBSendResume   0x0012ee    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-USER_USB_CALLBACK_EVENT_HANDLER   0x0012f0    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-               __tmplbl_6   0x00130c    program     static                          
-               __tmplbl_7   0x001318    program     static                          
-               __tmplbl_8   0x001322    program     static                          
-               __tmplbl_9   0x00132c    program     static                          
-              __tmplbl_10   0x001336    program     static                          
-              __tmplbl_11   0x001340    program     static                          
-              __tmplbl_12   0x00134a    program     static                          
-              __tmplbl_13   0x001354    program     static                          
-       ___case_1_lbl00032   0x001358    program     static                          
-       ___case_2_lbl00033   0x00135c    program     static                          
-       ___case_3_lbl00034   0x001360    program     static                          
-     ___case_115_lbl00035   0x001364    program     static                          
-     ___case_117_lbl00036   0x001368    program     static                          
-     ___case_116_lbl00037   0x00136c    program     static                          
-   ___case_32767_lbl00038   0x001370    program     static                          
-     ___case_114_lbl00039   0x001374    program     static                          
-      ___default_lbl00040   0x001378    program     static                          
-   ___switchexit_lbl00031   0x00137a    program     static                          
-       ___return_lbl00030   0x00137e    program     static                          
-                 calc_xor   0x001386    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-            USART_receive   0x001406    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                 USB_send   0x001730    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-              USB_receive   0x0017ec    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-           USB_parse_data   0x001a4a    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-               USART_send   0x001cde    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-             dumpBufToUSB   0x001d7a    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                respondOK   0x001e34    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-          respondXORerror   0x001e60    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-        respondBufferFull   0x001e8c    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-        checkResponseToPC   0x001eb8    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-               InitEEPROM   0x001f50    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
- Check_XN_timeout_supress   0x001f7a    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-              ringAddByte   0x001fb8    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-           ringRemoveByte   0x002064    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-          ringRemoveFrame   0x00214c    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-             ringReadByte   0x002202    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-               ringLength   0x002266    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-                 ringFull   0x0022ee    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-                ringEmpty   0x002348    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-            ringFreeSpace   0x0023a2    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-             ringDistance   0x002420    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-            ringSerialize   0x002450    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-     ringRemoveFromMiddle   0x00250c    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-           ringAddToStart   0x0026be    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-                ringClear   0x00286e    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
-       USBCheckCDCRequest   0x0028c2    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-                CDCInitEP   0x00295e    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-             getsUSBUSART   0x0029c6    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-              putUSBUSART   0x002a80    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-             putsUSBUSART   0x002ab2    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-            putrsUSBUSART   0x002b36    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-             CDCTxService   0x002bbc    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-                USARTInit   0x002d0a    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usart.c
-           USARTWriteByte   0x002d2a    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usart.c
-           USARTInputData   0x002d4c    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usart.c
-            USARTReadByte   0x002d56    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usart.c
-                _do_cinit   0x002db8    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
-                     test   0x002dd2    program     static                          
-                copy_loop   0x002e2a    program     static                          
-            copy_one_byte   0x002e30    program     static                          
-             done_copying   0x002e3e    program     static                          
-       ___return_lbl00002   0x002e54    program     static                          
-                     done   0x002e54    program     static                          
-               device_dsc   0x002e56    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
-        configDescriptor1   0x002e68    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
-                    sd000   0x002eab    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
-                    sd001   0x002eaf    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
-                    sd002   0x002ee3    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
-               USB_CD_Ptr   0x002eeb    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
-               USB_SD_Ptr   0x002eed    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
-               ReadEEPROM   0x002ef4    program     extern D:\UsersData\Vlak\FW\ULI\uLI\eeprom.c
-              WriteEEPROM   0x002f10    program     extern D:\UsersData\Vlak\FW\ULI\uLI\eeprom.c
-                 FXD1616S   0x002f4e    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
-                  DA1616S   0x002f60    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
-                   D1616S   0x002f70    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
-                 D1616SOK   0x002f7a    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
-                D1616SNEG   0x002f7e    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
-                  D1616SX   0x002f90    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
-                   memset   0x002f9a    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\memset.asm
-                    jLoop   0x002fae    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\memset.asm
-              _2jContinue   0x002fba    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\memset.asm
-                   _3jEnd   0x002fc4    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\memset.asm
-                     jEnd   0x002fcc    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\memset.asm
-                 FXD1616U   0x002fce    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616u.c
-                     loop   0x002fd8    program     static                          
-                  endloop   0x002ff4    program     static                          
-       ___return_lbl00000   0x002ff8    program     static                          
-            __zero_memory   0x002ffa    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-               zero_block   0x003008    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                   loop_h   0x003008    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                compare_l   0x003010    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                   loop_l   0x003012    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                 _startup   0x00301a    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
-                     loop   0x00302a    program     static                          
-       ___return_lbl00001   0x003034    program     static                          
-                   __init   0x003036    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\__init.c
+                     main   0x0012ae    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+         InitializeSystem   0x0012ca    program     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                 UserInit   0x0012dc    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+             USBCBSuspend   0x001324    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+     USBCBWakeFromSuspend   0x001326    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+        USBCB_SOF_Handler   0x001328    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+        USBCBErrorHandler   0x00132a    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+       USBCBCheckOtherReq   0x00132c    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+    USBCBStdSetDscHandler   0x001330    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+              USBCBInitEP   0x001332    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+          USBCBSendResume   0x001336    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+USER_USB_CALLBACK_EVENT_HANDLER   0x001338    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+               __tmplbl_6   0x001354    program     static                          
+               __tmplbl_7   0x001360    program     static                          
+               __tmplbl_8   0x00136a    program     static                          
+               __tmplbl_9   0x001374    program     static                          
+              __tmplbl_10   0x00137e    program     static                          
+              __tmplbl_11   0x001388    program     static                          
+              __tmplbl_12   0x001392    program     static                          
+              __tmplbl_13   0x00139c    program     static                          
+       ___case_1_lbl00037   0x0013a0    program     static                          
+       ___case_2_lbl00038   0x0013a4    program     static                          
+       ___case_3_lbl00039   0x0013a8    program     static                          
+     ___case_115_lbl00040   0x0013ac    program     static                          
+     ___case_117_lbl00041   0x0013b0    program     static                          
+     ___case_116_lbl00042   0x0013b4    program     static                          
+   ___case_32767_lbl00043   0x0013b8    program     static                          
+     ___case_114_lbl00044   0x0013bc    program     static                          
+      ___default_lbl00045   0x0013c0    program     static                          
+   ___switchexit_lbl00036   0x0013c2    program     static                          
+       ___return_lbl00035   0x0013c6    program     static                          
+                 calc_xor   0x0013ce    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+            USART_receive   0x00144e    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                 USB_send   0x001778    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+              USB_receive   0x001834    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+           USB_parse_data   0x001a92    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+               USART_send   0x001d26    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+             dumpBufToUSB   0x001dc2    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                respondOK   0x001e7c    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+          respondXORerror   0x001ea8    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+        respondBufferFull   0x001ed4    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+        checkResponseToPC   0x001f00    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+               InitEEPROM   0x001f98    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+ Check_XN_timeout_supress   0x001fc2    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+        CheckPwrLEDStatus   0x002000    program     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+              ringAddByte   0x002084    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+           ringRemoveByte   0x002130    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+          ringRemoveFrame   0x002218    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+             ringReadByte   0x0022ce    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+               ringLength   0x002332    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+                 ringFull   0x0023ba    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+                ringEmpty   0x002414    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+            ringFreeSpace   0x00246e    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+             ringDistance   0x0024ec    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+            ringSerialize   0x00251c    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+     ringRemoveFromMiddle   0x0025d8    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+           ringAddToStart   0x00278a    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+                ringClear   0x00293a    program     extern D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+       USBCheckCDCRequest   0x00298e    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+                CDCInitEP   0x002a2a    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+             getsUSBUSART   0x002a92    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+              putUSBUSART   0x002b4c    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+             putsUSBUSART   0x002b7e    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+            putrsUSBUSART   0x002c02    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+             CDCTxService   0x002c88    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+                USARTInit   0x002dd6    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usart.c
+           USARTWriteByte   0x002df6    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usart.c
+           USARTInputData   0x002e18    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usart.c
+            USARTReadByte   0x002e22    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usart.c
+                _do_cinit   0x002e84    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
+                     test   0x002e9e    program     static                          
+                copy_loop   0x002ef6    program     static                          
+            copy_one_byte   0x002efc    program     static                          
+             done_copying   0x002f0a    program     static                          
+       ___return_lbl00002   0x002f20    program     static                          
+                     done   0x002f20    program     static                          
+               device_dsc   0x002f22    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
+        configDescriptor1   0x002f34    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
+                    sd000   0x002f77    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
+                    sd001   0x002f7b    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
+                    sd002   0x002faf    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
+               USB_CD_Ptr   0x002fb7    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
+               USB_SD_Ptr   0x002fb9    program     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_descriptors.c
+               ReadEEPROM   0x002fc0    program     extern D:\UsersData\Vlak\FW\ULI\uLI\eeprom.c
+              WriteEEPROM   0x002fdc    program     extern D:\UsersData\Vlak\FW\ULI\uLI\eeprom.c
+                 FXD1616S   0x00301a    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
+                  DA1616S   0x00302c    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
+                   D1616S   0x00303c    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
+                 D1616SOK   0x003046    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
+                D1616SNEG   0x00304a    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
+                  D1616SX   0x00305c    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616s.asm
+                   memset   0x003066    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\memset.asm
+                    jLoop   0x00307a    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\memset.asm
+              _2jContinue   0x003086    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\memset.asm
+                   _3jEnd   0x003090    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\memset.asm
+                     jEnd   0x003098    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\memset.asm
+                 FXD1616U   0x00309a    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\math\fxd1616u.c
+                     loop   0x0030a4    program     static                          
+                  endloop   0x0030c0    program     static                          
+       ___return_lbl00000   0x0030c4    program     static                          
+            __zero_memory   0x0030c6    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+               zero_block   0x0030d4    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                   loop_h   0x0030d4    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                compare_l   0x0030dc    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                   loop_l   0x0030de    program     static E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                 _startup   0x0030e6    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
+                     loop   0x0030f6    program     static                          
+       ___return_lbl00001   0x003100    program     static                          
+                   __init   0x003102    program     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\stdclib\__init.c
                __config_0   0x300000    program     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
                __config_1   0x300001    program     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
                __config_2   0x300002    program     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
@@ -760,8 +766,8 @@ USER_USB_CALLBACK_EVENT_HANDLER   0x0012f0    program     extern D:\UsersData\Vl
                    __BEXP   0x00000f       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\math\barg.asm
                   __tmp_0   0x000010       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
                   __tmp_0   0x000010       data     static D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-                  __tmp_0   0x000010       data     static D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
                   __tmp_0   0x000010       data     static D:\UsersData\Vlak\FW\ULI\uLI\ringBuffer.c
+                  __tmp_0   0x000010       data     static D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
                   __tmp_0   0x000010       data     static D:\UsersData\Vlak\FW\ULI\uLI\usart.c
            USB_Out_Buffer   0x000060       data     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
           ring_USB_datain   0x000080       data     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
@@ -795,28 +801,32 @@ USER_USB_CALLBACK_EVENT_HANDLER   0x0012f0    program     extern D:\UsersData\Vl
           mLED_In_Timeout   0x000150       data     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
            xpressnet_addr   0x000152       data     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
      usart_longer_timeout   0x000153       data     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                 received   0x000154       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
-               last_start   0x000157       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                      xor   0x000158       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
-               last_start   0x000159       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                     head   0x00015a       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
-                       id   0x00015b       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
-               respond_ok   0x00015c       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
-               cdc_rx_len   0x000163       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-            cdc_trf_state   0x000164       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-                  pCDCSrc   0x000165       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-                  pCDCDst   0x000167       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-               cdc_tx_len   0x000169       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-             cdc_mem_type   0x00016a       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-         CDCDataOutHandle   0x00016b       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-          CDCDataInHandle   0x00016d       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-    control_signal_bitmap   0x00016f       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-              BaudRateGen   0x000170       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-dummy_encapsulated_cmd_response   0x000174       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
-                     prom   0x00017c       data     static E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
-                curr_byte   0x00017f       data     static E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
-               curr_entry   0x000181       data     static E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
-                 data_ptr   0x000183       data     static E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
+     pwr_led_base_timeout   0x000154       data     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+     pwr_led_base_counter   0x000156       data     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+   pwr_led_status_counter   0x000158       data     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+           pwr_led_status   0x000159       data     extern D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                 received   0x00015a       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
+               last_start   0x00015d       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                      xor   0x00015e       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
+               last_start   0x00015f       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                     head   0x000160       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
+                       id   0x000161       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
+               respond_ok   0x000162       data     static D:\UsersData\Vlak\FW\ULI\uLI\main.c
+               cdc_rx_len   0x000169       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+            cdc_trf_state   0x00016a       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+                  pCDCSrc   0x00016b       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+                  pCDCDst   0x00016d       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+               cdc_tx_len   0x00016f       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+             cdc_mem_type   0x000170       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+         CDCDataOutHandle   0x000171       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+          CDCDataInHandle   0x000173       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+    control_signal_bitmap   0x000175       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+              BaudRateGen   0x000176       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+dummy_encapsulated_cmd_response   0x00017a       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_function_cdc.c
+                     prom   0x000182       data     static E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
+                curr_byte   0x000185       data     static E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
+               curr_entry   0x000187       data     static E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
+                 data_ptr   0x000189       data     static E:\3.46\pic18-lt\cxx-framework\src\traditional\startup\c018i.c
                       BDT   0x000200       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
                  SetupPkt   0x000240       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
               CtrlTrfData   0x000248       data     extern D:\UsersData\Vlak\FW\ULI\uLI\usb_device.c
@@ -830,82 +840,82 @@ dummy_encapsulated_cmd_response   0x000174       data     extern D:\UsersData\Vl
                      UEP1   0x000f54       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                  UEP2bits   0x000f55       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                      UEP2   0x000f55       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                 UEP3bits   0x000f56       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                      UEP3   0x000f56       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                 UEP3bits   0x000f56       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                  UEP4bits   0x000f57       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                      UEP4   0x000f57       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                 UEP5bits   0x000f58       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                      UEP5   0x000f58       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                 UEP5bits   0x000f58       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                      UEP6   0x000f59       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                  UEP6bits   0x000f59       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                      UEP7   0x000f5a       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                  UEP7bits   0x000f5a       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                     UEIE   0x000f5b       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                  UEIEbits   0x000f5b       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                    UADDR   0x000f5c       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                     UEIE   0x000f5b       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                 UADDRbits   0x000f5c       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                UFRMLbits   0x000f5d       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                    UADDR   0x000f5c       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                     UFRML   0x000f5d       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                UFRMHbits   0x000f5e       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                UFRMLbits   0x000f5d       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                     UFRMH   0x000f5e       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                     UEIR   0x000f5f       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                UFRMHbits   0x000f5e       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                  UEIRbits   0x000f5f       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                  UIEbits   0x000f60       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                     UEIR   0x000f5f       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                       UIE   0x000f60       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                  UIEbits   0x000f60       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                  UCFGbits   0x000f61       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                      UCFG   0x000f61       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                  UIRbits   0x000f62       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                       UIR   0x000f62       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                  UIRbits   0x000f62       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                     USTAT   0x000f63       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                 USTATbits   0x000f63       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                     UCON   0x000f64       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                  UCONbits   0x000f64       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                   SRCON0   0x000f68       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                     UCON   0x000f64       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                SRCON0bits   0x000f68       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                   SRCON1   0x000f69       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                   SRCON0   0x000f68       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                SRCON1bits   0x000f69       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                   SRCON1   0x000f69       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                   CM2CON0   0x000f6b       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
               CM2CON0bits   0x000f6b       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                   CM2CON1   0x000f6c       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
               CM2CON1bits   0x000f6c       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                  CM1CON0   0x000f6d       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
               CM1CON0bits   0x000f6d       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                  CM1CON0   0x000f6d       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                    SSPMSK   0x000f6f       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                SSPMSKbits   0x000f6f       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                    SLRCON   0x000f76       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                SLRCONbits   0x000f76       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                     WPUA   0x000f77       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                  WPUAbits   0x000f77       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                     WPUA   0x000f77       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                      WPUB   0x000f78       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                  WPUBbits   0x000f78       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                     IOCA   0x000f79       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                  IOCAbits   0x000f79       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                     IOCB   0x000f7a       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                     IOCA   0x000f79       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                  IOCBbits   0x000f7a       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                ANSELbits   0x000f7e       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                     IOCB   0x000f7a       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                     ANSEL   0x000f7e       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                ANSELbits   0x000f7e       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                    ANSELH   0x000f7f       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                ANSELHbits   0x000f7f       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                PORTAbits   0x000f80       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                     PORTA   0x000f80       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                PORTBbits   0x000f81       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                PORTAbits   0x000f80       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                     PORTB   0x000f81       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                PORTBbits   0x000f81       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                     PORTC   0x000f82       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                 PORTCbits   0x000f82       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                 LATAbits   0x000f89       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                      LATA   0x000f89       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                 LATAbits   0x000f89       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                      LATB   0x000f8a       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                  LATBbits   0x000f8a       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                  LATCbits   0x000f8b       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                      LATC   0x000f8b       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                TRISAbits   0x000f92       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                     TRISA   0x000f92       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                TRISAbits   0x000f92       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                  DDRAbits   0x000f92       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                      DDRA   0x000f92       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                     DDRB   0x000f93       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                 DDRBbits   0x000f93       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                 TRISBbits   0x000f93       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                     TRISB   0x000f93       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                 DDRBbits   0x000f93       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                     DDRB   0x000f93       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                 TRISCbits   0x000f94       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                     TRISC   0x000f94       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                      DDRC   0x000f94       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
@@ -914,60 +924,60 @@ dummy_encapsulated_cmd_response   0x000174       data     extern D:\UsersData\Vl
               OSCTUNEbits   0x000f9b       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                      PIE1   0x000f9d       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                  PIE1bits   0x000f9d       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                 PIR1bits   0x000f9e       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                      PIR1   0x000f9e       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                 PIR1bits   0x000f9e       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                  IPR1bits   0x000f9f       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                      IPR1   0x000f9f       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                  PIE2bits   0x000fa0       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                      PIE2   0x000fa0       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                     PIR2   0x000fa1       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                  PIR2bits   0x000fa1       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                 IPR2bits   0x000fa2       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                     PIR2   0x000fa1       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                      IPR2   0x000fa2       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                   EECON1   0x000fa6       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                 IPR2bits   0x000fa2       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                EECON1bits   0x000fa6       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                   EECON1   0x000fa6       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                    EECON2   0x000fa7       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                    EEDATA   0x000fa8       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                 EEADRbits   0x000fa9       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                     EEADR   0x000fa9       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                RCSTAbits   0x000fab       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                     RCSTA   0x000fab       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                TXSTAbits   0x000fac       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                RCSTAbits   0x000fab       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                     TXSTA   0x000fac       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                TXSTAbits   0x000fac       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                     TXREG   0x000fad       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                     RCREG   0x000fae       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                     SPBRG   0x000faf       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                    SPBRGH   0x000fb0       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                    T3CON   0x000fb1       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                 T3CONbits   0x000fb1       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                    T3CON   0x000fb1       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                     TMR3L   0x000fb2       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                     TMR3H   0x000fb3       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                   ECCP1AS   0x000fb6       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
               ECCP1ASbits   0x000fb6       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                   PWM1CON   0x000fb7       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
               PWM1CONbits   0x000fb7       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+              BAUDCTLbits   0x000fb8       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                   BAUDCON   0x000fb8       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
               BAUDCONbits   0x000fb8       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                   BAUDCTL   0x000fb8       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-              BAUDCTLbits   0x000fb8       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                   PSTRCON   0x000fb9       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
               PSTRCONbits   0x000fb9       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                   REFCON0   0x000fba       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-              REFCON0bits   0x000fba       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
              VREFCON0bits   0x000fba       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                  VREFCON0   0x000fba       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-              REFCON1bits   0x000fbb       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-             VREFCON1bits   0x000fbb       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+              REFCON0bits   0x000fba       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                  VREFCON1   0x000fbb       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+             VREFCON1bits   0x000fbb       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+              REFCON1bits   0x000fbb       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                   REFCON1   0x000fbb       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
               REFCON2bits   0x000fbc       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                 VREFCON2   0x000fbc       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-             VREFCON2bits   0x000fbc       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                   REFCON2   0x000fbc       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+             VREFCON2bits   0x000fbc       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                 VREFCON2   0x000fbc       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                   CCP1CON   0x000fbd       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
               CCP1CONbits   0x000fbd       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                   CCPR1L   0x000fbe       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                     CCPR1   0x000fbe       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                   CCPR1L   0x000fbe       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                    CCPR1H   0x000fbf       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                ADCON2bits   0x000fc0       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                    ADCON2   0x000fc0       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
@@ -990,14 +1000,14 @@ dummy_encapsulated_cmd_response   0x000174       data     extern D:\UsersData\Vl
                     T2CON   0x000fca       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                       PR2   0x000fcb       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                      TMR2   0x000fcc       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                T1CONbits   0x000fcd       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                     T1CON   0x000fcd       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                T1CONbits   0x000fcd       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                     TMR1L   0x000fce       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                     TMR1H   0x000fcf       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-                     RCON   0x000fd0       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                  RCONbits   0x000fd0       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
-               WDTCONbits   0x000fd1       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+                     RCON   0x000fd0       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                    WDTCON   0x000fd1       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
+               WDTCONbits   0x000fd1       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                   OSCCON2   0x000fd2       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
               OSCCON2bits   0x000fd2       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm
                    OSCCON   0x000fd3       data     extern E:\3.46\pic18-lt\cxx-framework\src\traditional\proc\p18f14k50.asm

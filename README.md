@@ -28,6 +28,13 @@ Note: When programming the processor for first time, do not forget to include
 `-p_cfg` argument to program fuses into the processor. Fuses are stored in main
 hex file.
 
+## Status LED
+
+- 1 blink = normal operations
+- 2 blinks = framing errors on XpressNET
+- 4 blinks = buffer half full
+- 6 blinks = framing errors on XpressNET & buffer half full
+
 ## Further reading
 
 - [About XpressNET](http://www.opendcc.de/info/xpressnet/xpressnet_e.html)
