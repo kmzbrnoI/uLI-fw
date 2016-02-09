@@ -446,7 +446,6 @@ BYTE calc_xor(BYTE* data, BYTE len)
  *  Start of the ring buffer is moved by function which sends data to usb.
  */
 
-// TODO: check if normal inquiry was not received for long time ?
 void USART_receive(void)
 {
     static nine_data received = {0, 0};
