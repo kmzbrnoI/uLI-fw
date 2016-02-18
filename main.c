@@ -660,9 +660,10 @@ void USB_receive(void)
     if(mUSBUSARTIsTxTrfReady())
     {
         // ring_USB_datain overflow check
-        if (ringFull(&ring_USB_datain)) {            
-            // TODO: what to do here? remove whole buffer? or delete only last message ??? 
-            ringClear(&ring_USB_datain);
+        if (ringFull(&ring_USB_datain)) {
+            // delete last message
+            ring_USB_datain.ptr_e = last_start;
+            if (ring_USB_datain.ptr_b == ring_USB_datain.ptr_e) ring_USART_datain.empty = TRUE;
             
             // inform PC about full buffer
             respondBufferFull();
