@@ -13,6 +13,14 @@ uLI is XpressNET &#8596; USB convertor behaving as COM port in PC (CDC).
 - MPLAB X IDE v3.15 for Windows
 - C18 LITE v3.47 compiler for Windows
 
+## Windows driver
+
+Windows CDC driver could be found in the
+[Microchip Libraries for Applications](http://www.microchip.com/mplab/microchip-libraries-for-applications).
+
+However you need to download ~ 280 MB of data to get ~ 10 kB driver so we added
+driver to the [driver](driver/) directory of this repo.
+
 ## EEPROM
 
 PIC stores its xpressnet address at 0x00 in EEPROM. It is not ncecessary to
