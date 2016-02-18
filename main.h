@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-#define DEFAULT_XPRESSNET_ADDR  25
+#define DEFAULT_XPRESSNET_ADDR  29
 #define XN_EEPROM_ADDR          0x00
     
 #define VERSION_FW      0x10        // firmware version 1.0
