@@ -152,6 +152,7 @@ void CheckPwrLEDStatus(void);
 void respondOK(void);
 void respondXORerror(void);
 void respondBufferFull(void);
+void respondCommandStationTimeout(void);
 
 /** VECTOR REMAPPING ***********************************************/
 #if defined(__18CXX)
@@ -495,10 +496,7 @@ void USART_receive(void)
         RCSTAbits.ADDEN = 1;    // receive just first message
         
         // inform PC about timeout
-        USB_Out_Buffer[0] = 0x01;
-        USB_Out_Buffer[1] = 0x02;
-        USB_Out_Buffer[2] = 0x03;
-        if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 3);
+        respondCommandStationTimeout();
         
         return;
     }
@@ -548,10 +546,12 @@ void USART_receive(void)
             mLED_Out_Off();
             
             if (ring_USART_datain.ptr_e != last_start) {
-                // beginning of new message received before previous mesage was completely received -> delete previous message
-                // TODO: send any info to PC ?
+                // beginning of new message received before previous mesage was completely received -> delete previous message                
                 ring_USART_datain.ptr_e = last_start;
                 if (ring_USART_datain.ptr_e == ring_USART_datain.ptr_b) ring_USART_datain.empty = TRUE;
+                
+                // send info to PC
+                respondCommandStationTimeout();
             }
             
             if ((((received.data >> 5) & 0b11) == 0b10) && ((received.data & 0x1F) == xpressnet_addr)) {
@@ -866,6 +866,14 @@ void respondBufferFull(void)
     USB_Out_Buffer[0] = 0x01;
     USB_Out_Buffer[1] = 0x06;
     USB_Out_Buffer[2] = 0x07;
+    if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 3);    
+}
+
+void respondCommandStationTimeout(void)
+{
+    USB_Out_Buffer[0] = 0x01;
+    USB_Out_Buffer[1] = 0x02;
+    USB_Out_Buffer[2] = 0x03;
     if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 3);    
 }
 
