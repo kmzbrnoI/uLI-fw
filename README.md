@@ -19,7 +19,7 @@ Windows CDC driver could be found in the
 [Microchip Libraries for Applications](http://www.microchip.com/mplab/microchip-libraries-for-applications).
 
 However you need to download ~ 280 MB of data to get ~ 10 kB driver so we added
-driver to the [driver](driver/) directory of this repo.
+driver to the [driver_win](driver_win/) directory of this repo.
 
 ## EEPROM
 
