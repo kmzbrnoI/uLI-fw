@@ -322,15 +322,14 @@ void InitializeSystem(void)
         tris_self_power = INPUT_PIN;	// See HardwareProfile.h
     #endif
 
-    InitEEPROM();
-
     UserInit();
+    InitEEPROM();
     USBDeviceInit();
     USARTInit();
 }
 
 void UserInit(void)
-{    
+{
     // init ring buffers
     ringBufferInit(ring_USB_datain, 32);
     ringBufferInit(ring_USART_datain, 32);
@@ -525,24 +524,24 @@ void USART_receive(void)
     #endif
         
     if ((!received.ninth) && (RCSTAbits.ADDEN)) return; // is this necessary?
-                
+        
     if (received.ninth) {        
         // 9 bit is 1 -> header byte
         // we are waiting for call byte with our address
 
-        if (((received.data & 0x1F) == xn_addr) || ((received.data & 0x1F) == 0)) {
+        if ((xn_addr == (received.data & 0x1F)) || ((received.data & 0x1F) == 0)) {
             // new message for us -> check for parity
             for(i = 0, parity = 0; i < 8; i++) if ((received.data >> i) & 1) parity = !parity;
             if (parity != 0) {
-                // parity error
+                // parity error                
                 respondXORerror();
                 return;
             }
-
+            
             // toggle LED
-            if (mLED_In_Timeout >= 2*MLED_IN_MAX_TIMEOUT) { 
+            if (mLED_In_Timeout >= 2*MLED_IN_MAX_TIMEOUT) {
                 mLED_In_Off();
-                mLED_In_Timeout = 0;                
+                mLED_In_Timeout = 0;
             }
             mLED_Out_Off();
             

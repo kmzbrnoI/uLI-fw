@@ -133,6 +133,32 @@
         <property key="stack-analysis-mcc18" value="false"/>
         <property key="stack-analysis-mplink" value="false"/>
       </C18LanguageToolchain>
+      <PK3OBPlatformTool>
+        <property key="AutoSelectMemRanges" value="auto"/>
+        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
+        <property key="ToolFirmwareFilePath"
+                  value="Press to browse for a specific firmware version"/>
+        <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
+        <property key="memories.bootflash" value="true"/>
+        <property key="memories.configurationmemory" value="true"/>
+        <property key="memories.dataflash" value="true"/>
+        <property key="memories.eeprom" value="true"/>
+        <property key="memories.id" value="true"/>
+        <property key="memories.programmemory" value="true"/>
+        <property key="memories.programmemory.end" value="0x3fff"/>
+        <property key="memories.programmemory.start" value="0x0"/>
+        <property key="memories.userotp" value="true"/>
+        <property key="poweroptions.powerenable" value="false"/>
+        <property key="programoptions.eraseb4program" value="true"/>
+        <property key="programoptions.preservedataflash" value="false"/>
+        <property key="programoptions.preserveeeprom" value="false"/>
+        <property key="programoptions.preserveprogramrange" value="false"/>
+        <property key="programoptions.preserveprogramrange.end" value="0x3f"/>
+        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
+        <property key="programoptions.usehighvoltageonmclr" value="false"/>
+        <property key="programoptions.uselvpprogramming" value="false"/>
+        <property key="voltagevalue" value="3.25"/>
+      </PK3OBPlatformTool>
       <Simulator>
         <property key="codecoverage.enabled" value="Disable"/>
         <property key="codecoverage.enableoutputtofile" value="false"/>
@@ -156,6 +182,8 @@
         <property key="periphComp4.gte" value="gt"/>
         <property key="periphComp5.gte" value="gt"/>
         <property key="periphComp6.gte" value="gt"/>
+        <property key="reset.scl" value="false"/>
+        <property key="reset.type" value="MCLR"/>
         <property key="tracecontrol.include.timestamp" value="summarydataenabled"/>
         <property key="tracecontrol.select" value="0"/>
         <property key="tracecontrol.stallontracebufferfull" value="false"/>
@@ -278,6 +306,12 @@
                   value="report"/>
         <property key="warningmessagebreakoptions.W0227_ADC_INVALID_ADCS"
                   value="report"/>
+        <property key="warningmessagebreakoptions.W0228_ADC_INVALID_ADCS"
+                  value="report"/>
+        <property key="warningmessagebreakoptions.W0229_ADC_INVALID_ADCS"
+                  value="report"/>
+        <property key="warningmessagebreakoptions.W0400_PWM_PWM_FASTER_THAN_FOSC"
+                  value="report"/>
         <property key="warningmessagebreakoptions.W1201_DATAFLASH_MEM_OUTSIDE_RANGE"
                   value="report"/>
         <property key="warningmessagebreakoptions.W1202_DATAFLASH_ERASE_WHILE_LOCKED"
@@ -295,6 +329,16 @@
         <property key="warningmessagebreakoptions.W2001_INPUTCAPTURE_TMR3_UNAVAILABLE"
                   value="report"/>
         <property key="warningmessagebreakoptions.W2002_INPUTCAPTURE_CAPTURE_EMPTY"
+                  value="report"/>
+        <property key="warningmessagebreakoptions.W2003_INPUTCAPTURE_SYNCSEL_NOT_AVIALABLE"
+                  value="report"/>
+        <property key="warningmessagebreakoptions.W2004_INPUTCAPTURE_BAD_SYNC_SOURCE"
+                  value="report"/>
+        <property key="warningmessagebreakoptions.W2501_OUTPUTCOMPARE_SYNCSEL_NOT_AVIALABLE"
+                  value="report"/>
+        <property key="warningmessagebreakoptions.W2502_OUTPUTCOMPARE_BAD_SYNC_SOURCE"
+                  value="report"/>
+        <property key="warningmessagebreakoptions.W2503_OUTPUTCOMPARE_BAD_TRIGGER_SOURCE"
                   value="report"/>
         <property key="warningmessagebreakoptions.W9001_TMR_GATE_AND_EXTCLOCK_ENABLED"
                   value="report"/>

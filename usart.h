@@ -9,13 +9,13 @@
 #include "GenericTypeDefs.h"    
     
 typedef struct {
-    unsigned char data;
+    BYTE data;
     BOOL ninth;
     BOOL FERR;
 } nine_data;
     
 void USARTInit(void);
-void USARTWriteByte(unsigned ninth, char data);
+void USARTWriteByte(unsigned ninth, BYTE data);
 nine_data USARTReadByte(void);
 BOOL USARTInputData(void);
 
