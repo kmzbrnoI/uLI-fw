@@ -127,6 +127,8 @@ volatile WORD pwr_led_base_counter = 0;
 volatile BYTE pwr_led_status_counter = 0;
 volatile BYTE pwr_led_status = 1;
 
+volatile BOOL usb_configured = FALSE;
+
 
 /** P R I V A T E  P R O T O T Y P E S ***************************************/
 static void InitializeSystem(void);
@@ -304,7 +306,7 @@ void main(void)
         USB_send();
 
         CheckPwrLEDStatus();
-        CDCTxService();        
+        CDCTxService();
     }//end while
 }//end main
 
@@ -323,9 +325,9 @@ void InitializeSystem(void)
     #endif
 
     UserInit();
-    InitEEPROM();
-    USBDeviceInit();
-    USARTInit();
+    InitEEPROM();    
+    USBDeviceInit();    
+    USARTInit();        
 }
 
 void UserInit(void)
@@ -341,8 +343,8 @@ void UserInit(void)
     // Initialize all of the LED pins
     mInitAllLEDs();
 	mLED_In_On();
-    mLED_Out_Off();
     mLED_Pwr_Off();
+    mLED_Out_On();
 	     
     // setup timer2 on 100 us
     T2CONbits.T2CKPS = 0b11;    // prescaler 16x
@@ -384,11 +386,17 @@ void USBCBSuspend(void)
     #if defined(__C30__)
         USBSleepOnSuspend();
     #endif
+
+    usb_configured = FALSE;
+    mLED_Out_On();
+    ringClear(&ring_USART_datain);
+    ringClear(&ring_USB_datain);
 }
 
 void USBCBWakeFromSuspend(void)
 {
-    
+    usb_configured = TRUE;
+    mLED_Out_Off();
 }
 
 void USBCB_SOF_Handler(void)
@@ -414,6 +422,8 @@ void USBCBStdSetDscHandler(void)
 void USBCBInitEP(void)
 {
     CDCInitEP();
+    usb_configured = TRUE;
+    mLED_Out_Off();
 }
 
 void USBCBSendResume(void)
@@ -543,7 +553,7 @@ void USART_receive(void)
                 mLED_In_Off();
                 mLED_In_Timeout = 0;
             }
-            mLED_Out_Off();
+            if (usb_configured) { mLED_Out_Off(); }
             
             if (ring_USART_datain.ptr_e != last_start) {
                 // beginning of new message received before previous mesage was completely received -> delete previous message                
@@ -575,9 +585,16 @@ void USART_receive(void)
                 // request acknowledgement
                 // send Acknowledgement Response to command station (this should be done by LI)
                 // TODO: is this really working ??
+                
+                if (ringFreeSpace(&ring_USB_datain) < 2) {
+                    // This situation should not happen. 2 bytes in ring_USB_datain
+                    // are always reserved for acknowledgement response.
+                    ringClear(&ring_USB_datain);
+                }
+                
                 USB_Out_Buffer[0] = 0x20;
-                USB_Out_Buffer[1] = 0x20;
-                ringAddToStart(&ring_USB_datain, (BYTE*)USB_Out_Buffer, 2);                
+                USB_Out_Buffer[1] = 0x20;                
+                ringAddToStart(&ring_USB_datain, (BYTE*)USB_Out_Buffer, 2);
                 
                 XPRESSNET_DIR = XPRESSNET_OUT;
                 USART_send();
@@ -586,6 +603,15 @@ void USART_receive(void)
                 respondXORerror();
             } else {
                 // start of message for us (or broadcast)
+                
+                if (!usb_configured) return;
+                
+                // -> check space in buffer
+                if (ringFull(&ring_USART_datain)) {
+                    respondBufferFull();
+                    return;
+                }
+                    
                 RCSTAbits.ADDEN = 0;    // receive all messages
                 last_start = ring_USART_datain.ptr_e;
                 xor = 0;
@@ -660,7 +686,9 @@ void USB_receive(void)
     if(mUSBUSARTIsTxTrfReady())
     {
         // ring_USB_datain overflow check
-        if (ringFull(&ring_USB_datain)) {
+        // 2 bytes in the buffer are always reserved for the Acknowledgement
+        // response.
+        if (ringFreeSpace(&ring_USB_datain) < 2) {
             // delete last message
             ring_USB_datain.ptr_e = last_start;
             if (ring_USB_datain.ptr_b == ring_USB_datain.ptr_e) ring_USART_datain.empty = TRUE;
