@@ -107,7 +107,7 @@ volatile BYTE usart_last_byte_sent = 0;
 	// wheter the last byte of message to command station was sent and bus could be switched to IN direction
 
 // timeslot errors
-volatile WORD timeslot_timeout = 0;		  // timeslot timeout is 1s -> 100 000
+volatile WORD timeslot_timeout = 0;		  // timeslot timeout (1s = 10000)
 volatile BOOL timeslot_err = FALSE;		  // TRUE if timeslot error
 
 // XpressNET framing error counting
@@ -119,6 +119,7 @@ volatile BOOL timeslot_err = FALSE;		  // TRUE if timeslot error
 volatile WORD mLED_In_Timeout = 2*MLED_IN_MAX_TIMEOUT;
 volatile BOOL usart_longer_timeout = FALSE;
 volatile BYTE xn_addr = DEFAULT_XPRESSNET_ADDR;
+volatile BOOL force_ok_response = FALSE;
 
 // Power led blinks pwr_led_status times, then stays blank for some time
 //	and then repeats the whole cycle. This lets user to see software status.
@@ -245,7 +246,7 @@ void respondCommandStationTimeout(void);
 				if (pwr_led_status_counter == 2*pwr_led_status) {
 					// wait between cycles
 					pwr_led_base_timeout = PWR_LED_LONG_COUNT;
-					mLED_Pwr_Off();
+                    mLED_Pwr_Off();
 				} else if (pwr_led_status_counter > 2*pwr_led_status) {
 					// new base cycle
 					pwr_led_base_timeout = PWR_LED_SHORT_COUNT;
@@ -568,11 +569,12 @@ void USART_receive(void)
 				// normal inquiry
 				timeslot_err = FALSE;
 				usart_longer_timeout = FALSE;
-				if (timeslot_timeout >= TIMESLOT_MAX_TIMEOUT) {
-					// ok response must be sent always after short timeout
-					respondOK();
+				if ((timeslot_timeout >= TIMESLOT_MAX_TIMEOUT) || (force_ok_response)) {
+					// ok response must be sent always after short timeout					
+                    if (force_ok_response) force_ok_response = FALSE;
+                    respondOK();
 				}
-				timeslot_timeout = 0;
+                timeslot_timeout = 0;
 				
 				// any dara to send?
 				if (USART_msg_to_send) {
@@ -879,7 +881,6 @@ void respondOK(void)
 	USB_Out_Buffer[1] = 0x04;
 	USB_Out_Buffer[2] = 0x05;
 	if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 3);
-	
 }
 
 void respondXORerror(void)
@@ -950,7 +951,11 @@ void Check_XN_timeout_supress(BYTE ring_USB_msg_start)
 	// however, "normal operations resumed" should be sent after normal operations resumed
 	// DO send OK in this cases HEADER: 0x91, 0x92, 0x9N, 0x22, 0x52, 0x83, 0x84, 0xE4, 0xE6, 0xE3
 	
-	if ((ring_USB_datain.data[ring_USB_msg_start] == 0x22) || (ring_USB_datain.data[ring_USB_msg_start] == 0x23)) usart_longer_timeout = TRUE;
+	if ((ring_USB_datain.data[ring_USB_msg_start] == 0x22) || 
+        (ring_USB_datain.data[ring_USB_msg_start] == 0x23)) {
+        usart_longer_timeout = TRUE;
+        force_ok_response = TRUE;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

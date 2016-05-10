@@ -55,7 +55,7 @@ BOOL ringEmpty(ring_generic* buf)
 
 BYTE ringFreeSpace(ring_generic* buf)
 {
-    return (((signed char)buf->ptr_b - buf->ptr_e) & buf->max) + (!!buf->empty * (buf->max+1));
+    return (buf->max+1) - ringLength(buf);
 }
 
 BYTE ringDistance(ring_generic* buf, BYTE first, BYTE second)
