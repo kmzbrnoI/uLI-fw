@@ -5,7 +5,7 @@ uLI is XpressNET &#8596; USB convertor behaving as COM port in PC (CDC).
 
 * Processor: PIC18F14K50
 * Programming language: C
-* PCB: uLI-02
+* PCB: [uLI](https://github.com/kmzbrnoI/uLI-pcb)
 * Authors: Jan Horacek, Michal Petrilak (c) 2016
 
 ## Used tools
