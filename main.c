@@ -72,17 +72,17 @@
 #define USART_last_message_len	ringDistance(&ring_USART_datain, last_start, ring_USART_datain.ptr_e)
 #define USART_msg_to_send		((ringLength(&ring_USB_datain) >= 2) && (ringLength(&ring_USB_datain) >= USB_msg_len(ring_USB_datain.ptr_b)))
 
-#define USB_MAX_TIMEOUT					1000		// 100 ms
-#define USART_MAX_TIMEOUT				 200		// 20 ms
-#define TIMESLOT_MAX_TIMEOUT			5000		// 500 ms
-#define TIMESLOT_LONG_MAX_TIMEOUT	   30000		// 3 s
-#define FERR_TIMEOUT				  100000		// 10 s
+#define USB_MAX_TIMEOUT                   10		// 100 ms
+#define USART_MAX_TIMEOUT                  2		// 20 ms
+#define TIMESLOT_MAX_TIMEOUT             500		// 5 s (according to specification)
+#define TIMESLOT_LONG_MAX_TIMEOUT       9000		// 1:30 min (according to specification)
+#define FERR_TIMEOUT                    1000		// 10 s
 
-#define MLED_IN_MAX_TIMEOUT				 500		// 50 ms
+#define MLED_IN_MAX_TIMEOUT                5		// 50 ms
 
-#define PWR_LED_SHORT_COUNT				1500		// 150 ms
-#define PWR_LED_LONG_COUNT				4000		// 400 ms
-#define PWR_LED_FERR_COUNT				  10		// status led indicates >10 framing errors
+#define PWR_LED_SHORT_COUNT               15		// 150 ms
+#define PWR_LED_LONG_COUNT                40		// 400 ms
+#define PWR_LED_FERR_COUNT                10		// status led indicates >10 framing errors
 
 /** V A R I A B L E S ********************************************************/
 #pragma udata
@@ -96,7 +96,7 @@ ring_generic ring_USART_datain;
 volatile BYTE our_frame = 0;
 	// 0 = we cannot send messages
 	// 1..80 = we can send messages
-volatile WORD usb_timeout = 0;
+volatile BYTE usb_timeout = 0;
 	// increment every 100 us -> 100 ms timeout = 1 000
 volatile WORD usart_timeout = 0;
 	// increment every 100 us -> 100 ms timeout = 1 000
@@ -105,10 +105,12 @@ volatile BYTE usart_to_send = 0;
 	// I rather made this public volatile variable, beacause it is accessed in interrupts and in main too.
 volatile BYTE usart_last_byte_sent = 0;
 	// wheter the last byte of message to command station was sent and bus could be switched to IN direction
+volatile BYTE ten_ms_counter = 0;
+    // 10 ms counter
 
 // timeslot errors
-volatile WORD timeslot_timeout = 0;		  // timeslot timeout (1s = 10000)
-volatile BOOL timeslot_err = FALSE;		  // TRUE if timeslot error
+volatile WORD timeslot_timeout = 0;		  // timeslot timeout (1s = 100)
+volatile BOOL timeslot_err = TRUE;		  // TRUE if timeslot error
 
 // XpressNET framing error counting
 #ifdef FERR_FEATURE
@@ -116,15 +118,15 @@ volatile BOOL timeslot_err = FALSE;		  // TRUE if timeslot error
 	volatile UINT24 ferr_counter = 0;
 #endif
 
-volatile WORD mLED_In_Timeout = 2*MLED_IN_MAX_TIMEOUT;
+volatile BYTE mLED_In_Timeout = 2*MLED_IN_MAX_TIMEOUT;
 volatile BOOL usart_longer_timeout = FALSE;
 volatile BYTE xn_addr = DEFAULT_XPRESSNET_ADDR;
 volatile BOOL force_ok_response = FALSE;
 
 // Power led blinks pwr_led_status times, then stays blank for some time
 //	and then repeats the whole cycle. This lets user to see software status.
-volatile WORD pwr_led_base_timeout = PWR_LED_SHORT_COUNT;
-volatile WORD pwr_led_base_counter = 0;
+volatile BYTE pwr_led_base_timeout = PWR_LED_SHORT_COUNT;
+volatile BYTE pwr_led_base_counter = 0;
 volatile BYTE pwr_led_status_counter = 0;
 volatile BYTE pwr_led_status = 1;
 
@@ -205,59 +207,67 @@ void respondCommandStationTimeout(void);
 		// Timer2 on 100 us
 		if ((PIE1bits.TMR2IE) && (PIR1bits.TMR2IF)) {
 			
-			// usb receive timeout
-			if (usb_timeout < USB_MAX_TIMEOUT) usb_timeout++;
+            if (ten_ms_counter < 100) { ten_ms_counter++; }
+            else {
+                ten_ms_counter = 0;
+                
+                // 10 ms overflow:
+                
+                // usb receive timeout
+                if (usb_timeout < USB_MAX_TIMEOUT) usb_timeout++;
 	
-			// usart receive timeout
-			if (usart_timeout < USART_MAX_TIMEOUT) usart_timeout++;
+                // usart receive timeout
+                if (usart_timeout < USART_MAX_TIMEOUT) usart_timeout++;
 			
-			// timeslot timeout
-			if (timeslot_timeout < TIMESLOT_LONG_MAX_TIMEOUT) timeslot_timeout++;
+                // timeslot timeout
+                if (timeslot_timeout < TIMESLOT_LONG_MAX_TIMEOUT) timeslot_timeout++;
+                
+    			#ifdef FERR_FEATURE
+    				// framing error counting
+    				ferr_counter++;
+    				if (ferr_counter >= FERR_TIMEOUT) {
+    					ferr_in_10_s = 0;
+    					ferr_counter = 0;
+    				}
+    			#endif
+                
+    			// mLEDIn timeout
+    			if (mLED_In_Timeout < 2*MLED_IN_MAX_TIMEOUT) {
+    				mLED_In_Timeout++;
+    				if (mLED_In_Timeout == MLED_IN_MAX_TIMEOUT) {
+    					mLED_In_On();
+    				}
+    			}
 			
-			#ifdef FERR_FEATURE
-				// framing error counting
-				ferr_counter++;
-				if (ferr_counter >= FERR_TIMEOUT) {
-					ferr_in_10_s = 0;
-					ferr_counter = 0;
-				}
-			#endif
-			
+    			// pwrLED toggling
+    			pwr_led_base_counter++;
+    			if (pwr_led_base_counter >= pwr_led_base_timeout) {
+    				pwr_led_base_counter = 0;
+    				pwr_led_status_counter++;
+				
+                    if (pwr_led_status_counter == 2*pwr_led_status) {
+    					// wait between cycles
+    					pwr_led_base_timeout = PWR_LED_LONG_COUNT;
+                        mLED_Pwr_Off();
+    				} else if (pwr_led_status_counter > 2*pwr_led_status) {
+    					// new base cycle
+    					pwr_led_base_timeout = PWR_LED_SHORT_COUNT;
+    					pwr_led_status_counter = 0;
+    					mLED_Pwr_On();
+    				} else {
+    					mLED_Pwr_Toggle();
+    				}
+                }
+                
+                // end of 10 ms counter
+            }
+            
 			// XPRESSNET_DIR is set to XPRESSNET_IN after successful tranfer of last byte
 			if ((usart_last_byte_sent) && (TXSTAbits.TRMT)) {
 				XPRESSNET_DIR = XPRESSNET_IN;
 				usart_last_byte_sent = 0;
 			}
 			
-			// mLEDIn timeout
-			if (mLED_In_Timeout < 2*MLED_IN_MAX_TIMEOUT) {
-				mLED_In_Timeout++;
-				if (mLED_In_Timeout == MLED_IN_MAX_TIMEOUT) {
-					mLED_In_On();
-				}
-			}
-			
-			// pwrLED toggling
-			pwr_led_base_counter++;
-			if (pwr_led_base_counter >= pwr_led_base_timeout) {
-				pwr_led_base_counter = 0;
-				pwr_led_status_counter++;
-				
-				if (pwr_led_status_counter == 2*pwr_led_status) {
-					// wait between cycles
-					pwr_led_base_timeout = PWR_LED_LONG_COUNT;
-                    mLED_Pwr_Off();
-				} else if (pwr_led_status_counter > 2*pwr_led_status) {
-					// new base cycle
-					pwr_led_base_timeout = PWR_LED_SHORT_COUNT;
-					pwr_led_status_counter = 0;
-					mLED_Pwr_On();
-				} else {
-					mLED_Pwr_Toggle();
-				}
-				
-			}
-				
 			PIR1bits.TMR2IF = 0;		// reset overflow flag
 		}
 		
