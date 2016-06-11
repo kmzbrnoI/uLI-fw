@@ -526,8 +526,17 @@ void USART_receive(void)
 	// shorter timeout is default, longer timeout is for programming commands
 	if ((((timeslot_timeout >= TIMESLOT_MAX_TIMEOUT) && (!usart_longer_timeout)) || (timeslot_timeout >= TIMESLOT_LONG_MAX_TIMEOUT))
 			&& (!timeslot_err)) {
+        // Command station is no longer providing timeslot for communication.
 		timeslot_err = TRUE;
-		// Command station is no longer providing timeslot for communication.
+        
+        // remove buffers
+        ringClear(&ring_USART_datain);
+        ringClear(&ring_USB_datain);
+        		
+        /* timeslot timeout -> connection to PC is probably without any data ->
+         * we could send data to USB directly and assume mUSBUSARTIsTxTrfReady()
+         * is always true.
+         */        
 		USB_Out_Buffer[0] = 0x01;
 		USB_Out_Buffer[1] = 0x05;
 		USB_Out_Buffer[2] = 0x04;
