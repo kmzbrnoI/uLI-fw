@@ -47,6 +47,7 @@ void ringRemoveFromMiddle(ring_generic* buf, BYTE start, BYTE length);
 void ringClear(ring_generic* buf);
 BYTE ringFreeSpace(ring_generic* buf);
 void ringAddToStart(ring_generic* buf, BYTE* data, BYTE len);
+    // this function probably misbihaves, 
 
 //#define ringBufferAlloc(name, size) typedef struct { BYTE max; BYTE ptr_b; BYTE ptr_e; BYTE data[size]; } ## T ## name ; T ## name name;
 #define ringBufferInit(name, size) name ## . ## max = (size-1); name ## . ## ptr_b = 0; name ## . ## ptr_e = 0; name ## . ## empty = TRUE;

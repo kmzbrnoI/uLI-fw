@@ -607,21 +607,24 @@ void USART_receive(void)
 			} else if ((((received.data >> 5) & 0b11) == 0b00) && ((received.data & 0x1F) == xn_addr)) {
 				// request acknowledgement
 				// send Acknowledgement Response to command station (this should be done by LI)
-				// TODO: is this really working ??
 				
 				if (ringFreeSpace(&ring_USB_datain) < 2) {
 					// This situation should not happen. 2 bytes in ring_USB_datain
 					// are always reserved for acknowledgement response.
 					ringClear(&ring_USB_datain);
 				}
-				
-				USB_Out_Buffer[0] = 0x20;
-				USB_Out_Buffer[1] = 0x20;
-				ringAddToStart(&ring_USB_datain, (BYTE*)USB_Out_Buffer, 2);
-				
+
+                // add ACK to beginning of the buffer
+                ring_USB_datain.ptr_b = (ring_USB_datain.ptr_b-2) & ring_USB_datain.max;
+                ring_USB_datain.empty = FALSE;
+                ring_USB_datain.data[ring_USB_datain.ptr_b] = 0x20;
+                ring_USB_datain.data[(ring_USB_datain.ptr_b+1) & ring_USB_datain.max] = 0x20;
+                usart_to_send = ring_USB_datain.ptr_b;
+								
+                // send ACK to command station
 				XPRESSNET_DIR = XPRESSNET_OUT;
 				USART_send();
-				
+                
 				// send message to PC
 				respondXORerror();
 			} else {
@@ -630,8 +633,10 @@ void USART_receive(void)
 				if (!usb_configured) return;
 				
 				// -> check space in buffer
-				if (ringFull(&ring_USART_datain)) {
-					respondBufferFull();
+				if (ringFull(&ring_USART_datain)) {					
+                    // buffer full -> probably no space to send data to PC
+                    // -> do not send information message to PC
+                    //respondBufferFull();
 					return;
 				}
 					
@@ -1001,7 +1006,7 @@ void CheckBroadcast(int xn_start_index)
     static BYTE data[3];
     
     // serialize data from buffer
-    ringSerialize(&ring_USART_datain, &data, xn_start_index, 4);
+    ringSerialize(&ring_USART_datain, data, xn_start_index, 4);
     
     if ((data[0] == 0x60) && (data[1] == 0x61) && (data[2] == 0x02)) {
         // service mode entry
