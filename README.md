@@ -82,7 +82,7 @@ transmitted to PC.
 
   When the command station starts sending *normal inquiry* after 5 s < x < 1:30,
   the uLI sends to PC *normal operations resumed*. This mechanism is based
-  on Lenz` LI, which does the same thing. However, this feature is not documented
+  on Lenz\` LI, which does the same thing. However, this feature is not documented
   in official Lenz` LI specification.
 
   uLI also sends *normal operations resumed* after receiving *normal inquiry*
