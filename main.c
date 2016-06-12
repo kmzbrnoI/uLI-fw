@@ -131,6 +131,7 @@ volatile BYTE pwr_led_status_counter = 0;
 volatile BYTE pwr_led_status = 1;
 
 volatile BOOL usb_configured = FALSE;
+volatile BOOL programming_mode = FALSE;
 
 
 /** P R I V A T E  P R O T O T Y P E S ***************************************/
@@ -153,6 +154,7 @@ void checkResponseToPC(BYTE header, BYTE id);
 void InitEEPROM(void);
 void Check_XN_timeout_supress(BYTE ring_USB_msg_start);
 void CheckPwrLEDStatus(void);
+void CheckBroadcast(int xn_start_index);
 
 void respondOK(void);
 void respondXORerror(void);
@@ -587,7 +589,7 @@ void USART_receive(void)
 			if ((((received.data >> 5) & 0b11) == 0b10) && ((received.data & 0x1F) == xn_addr)) {
 				// normal inquiry
 				timeslot_err = FALSE;
-				usart_longer_timeout = FALSE;
+				usart_longer_timeout = programming_mode;
 				if ((timeslot_timeout >= TIMESLOT_MAX_TIMEOUT) || (force_ok_response)) {
 					// ok response must be sent always after short timeout					
                     if (force_ok_response) force_ok_response = FALSE;
@@ -666,7 +668,8 @@ void USART_receive(void)
 				respondXORerror();
 			} else {
 				// xor ok
-				last_start = ring_USART_datain.ptr_e;	// whole message succesfully received
+                CheckBroadcast(last_start);
+				last_start = ring_USART_datain.ptr_e;	// whole message succesfully received                
 			}
 
 			// listen for beginning of message (9. bit == 1)
@@ -986,6 +989,31 @@ void CheckPwrLEDStatus(void)
 	new |= ((ringLength(&ring_USART_datain) >= (ring_USART_datain.max+1)/2) || (ringLength(&ring_USB_datain) >= (ring_USB_datain.max+1)/2)) << 2;
 	if (new == 0) new = 1;
 	pwr_led_status = new;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+// Check broadcast from command station.
+// The purpose of getting broadcasts from command station is to
+// set proper length of timeslot_timeout.
+void CheckBroadcast(int xn_start_index)
+{
+    static BYTE data[3];
+    
+    // serialize data from buffer
+    ringSerialize(&ring_USART_datain, &data, xn_start_index, 4);
+    
+    if ((data[0] == 0x60) && (data[1] == 0x61) && (data[2] == 0x02)) {
+        // service mode entry
+        programming_mode = TRUE;
+        usart_longer_timeout = TRUE;
+    }
+    
+    if ((data[0] == 0x60) && (data[1] == 0x61) && (data[2] == 0x01)) {
+        // normal operations resumed
+        programming_mode = FALSE;
+        usart_longer_timeout = FALSE;
+    }    
 }
 
 ////////////////////////////////////////////////////////////////////////////////
