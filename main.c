@@ -79,6 +79,7 @@
 #define FERR_TIMEOUT                    1000		// 10 s
 
 #define MLED_IN_MAX_TIMEOUT                5		// 50 ms
+#define MLED_OUT_MAX_TIMEOUT               7        // 70 ms
 
 #define PWR_LED_SHORT_COUNT               15		// 150 ms
 #define PWR_LED_LONG_COUNT                40		// 400 ms
@@ -119,6 +120,7 @@ volatile BOOL timeslot_err = TRUE;		  // TRUE if timeslot error
 #endif
 
 volatile BYTE mLED_In_Timeout = 2*MLED_IN_MAX_TIMEOUT;
+volatile BYTE mLED_Out_Timeout = 0;
 volatile BOOL usart_longer_timeout = FALSE;
 volatile BYTE xn_addr = DEFAULT_XPRESSNET_ADDR;
 volatile BOOL force_ok_response = FALSE;
@@ -223,6 +225,12 @@ void respondCommandStationTimeout(void);
 			
                 // timeslot timeout
                 if (timeslot_timeout < TIMESLOT_LONG_MAX_TIMEOUT) timeslot_timeout++;
+                
+                // mLEDout timeout
+                if (mLED_Out_Timeout > 0) {
+                    mLED_Out_Timeout--;
+                    if (mLED_Out_Timeout == 0) { mLED_Out_Off(); }
+                }
                 
     			#ifdef FERR_FEATURE
     				// framing error counting
@@ -575,7 +583,6 @@ void USART_receive(void)
 				mLED_In_Off();
 				mLED_In_Timeout = 0;
 			}
-			if (usb_configured) { mLED_Out_Off(); }
 			
 			if (ring_USART_datain.ptr_e != last_start) {
 				// beginning of new message received before previous mesage was completely received -> delete previous message
@@ -884,11 +891,14 @@ void USART_send(void)
 		
 		PIE1bits.TXIE = 0;
 		usart_last_byte_sent = 1;
+        mLED_Out_Timeout = MLED_OUT_MAX_TIMEOUT;    // we want to switch LED off after timeout
 	} else {
 		// other-than-last byte sending
 		PIE1bits.TXIE = 1;
-		mLED_Out_On();
+        mLED_Out_Timeout = 0;   // we do not want to switch the LED off
 	}
+    
+    mLED_Out_On();    
 }
 
 ////////////////////////////////////////////////////////////////////////////////
