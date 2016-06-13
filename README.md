@@ -41,8 +41,21 @@ Note: When programming the processor for first time, do not forget to include
 `-p_cfg` argument to program fuses into the processor. Fuses are stored in main
 hex file.
 
-## Status LED
+## LEDs
 
+### Input LED (green)
+This LED is turned on by default. It turns off for a few miliseconds when a
+command arrives from a command station to uLI. This LED usually blinks as it
+shows *normal inquiry* packets arriving. If this LED is permanenty turned on,
+the command station is not sending *normal inquiry* packets and sometrhing went
+really wring.
+
+### Output LED (green)
+This LED is turned on before a valid connection with PC is established. After
+establishing the connection, this LED turns off and blinks only when a command
+is being sent from the uLI to the command station.
+
+### Status LED (yellow)
 - 1 blink = normal operations
 - 2 blinks = framing errors on XpressNET
 - 4 blinks = buffer half full
