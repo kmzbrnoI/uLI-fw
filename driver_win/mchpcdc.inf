@@ -102,7 +102,7 @@ MFGFILENAME="mchpcdc"
 DRIVERFILENAME ="usbser"
 MFGNAME="Microchip Technology, Inc."
 INSTDISK="Microchip Technology, Inc. Installation Disc"
-DESCRIPTION="Communications Port"
-SERVICE="USB RS-232 Emulation Driver"
+DESCRIPTION="uLI"
+SERVICE="Ultimate LI interface"
 
 
