@@ -15,7 +15,7 @@ void ringAddByte(ring_generic *buf, BYTE data)
 BYTE ringRemoveByte(ring_generic* buf)
 {
     BYTE result;
-    if (ringLength(buf) == 0) return 0;
+    if (ringLength(*buf) == 0) return 0;
     result = buf->data[buf->ptr_b];
     buf->ptr_b = (buf->ptr_b + 1) & buf->max;
     if (buf->ptr_b == buf->ptr_e) buf->empty = TRUE;
@@ -25,7 +25,7 @@ BYTE ringRemoveByte(ring_generic* buf)
 void ringRemoveFrame(ring_generic* buf, BYTE num)
 {
     BYTE x;
-    x = ringLength(buf);
+    x = ringLength(*buf);
     if (x > num) x = num;
     buf->ptr_b = (buf->ptr_b + x) & buf->max;
     if (buf->ptr_b == buf->ptr_e) buf->empty = TRUE;
@@ -59,7 +59,7 @@ void ringAddToStart(ring_generic* buf, BYTE* data, BYTE len)
     int i;
     
     // check full buffer    
-    if (ringLength(buf) < len) return;
+    if (ringLength(*buf) < len) return;
         
     buf->ptr_b = (buf->ptr_b-len)&buf->max;
     for (i = 0; i < len; i++) { buf->data[(buf->ptr_b+i)&buf->max] = data[i]; }

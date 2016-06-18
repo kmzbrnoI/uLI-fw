@@ -50,11 +50,11 @@ void ringAddToStart(ring_generic* buf, BYTE* data, BYTE len);
 // In some cases, it really matters wheter you call function or not.
 // C18 does not support inline functions -> defines.
 
-#define ringLength(buf)                 (((buf.ptr_e - buf.ptr_b) & buf.max) + (!!ringFull(buf) * (buf.max+1)))
-#define ringFull(buf)                   ((buf.ptr_b == buf.ptr_e) && (!buf.empty))
-#define ringEmpty(buf)                  ((buf.ptr_b == buf.ptr_e) && (buf.empty))
-#define ringFreeSpace(buf)              ((buf.max+1) - ringLength(buf))
-#define ringDistance(buf,first,second)  ((second-first) & buf.max)
+#define ringLength(buf)                 ((((buf).ptr_e - (buf).ptr_b) & (buf).max) + (!!ringFull(buf) * ((buf).max+1)))
+#define ringFull(buf)                   (((buf).ptr_b == (buf).ptr_e) && (!(buf).empty))
+#define ringEmpty(buf)                  (((buf).ptr_b == (buf).ptr_e) && ((buf).empty))
+#define ringFreeSpace(buf)              (((buf).max+1) - ringLength(buf))
+#define ringDistance(buf,first,second)  ((second-first) & (buf).max)
 
 #endif
 
