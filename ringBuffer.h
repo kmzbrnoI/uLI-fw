@@ -38,19 +38,23 @@ void ringAddByte(ring_generic *buf, BYTE dat);
 BYTE ringRemoveByte(ring_generic *buf);
 void ringRemoveFrame(ring_generic* buf, BYTE num);
 BYTE ringReadByte(ring_generic* buf, BYTE offset);
-BYTE ringLength(ring_generic* buf);
-BOOL ringFull(ring_generic* buf);
-BOOL ringEmpty(ring_generic* buf);
-BYTE ringDistance(ring_generic* buf, BYTE first, BYTE second);
 void ringSerialize(ring_generic* buf, BYTE* out, BYTE start, BYTE length);
 void ringRemoveFromMiddle(ring_generic* buf, BYTE start, BYTE length);
 void ringClear(ring_generic* buf);
-BYTE ringFreeSpace(ring_generic* buf);
 void ringAddToStart(ring_generic* buf, BYTE* data, BYTE len);
     // this function probably misbihaves, 
 
 //#define ringBufferAlloc(name, size) typedef struct { BYTE max; BYTE ptr_b; BYTE ptr_e; BYTE data[size]; } ## T ## name ; T ## name name;
 #define ringBufferInit(name, size) name ## . ## max = (size-1); name ## . ## ptr_b = 0; name ## . ## ptr_e = 0; name ## . ## empty = TRUE;
+
+// In some cases, it really matters wheter you call function or not.
+// C18 does not support inline functions -> defines.
+
+#define ringLength(buf)                 (((buf.ptr_e - buf.ptr_b) & buf.max) + (!!ringFull(buf) * (buf.max+1)))
+#define ringFull(buf)                   ((buf.ptr_b == buf.ptr_e) && (!buf.empty))
+#define ringEmpty(buf)                  ((buf.ptr_b == buf.ptr_e) && (buf.empty))
+#define ringFreeSpace(buf)              ((buf.max+1) - ringLength(buf))
+#define ringDistance(buf,first,second)  ((second-first) & buf.max)
 
 #endif
 

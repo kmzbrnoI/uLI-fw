@@ -38,31 +38,6 @@ BYTE ringReadByte(ring_generic* buf, BYTE offset)
     return buf->data[pos];
 }
 
-BYTE ringLength(ring_generic* buf)
-{
-    return ((buf->ptr_e - buf->ptr_b) & buf->max) + (!!ringFull(buf) * (buf->max+1));
-}
-
-BOOL ringFull(ring_generic* buf)
-{
-    return (buf->ptr_b == buf->ptr_e) && (!buf->empty);
-}
-
-BOOL ringEmpty(ring_generic* buf)
-{
-    return (buf->ptr_b == buf->ptr_e) && (buf->empty);
-}
-
-BYTE ringFreeSpace(ring_generic* buf)
-{
-    return (buf->max+1) - ringLength(buf);
-}
-
-BYTE ringDistance(ring_generic* buf, BYTE first, BYTE second)
-{
-    return ((second-first) & buf->max);
-}
-
 void ringSerialize(ring_generic* buf, BYTE* out, BYTE start, BYTE length)
 {
     int i;
