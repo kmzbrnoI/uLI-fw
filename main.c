@@ -6,6 +6,8 @@
  Author:		Jan Horacek, Michal Petrilak 
  * 
 /** INCLUDES *******************************************************/
+#include <p18f14k50.h>
+
 #include "usb.h"
 #include "usb_function_cdc.h"
 #include "HardwareProfile.h"
@@ -66,11 +68,14 @@
 
 /** D E F I N E S ************************************************************/
 #define USB_msg_len(start)		((ring_USB_datain.data[start] & 0x0F)+2)	  // len WITH header byte and WITH xor byte
-#define USB_last_message_len	ringDistance(&ring_USB_datain, last_start, ring_USB_datain.ptr_e)
+#define USB_last_message_len	ringDistance(ring_USB_datain, last_start, ring_USB_datain.ptr_e)
+
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
 
 #define USART_msg_len(start)	((ring_USART_datain.data[(start+1) & ring_USART_datain.max] & 0x0F)+3)	// length of xpressnet message is 4-lower bits in second byte
-#define USART_last_message_len	ringDistance(&ring_USART_datain, last_start, ring_USART_datain.ptr_e)
-#define USART_msg_to_send		((ringLength(&ring_USB_datain) >= 2) && (ringLength(&ring_USB_datain) >= USB_msg_len(ring_USB_datain.ptr_b)))
+#define USART_last_message_len	ringDistance(ring_USART_datain, USART_last_start, ring_USART_datain.ptr_e)
+#define USART_msg_to_send		(ringLength(ring_USB_datain) >= MAX(2, USB_msg_len(ring_USB_datain.ptr_b)))
 
 #define USB_MAX_TIMEOUT                   10		// 100 ms
 #define USART_MAX_TIMEOUT                  2		// 20 ms
@@ -87,10 +92,10 @@
 
 /** V A R I A B L E S ********************************************************/
 #pragma udata
-char USB_Out_Buffer[32];
+volatile char USB_Out_Buffer[32];
 
-ring_generic ring_USB_datain;
-ring_generic ring_USART_datain;
+volatile ring_generic ring_USB_datain;
+volatile ring_generic ring_USART_datain;
 
 #pragma idata
 
@@ -135,6 +140,9 @@ volatile BYTE pwr_led_status = 1;
 volatile BOOL usb_configured = FALSE;
 volatile BOOL programming_mode = FALSE;
 
+volatile nine_data USART_received = {0, 0, FALSE};
+volatile BYTE USART_last_start = 0;
+
 
 /** P R I V A T E  P R O T O T Y P E S ***************************************/
 static void InitializeSystem(void);
@@ -143,8 +151,13 @@ void YourHighPriorityISRCode();
 void YourLowPriorityISRCode();
 void BlinkUSBStatus(void);
 void UserInit(void);
-void USART_receive(void);
+
+void USART_receive_main(void);
+void USART_receive_interrupt(void);
+void USART_process_message(void);
 void USART_send(void);
+void USART_check_timeouts(void);
+
 void USB_send(void);
 void USB_receive(void);
 BOOL USB_parse_data(BYTE start, BYTE len);
@@ -197,6 +210,11 @@ void respondCommandStationTimeout(void);
 		if ((PIE1bits.TXIE) && (PIR1bits.TXIF)) {
 			USART_send();
 		}
+            
+        if ((PIE1bits.RCIE) && (PIR1bits.RCIF)) {
+            // receive interrupt just for first byte
+            USART_receive_interrupt();
+        }
 
 	}	//This return will be a "retfie fast", since this is in a #pragma interrupt section 
 	
@@ -302,27 +320,20 @@ void main(void)
 			}
 		#endif
 
-		#if defined(USB_POLLING)
-		// Check bus status and service USB interrupts.
-		USBDeviceTasks(); // Interrupt or polling method.  If using polling, must call
-						  // this function periodically.  This function will take care
-						  // of processing and responding to SETUP transactions 
-						  // (such as during the enumeration process when you first
-						  // plug in).	USB hosts require that USB devices should accept
-						  // and process SETUP packets in a timely fashion.  Therefore,
-						  // when using polling, this function should be called 
-						  // frequently (such as once about every 100 microseconds) at any
-						  // time that a SETUP packet might reasonably be expected to
-						  // be sent by the host to your device.  In most cases, the
-						  // USBDeviceTasks() function does not take very long to
-						  // execute (~50 instruction cycles) before it returns.
-		#endif
-
-
-		// Application-specific tasks.
-		// Application related code may be added here, or in the ProcessIO() function.
-
-		USART_receive();
+        // USART receiving
+        // first byte is receive in interrupt, others in main
+        if (USART_received.ready) {
+            // message in buffer -> process
+            USART_process_message();
+        } else {
+            if (!PIE1bits.RCIE) {
+                // not receiving by interrupt -> receive in main
+                USART_receive_main();
+                if (USART_received.ready) { USART_process_message(); }
+            }
+        }
+        USART_check_timeouts();
+            
 		USB_receive();
 		USB_send();
 
@@ -376,7 +387,7 @@ void UserInit(void)
 	IPR1bits.TMR2IP = 0;		// timer2 interrupt low level
 	
 	RCONbits.IPEN = 1;			// enable high and low priority interrupts
-	//INTCONbits.PEIE = 1;		  // Enable peripheral interrupts
+	INTCONbits.PEIE = 1;	    // Enable peripheral interrupts (for usart)
 	INTCONbits.GIE = 1;			// enable global interrupts
 	INTCONbits.GIEH = 1;
 	INTCONbits.GIEL = 1;
@@ -410,8 +421,8 @@ void USBCBSuspend(void)
 
 	usb_configured = FALSE;
 	mLED_Out_On();
-	ringClear(&ring_USART_datain);
-	ringClear(&ring_USB_datain);
+	ringClear((ring_generic*)&ring_USART_datain);
+	ringClear((ring_generic*)&ring_USB_datain);
 }
 
 void USBCBWakeFromSuspend(void)
@@ -502,29 +513,29 @@ BYTE calc_xor(BYTE* data, BYTE len)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/* How does USART data receiving look like:
- *	1) We wait for start of mesage for us (9. bit is 1 and address is XPRESSNET_ADDR)
- *	2) We receive data into ring_USART_datain (ring buffer), message start in ring buffer is saved to last_start.
- *	3) Once the message is received we check XOR. When the XOR does not match, we delete the message from ring buffer.
- *	4) When USB is ready to send messages, we send messages from ring buffer.
- *	This function specially does not and MUST NOT care about start of the ring buffer.
- *	Start of the ring buffer is moved by function which sends data to usb.
+/* How does USART receiving work:
+ * By default, USART waits for normal inquiry. When data are sent do uLI,
+ * receive interrupt is fired and data are received in USART_receive_interrupt.
+ * This function should be very fast, its main purpose is to start transmission
+ * from uLI to command station very fast (< 80 us). This turned out to be quite
+ * big problem. All bytes except the first are received in USART_receive_main,
+ * which is called from main. So, first by is received in interrupt, all other
+ * bytes are received in main.
  */
 
-void USART_receive(void)
+/* CHECKING USART TIMEOUTS
+ * This function can be called from main, it does not require specific timing.
+ */
+void USART_check_timeouts(void)
 {
-	static nine_data received = {0, 0};
-	static BYTE last_start = 0;
-	static BYTE xor = 0;			// we calculate xor dynamically
-	BYTE i, parity;
-	
 	// check for (short) timeout
-	if ((last_start != ring_USART_datain.ptr_e) && (usart_timeout >= USART_MAX_TIMEOUT)) {
+	if ((USART_last_start != ring_USART_datain.ptr_e) && (usart_timeout >= USART_MAX_TIMEOUT)) {
 		// delete last incoming message and wait for next message
-		ring_USART_datain.ptr_e = last_start;
+		ring_USART_datain.ptr_e = USART_last_start;
 		if (ring_USART_datain.ptr_e == ring_USART_datain.ptr_b) ring_USART_datain.empty = TRUE;
 		usart_timeout = 0;
 		RCSTAbits.ADDEN = 1;	// receive just first message
+        PIE1bits.RCIE = 1;      // receive by interrupt
 		
 		// inform PC about timeout
 		respondCommandStationTimeout();
@@ -540,8 +551,8 @@ void USART_receive(void)
 		timeslot_err = TRUE;
         
         // remove buffers
-        ringClear(&ring_USART_datain);
-        ringClear(&ring_USB_datain);
+        ringClear((ring_generic*)&ring_USART_datain);
+        ringClear((ring_generic*)&ring_USB_datain);
         		
         /* timeslot timeout -> connection to PC is probably without any data ->
          * we could send data to USB directly and assume mUSBUSARTIsTxTrfReady()
@@ -550,116 +561,165 @@ void USART_receive(void)
 		USB_Out_Buffer[0] = 0x01;
 		USB_Out_Buffer[1] = 0x05;
 		USB_Out_Buffer[2] = 0x04;
-		if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 3);
-	}
-	
+		if (mUSBUSARTIsTxTrfReady()) putUSBUSART((char*)USB_Out_Buffer, 3);
+	}    
+}
+
+/* RECEIVING A BYTE FROM MAIN LOOP
+ *  This function should be called only when USART_received buffer is free.
+ */
+void USART_receive_main(void)
+{
 	if ((XPRESSNET_DIR == XPRESSNET_OUT) || (!USARTInputData())) return;
 	usart_timeout = 0;
 		
-	received = USARTReadByte();
-	
+	USART_received = USARTReadByte();
+
 	#ifdef FERR_FEATURE
 		// increment framing eror counter in case of framing error
-		ferr_counter += received.FERR;
+		ferr_counter += USART_received.FERR;
 	#endif
-		
-	if ((!received.ninth) && (RCSTAbits.ADDEN)) return; // is this necessary?
-		
-	if (received.ninth) {		 
+}
+
+/* RECEIVING A BYTE FROM AN INTERRUPT
+ * This function is called only if ninth bit is 1.
+ * This function must be as fast as possible!
+ * This and only this function processes normal inquiery and request acknowledgement.
+ * Other messages are processes in USART_process_message.
+ */
+void USART_receive_interrupt(void)
+{
+    USART_received = USARTReadByte();
+    
+    // data not for us -> will be processed in USART_receive_main
+    if ((USART_received.data & 0x1F) != xn_addr) return;
+
+    usart_timeout = 0;
+    // I do not care about the parity. No time!
+    
+    if (((USART_received.data >> 5) & 0b11) == 0b10) {
+        // normal inquiry
+        
+        // first thing to do: send data as soon as possible! (we have only 80 us)
+        if (USART_msg_to_send) {
+            XPRESSNET_DIR = XPRESSNET_OUT;
+            USART_send();
+        }
+        
+        timeslot_err = FALSE;
+        usart_longer_timeout = programming_mode;
+        if ((timeslot_timeout >= TIMESLOT_MAX_TIMEOUT) || (force_ok_response)) {
+            // ok response must be sent always after short timeout					
+            if (force_ok_response) force_ok_response = FALSE;
+            respondOK();
+        }
+        timeslot_timeout = 0;
+				
+		if (USART_msg_to_send) { Check_XN_timeout_supress(ring_USB_datain.ptr_b); }
+        USART_received.ready = FALSE; // message processed
+        
+	} else if (((USART_received.data >> 5) & 0b11) == 0b00) {
+        // request acknowledgement
+        // send Acknowledgement Response to command station (this should be done by LI)
+                    
+        if (ringFreeSpace(ring_USB_datain) < 2) {
+            // This situation should not happen. 2 bytes in ring_USB_datain
+            // are always reserved for acknowledgement response.
+            ringClear((ring_generic*)&ring_USB_datain);
+        }
+
+        // add ACK to beginning of the buffer
+        ring_USB_datain.ptr_b = (ring_USB_datain.ptr_b-2) & ring_USB_datain.max;
+        ring_USB_datain.empty = FALSE;
+        ring_USB_datain.data[ring_USB_datain.ptr_b] = 0x20;
+        ring_USB_datain.data[(ring_USB_datain.ptr_b+1) & ring_USB_datain.max] = 0x20;
+        usart_to_send = ring_USB_datain.ptr_b;
+								
+        // send ACK to command station
+        XPRESSNET_DIR = XPRESSNET_OUT;
+        USART_send();
+                
+        // send message to PC
+        respondXORerror();
+        USART_received.ready = FALSE; // message processes
+    } else {
+        // normal message -> read in main
+        PIE1bits.RCIE = 0;
+    }
+    
+	#ifdef FERR_FEATURE
+		// increment framing eror counter in case of framing error
+		ferr_counter += USART_received.FERR;
+	#endif
+    
+    // toggle LED
+    if (mLED_In_Timeout >= 2*MLED_IN_MAX_TIMEOUT) {
+        mLED_In_Off();
+        mLED_In_Timeout = 0;
+    }
+}
+
+/* PROCESSING INPUT DATA (other than normal inquiry and request for ACK)
+ * This function must be called only if USART_received.ready
+ * This function cannot be called with normal inquiiry or request for acknowledgement.
+ * In this function, we have a lot of time.
+ */
+void USART_process_message(void)
+{
+    BOOL parity;    
+    static BYTE xor = 0;
+    BYTE i;
+    
+    USART_received.ready = FALSE;       // byte is parsed
+    
+    if (USART_received.ninth) {
 		// 9 bit is 1 -> header byte
 		// we are waiting for call byte with our address
 
-		if ((xn_addr == (received.data & 0x1F)) || ((received.data & 0x1F) == 0)) {
+		if ((xn_addr == (USART_received.data & 0x1F)) || ((USART_received.data & 0x1F) == 0)) {
 			// new message for us -> check for parity
-			for(i = 0, parity = 0; i < 8; i++) if ((received.data >> i) & 1) parity = !parity;
+			for(i = 0, parity = 0; i < 8; i++) if ((USART_received.data >> i) & 1) parity = !parity;
 			if (parity != 0) {
 				// parity error
 				respondXORerror();
 				return;
 			}
 			
-			// toggle LED
-			if (mLED_In_Timeout >= 2*MLED_IN_MAX_TIMEOUT) {
-				mLED_In_Off();
-				mLED_In_Timeout = 0;
-			}
-			
-			if (ring_USART_datain.ptr_e != last_start) {
+			if (ring_USART_datain.ptr_e != USART_last_start) {
 				// beginning of new message received before previous mesage was completely received -> delete previous message
-				ring_USART_datain.ptr_e = last_start;
+				ring_USART_datain.ptr_e = USART_last_start;
 				if (ring_USART_datain.ptr_e == ring_USART_datain.ptr_b) ring_USART_datain.empty = TRUE;
 				
 				// send info to PC
 				respondCommandStationTimeout();
 			}
 			
-			if ((((received.data >> 5) & 0b11) == 0b10) && ((received.data & 0x1F) == xn_addr)) {
-				// normal inquiry
-				timeslot_err = FALSE;
-				usart_longer_timeout = programming_mode;
-				if ((timeslot_timeout >= TIMESLOT_MAX_TIMEOUT) || (force_ok_response)) {
-					// ok response must be sent always after short timeout					
-                    if (force_ok_response) force_ok_response = FALSE;
-                    respondOK();
-				}
-                timeslot_timeout = 0;
+			// start of message for us (or broadcast)
 				
-				// any dara to send?
-				if (USART_msg_to_send) {
-					// change direction and send data
-					XPRESSNET_DIR = XPRESSNET_OUT;
-					Check_XN_timeout_supress(ring_USB_datain.ptr_b);
-					USART_send();
-				}
-			} else if ((((received.data >> 5) & 0b11) == 0b00) && ((received.data & 0x1F) == xn_addr)) {
-				// request acknowledgement
-				// send Acknowledgement Response to command station (this should be done by LI)
+			if (!usb_configured) return;
 				
-				if (ringFreeSpace(&ring_USB_datain) < 2) {
-					// This situation should not happen. 2 bytes in ring_USB_datain
-					// are always reserved for acknowledgement response.
-					ringClear(&ring_USB_datain);
-				}
-
-                // add ACK to beginning of the buffer
-                ring_USB_datain.ptr_b = (ring_USB_datain.ptr_b-2) & ring_USB_datain.max;
-                ring_USB_datain.empty = FALSE;
-                ring_USB_datain.data[ring_USB_datain.ptr_b] = 0x20;
-                ring_USB_datain.data[(ring_USB_datain.ptr_b+1) & ring_USB_datain.max] = 0x20;
-                usart_to_send = ring_USB_datain.ptr_b;
-								
-                // send ACK to command station
-				XPRESSNET_DIR = XPRESSNET_OUT;
-				USART_send();
-                
-				// send message to PC
-				respondXORerror();
-			} else {
-				// start of message for us (or broadcast)
-				
-				if (!usb_configured) return;
-				
-				// -> check space in buffer
-				if (ringFull(&ring_USART_datain)) {					
-                    // buffer full -> probably no space to send data to PC
-                    // -> do not send information message to PC
-                    //respondBufferFull();
-					return;
-				}
-					
-				RCSTAbits.ADDEN = 0;	// receive all messages
-				last_start = ring_USART_datain.ptr_e;
-				xor = 0;
-				ringAddByte(&ring_USART_datain, received.data);
+			// -> check space in buffer
+			if (ringFull(ring_USART_datain)) {					
+                // buffer full -> probably no space to send data to PC
+                // -> do not send information message to PC
+                //respondBufferFull();
+				return;
 			}
+					
+			RCSTAbits.ADDEN = 0;	// receive all messages
+            PIE1bits.RCIE = 0;      // receive in main
+			USART_last_start = ring_USART_datain.ptr_e;
+			xor = 0;
+			ringAddByte((ring_generic*)&ring_USART_datain, USART_received.data);
 		}
 	} else {
 		// ninth bit is 0
 		// this situation happens only if message is for us (guaranteed by RCSTAbits.ADDEN)
-		if (ringFull(&ring_USART_datain)) {
+		if (ringFull(ring_USART_datain)) {
 			// reset buffer and wait for next message
-			ring_USART_datain.ptr_e = last_start;
+			ring_USART_datain.ptr_e = USART_last_start;
 			RCSTAbits.ADDEN = 1;
+            PIE1bits.RCIE = 1;
 			if (ring_USART_datain.ptr_e == ring_USART_datain.ptr_b) ring_USART_datain.empty = TRUE;
 			
 			// inform PC about buffer overflow
@@ -667,25 +727,26 @@ void USART_receive(void)
 			
 			return;
 		}
-		ringAddByte(&ring_USART_datain, received.data);
-		xor ^= received.data;
+		ringAddByte((ring_generic*)&ring_USART_datain, USART_received.data);
+		xor ^= USART_received.data;
 		
-		if (USART_last_message_len >= USART_msg_len(last_start)) {
+		if (USART_last_message_len >= USART_msg_len(USART_last_start)) {
 			// whole message received
-			
+            
 			if (xor != 0) {
 				// xor error
-				ring_USART_datain.ptr_e = last_start;
+				ring_USART_datain.ptr_e = USART_last_start;
 				if (ring_USART_datain.ptr_e == ring_USART_datain.ptr_b) ring_USART_datain.empty = TRUE;
 				respondXORerror();
 			} else {
 				// xor ok
-                CheckBroadcast(last_start);
-				last_start = ring_USART_datain.ptr_e;	// whole message succesfully received                
+                CheckBroadcast(USART_last_start);
+				USART_last_start = ring_USART_datain.ptr_e;	// whole message succesfully received                
 			}
 
 			// listen for beginning of message (9. bit == 1)
 			RCSTAbits.ADDEN = 1;
+            PIE1bits.RCIE = 1;      // receive by interrupt
 		}
 	}
 }
@@ -698,11 +759,11 @@ void USB_send(void)
 	// check for USB ready
 	if (!mUSBUSARTIsTxTrfReady()) return;
 
-	if (((ringLength(&ring_USART_datain)) >= 1) && (ringLength(&ring_USART_datain) >= USART_msg_len(ring_USART_datain.ptr_b))) {
+	if (((ringLength(ring_USART_datain)) >= 1) && (ringLength(ring_USART_datain) >= USART_msg_len(ring_USART_datain.ptr_b))) {
 		// send message
-		ringSerialize(&ring_USART_datain, (BYTE*)USB_Out_Buffer, ring_USART_datain.ptr_b, USART_msg_len(ring_USART_datain.ptr_b));
-		putUSBUSART(USB_Out_Buffer+1, ((USB_Out_Buffer[1])&0x0F)+2);
-		ringRemoveFrame(&ring_USART_datain, ((USB_Out_Buffer[1])&0x0F)+3);
+		ringSerialize((ring_generic*)&ring_USART_datain, (BYTE*)USB_Out_Buffer, ring_USART_datain.ptr_b, USART_msg_len(ring_USART_datain.ptr_b));
+		putUSBUSART((char*)USB_Out_Buffer+1, ((USB_Out_Buffer[1])&0x0F)+2);
+		ringRemoveFrame((ring_generic*)&ring_USART_datain, ((USB_Out_Buffer[1])&0x0F)+3);
 	}
 }
 
@@ -724,7 +785,7 @@ void USB_receive(void)
 		// ring_USB_datain overflow check
 		// 2 bytes in the buffer are always reserved for the Acknowledgement
 		// response.
-		if (ringFreeSpace(&ring_USB_datain) < 2) {
+		if (ringFreeSpace(ring_USB_datain) < 2) {
 			// delete last message
 			ring_USB_datain.ptr_e = last_start;
 			if (ring_USB_datain.ptr_b == ring_USB_datain.ptr_e) ring_USART_datain.empty = TRUE;
@@ -735,7 +796,7 @@ void USB_receive(void)
 			return;
 		}
 		
-		received_len = getsUSBUSART(&ring_USB_datain, ringFreeSpace(&ring_USB_datain));
+		received_len = getsUSBUSART((ring_generic*)&ring_USB_datain, ringFreeSpace(ring_USB_datain));
 		if (received_len == 0) {
 			// check for timeout
 			if ((usb_timeout >= USB_MAX_TIMEOUT) && (last_start != ring_USB_datain.ptr_e)) {
@@ -747,14 +808,14 @@ void USB_receive(void)
 				USB_Out_Buffer[0] = 0x01;
 				USB_Out_Buffer[1] = 0x01;
 				USB_Out_Buffer[2] = 0x00;
-				if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 3);
+				if (mUSBUSARTIsTxTrfReady()) putUSBUSART((char*)USB_Out_Buffer, 3);
 			}
 			return;
 		}
 		usb_timeout = 0;
 				
 		// data received -> parse data
-		while ((ringDistance(&ring_USB_datain, last_start, ring_USB_datain.ptr_e) > 0) &&
+		while ((ringDistance(ring_USB_datain, last_start, ring_USB_datain.ptr_e) > 0) &&
 				(USB_last_message_len >= USB_msg_len(last_start))) {
 			
 			// whole message received -> check for xor
@@ -764,7 +825,7 @@ void USB_receive(void)
 			if (xor != ring_USB_datain.data[(i+last_start) & ring_USB_datain.max]) {
 				// xor error
 				// here, we need to delete content in the middle of ring buffer
-				ringRemoveFromMiddle(&ring_USB_datain, last_start, USB_msg_len(last_start));
+				ringRemoveFromMiddle((ring_generic*)&ring_USB_datain, last_start, USB_msg_len(last_start));
 				respondXORerror();
 				return;
 			}
@@ -773,7 +834,7 @@ void USB_receive(void)
 			if (USB_parse_data(last_start, USB_msg_len(last_start))) {
 				// timeslot not available -> respond "Buffer full"
 				if (timeslot_err) {
-					ringRemoveFromMiddle(&ring_USB_datain, last_start, USB_msg_len(last_start));
+					ringRemoveFromMiddle((ring_generic*)&ring_USB_datain, last_start, USB_msg_len(last_start));
 					respondBufferFull();
 					return;
 				}
@@ -800,16 +861,16 @@ BOOL USB_parse_data(BYTE start, BYTE len)
 {
 	if (ring_USB_datain.data[start] == 0xF0) {
 		// Instruction for the determination of the version and code number of LI
-		ringRemoveFromMiddle(&ring_USB_datain, start, 2);
+		ringRemoveFromMiddle((ring_generic*)&ring_USB_datain, start, 2);
 		USB_Out_Buffer[0] = 0x02;
 		USB_Out_Buffer[1] = VERSION_HW;
 		USB_Out_Buffer[2] = VERSION_FW;
 		USB_Out_Buffer[3] = calc_xor((BYTE*)USB_Out_Buffer, 3);
-		if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 4);
+		if (mUSBUSARTIsTxTrfReady()) putUSBUSART((char*)USB_Out_Buffer, 4);
 	} else if ((ring_USB_datain.data[start] == 0xF2) &&
 			(ring_USB_datain.data[(start+1)&ring_USB_datain.max] == 0x01)) {
 		// Instruction for setting the LI101’s XpressNet address
-		ringRemoveFromMiddle(&ring_USB_datain, start, 4);
+		ringRemoveFromMiddle((ring_generic*)&ring_USB_datain, start, 4);
 
 		// set xpressnet addr
 		if ((ring_USB_datain.data[(start+2)&ring_USB_datain.max] > 0) && (ring_USB_datain.data[(start+2)&ring_USB_datain.max] < 32)) {
@@ -825,23 +886,23 @@ BOOL USB_parse_data(BYTE start, BYTE len)
 		USB_Out_Buffer[1] = 0x01;
 		USB_Out_Buffer[2] = xn_addr;
 		USB_Out_Buffer[3] = calc_xor((BYTE*)USB_Out_Buffer, 3);
-		if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 4);
+		if (mUSBUSARTIsTxTrfReady()) putUSBUSART((char*)USB_Out_Buffer, 4);
 	} else if ((ring_USB_datain.data[start] == 0xF2) &&
 			(ring_USB_datain.data[(start+1)&ring_USB_datain.max] == 0x02)) {
 		// Instruction for setting the LI101 Baud Rate
-		ringRemoveFromMiddle(&ring_USB_datain, start, 4);
+		ringRemoveFromMiddle((ring_generic*)&ring_USB_datain, start, 4);
 		USB_Out_Buffer[0] = 0xF2;
 		USB_Out_Buffer[1] = 0x02;
 		USB_Out_Buffer[2] = ring_USB_datain.data[(start+2)&ring_USB_datain.max];
 		USB_Out_Buffer[3] = calc_xor((BYTE*)USB_Out_Buffer, 3);
-		if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 4);
+		if (mUSBUSARTIsTxTrfReady()) putUSBUSART((char*)USB_Out_Buffer, 4);
 	
 	#ifdef FERR_FEATURE
 	} else if ((ring_USB_datain.data[start] == 0xF1) &&
 			(ring_USB_datain.data[(start+1)&ring_USB_datain.max] == 0x05)) {
 		// special feture of uLI: framing error response
 		// FERR is sent as response to 0xF1 0x05 0xF4 as 0xF4 0x05 FERR_HH FERR_H FERR_L XOR
-		ringRemoveFromMiddle(&ring_USB_datain, start, 3);
+		ringRemoveFromMiddle((ring_generic*)&ring_USB_datain, start, 3);
 
 		USB_Out_Buffer[0] = 0xF4;
 		USB_Out_Buffer[1] = 0x05;
@@ -849,7 +910,7 @@ BOOL USB_parse_data(BYTE start, BYTE len)
 		USB_Out_Buffer[3] = (ferr_in_10_s >> 8) & 0xFF;
 		USB_Out_Buffer[4] = ferr_in_10_s & 0xFF;
 		USB_Out_Buffer[5] = calc_xor((BYTE*)USB_Out_Buffer, 5);
-		if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 6);
+		if (mUSBUSARTIsTxTrfReady()) putUSBUSART((char*)USB_Out_Buffer, 6);
 	#endif
 
 	} else {
@@ -898,7 +959,7 @@ void USART_send(void)
         mLED_Out_Timeout = 0;   // we do not want to switch the LED off
 	}
     
-    mLED_Out_On();    
+    mLED_Out_On();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -907,7 +968,7 @@ void dumpBufToUSB(ring_generic* buf)
 {
 	int i;
 	for (i = 0; i <= buf->max; i++) USB_Out_Buffer[i] = buf->data[i];
-	putUSBUSART(USB_Out_Buffer, buf->max+1);
+	putUSBUSART((char*)USB_Out_Buffer, buf->max+1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -917,7 +978,7 @@ void respondOK(void)
 	USB_Out_Buffer[0] = 0x01;
 	USB_Out_Buffer[1] = 0x04;
 	USB_Out_Buffer[2] = 0x05;
-	if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 3);
+	if (mUSBUSARTIsTxTrfReady()) putUSBUSART((char*)USB_Out_Buffer, 3);
 }
 
 void respondXORerror(void)
@@ -925,7 +986,7 @@ void respondXORerror(void)
 	USB_Out_Buffer[0] = 0x01;
 	USB_Out_Buffer[1] = 0x03;
 	USB_Out_Buffer[2] = 0x02;
-	if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 3);
+	if (mUSBUSARTIsTxTrfReady()) putUSBUSART((char*)USB_Out_Buffer, 3);
 }
 
 void respondBufferFull(void)
@@ -933,7 +994,7 @@ void respondBufferFull(void)
 	USB_Out_Buffer[0] = 0x01;
 	USB_Out_Buffer[1] = 0x06;
 	USB_Out_Buffer[2] = 0x07;
-	if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 3);
+	if (mUSBUSARTIsTxTrfReady()) putUSBUSART((char*)USB_Out_Buffer, 3);
 }
 
 void respondCommandStationTimeout(void)
@@ -941,7 +1002,7 @@ void respondCommandStationTimeout(void)
 	USB_Out_Buffer[0] = 0x01;
 	USB_Out_Buffer[1] = 0x02;
 	USB_Out_Buffer[2] = 0x03;
-	if (mUSBUSARTIsTxTrfReady()) putUSBUSART(USB_Out_Buffer, 3);
+	if (mUSBUSARTIsTxTrfReady()) putUSBUSART((char*)USB_Out_Buffer, 3);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1001,7 +1062,7 @@ void CheckPwrLEDStatus(void)
 {
 	BYTE new;
 	new = (ferr_in_10_s > PWR_LED_FERR_COUNT) << 1;
-	new |= ((ringLength(&ring_USART_datain) >= (ring_USART_datain.max+1)/2) || (ringLength(&ring_USB_datain) >= (ring_USB_datain.max+1)/2)) << 2;
+	new |= ((ringLength(ring_USART_datain) >= (ring_USART_datain.max+1)/2) || (ringLength(ring_USB_datain) >= (ring_USB_datain.max+1)/2)) << 2;
 	if (new == 0) new = 1;
 	pwr_led_status = new;
 }
@@ -1016,7 +1077,7 @@ void CheckBroadcast(int xn_start_index)
     static BYTE data[3];
     
     // serialize data from buffer
-    ringSerialize(&ring_USART_datain, data, xn_start_index, 4);
+    ringSerialize((ring_generic*)&ring_USART_datain, data, xn_start_index, 4);
     
     if ((data[0] == 0x60) && (data[1] == 0x61) && (data[2] == 0x02)) {
         // service mode entry
@@ -1028,7 +1089,7 @@ void CheckBroadcast(int xn_start_index)
         // normal operations resumed
         programming_mode = FALSE;
         usart_longer_timeout = FALSE;
-    }    
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

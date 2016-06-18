@@ -22,7 +22,7 @@ void USARTInit(void)
 	SPBRG = 11;
 	
 	XPRESSNET_DIR = XPRESSNET_IN;		// switch bus for read
-	
+	    
 	TXSTAbits.SYNC	= 0;  // enable async mode
 	RCSTAbits.SPEN	= 1;  // enable async mode
 	TXSTAbits.TX9	= 1;  // 9-bit sending
@@ -31,6 +31,9 @@ void USARTInit(void)
 						  // TX interrupt must be in high level (otherwise will not match 80 us window)
 	RCSTAbits.CREN	= 1;  // enable RX
 	TXSTAbits.TXEN	= 1;  // enable TX
+        
+    IPR1bits.RCIP   = 1;  // receive interrupt high priority
+    PIE1bits.RCIE   = 1;  // enable read interrupt
 }
 
 // Write byte to USART
@@ -60,6 +63,7 @@ nine_data USARTReadByte(void)
 	// error in RCSTA
 	received.ninth = RCSTAbits.RX9D;	// ninth bit (most significant) must be read before reading RCREG
 	received.data  = RCREG;
+    received.ready = TRUE;
 	// RCSTAbits.ADDEN <- set to 1 to ignore messages with 9. bit "0" -- useful for address detecting, clean ADDEN after receiving first word for me
 	if (RCSTAbits.OERR) RCSTAbits.CREN = 0; // Overrun Error must be cleared manually
 	PIR1bits.RCIF = 0;
