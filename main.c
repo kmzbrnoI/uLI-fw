@@ -92,7 +92,7 @@
 
 /** V A R I A B L E S ********************************************************/
 #pragma udata
-volatile char USB_Out_Buffer[32];
+volatile char USB_Out_Buffer[32];                   // WARNING: this buffer should not be manipulated in interrupts!
 
 volatile ring_generic ring_USB_datain;
 volatile ring_generic ring_USART_datain;
@@ -560,10 +560,12 @@ void USART_check_timeouts(void)
          * we could send data to USB directly and assume mUSBUSARTIsTxTrfReady()
          * is always true.
          */        
-		USB_Out_Buffer[0] = 0x01;
-		USB_Out_Buffer[1] = 0x05;
-		USB_Out_Buffer[2] = 0x04;
-		if (mUSBUSARTIsTxTrfReady()) putUSBUSART((char*)USB_Out_Buffer, 3);
+        if (mUSBUSARTIsTxTrfReady()) {
+            USB_Out_Buffer[0] = 0x01;
+            USB_Out_Buffer[1] = 0x05;
+            USB_Out_Buffer[2] = 0x04;
+            putUSBUSART((char*)USB_Out_Buffer, 3);
+        }
 	}    
 }
 
@@ -805,10 +807,12 @@ void USB_receive(void)
 				if (ring_USB_datain.ptr_e == ring_USB_datain.ptr_b) ring_USB_datain.empty = TRUE;
 				
 				// inform PC about timeout
-				USB_Out_Buffer[0] = 0x01;
-				USB_Out_Buffer[1] = 0x01;
-				USB_Out_Buffer[2] = 0x00;
-				if (mUSBUSARTIsTxTrfReady()) putUSBUSART((char*)USB_Out_Buffer, 3);
+                if (mUSBUSARTIsTxTrfReady()) {
+                    USB_Out_Buffer[0] = 0x01;
+                    USB_Out_Buffer[1] = 0x01;
+                    USB_Out_Buffer[2] = 0x00;
+                    putUSBUSART((char*)USB_Out_Buffer, 3);
+                }
 			}
 			return;
 		}
@@ -862,11 +866,13 @@ BOOL USB_parse_data(BYTE start, BYTE len)
 	if (ring_USB_datain.data[start] == 0xF0) {
 		// Instruction for the determination of the version and code number of LI
 		ringRemoveFromMiddle((ring_generic*)&ring_USB_datain, start, 2);
-		USB_Out_Buffer[0] = 0x02;
-		USB_Out_Buffer[1] = VERSION_HW;
-		USB_Out_Buffer[2] = VERSION_FW;
-		USB_Out_Buffer[3] = calc_xor((BYTE*)USB_Out_Buffer, 3);
-		if (mUSBUSARTIsTxTrfReady()) putUSBUSART((char*)USB_Out_Buffer, 4);
+        if (mUSBUSARTIsTxTrfReady()) {
+            USB_Out_Buffer[0] = 0x02;
+            USB_Out_Buffer[1] = VERSION_HW;
+            USB_Out_Buffer[2] = VERSION_FW;
+    		USB_Out_Buffer[3] = calc_xor((BYTE*)USB_Out_Buffer, 3);
+    		putUSBUSART((char*)USB_Out_Buffer, 4);
+        }
 	} else if ((ring_USB_datain.data[start] == 0xF2) &&
 			(ring_USB_datain.data[(start+1)&ring_USB_datain.max] == 0x01)) {
 		// Instruction for setting the LI101’s XpressNet address
@@ -882,20 +888,24 @@ BOOL USB_parse_data(BYTE start, BYTE len)
 		// LI should not change its address, but respond with current address
 		// This allows PC to determine LI`s address.
 		
-		USB_Out_Buffer[0] = 0xF2;
-		USB_Out_Buffer[1] = 0x01;
-		USB_Out_Buffer[2] = xn_addr;
-		USB_Out_Buffer[3] = calc_xor((BYTE*)USB_Out_Buffer, 3);
-		if (mUSBUSARTIsTxTrfReady()) putUSBUSART((char*)USB_Out_Buffer, 4);
+        if (mUSBUSARTIsTxTrfReady()) {
+            USB_Out_Buffer[0] = 0xF2;
+            USB_Out_Buffer[1] = 0x01;
+            USB_Out_Buffer[2] = xn_addr;
+            USB_Out_Buffer[3] = calc_xor((BYTE*)USB_Out_Buffer, 3);
+            putUSBUSART((char*)USB_Out_Buffer, 4);
+        }
 	} else if ((ring_USB_datain.data[start] == 0xF2) &&
 			(ring_USB_datain.data[(start+1)&ring_USB_datain.max] == 0x02)) {
 		// Instruction for setting the LI101 Baud Rate
 		ringRemoveFromMiddle((ring_generic*)&ring_USB_datain, start, 4);
-		USB_Out_Buffer[0] = 0xF2;
-		USB_Out_Buffer[1] = 0x02;
-		USB_Out_Buffer[2] = ring_USB_datain.data[(start+2)&ring_USB_datain.max];
-		USB_Out_Buffer[3] = calc_xor((BYTE*)USB_Out_Buffer, 3);
-		if (mUSBUSARTIsTxTrfReady()) putUSBUSART((char*)USB_Out_Buffer, 4);
+        if (mUSBUSARTIsTxTrfReady()) {
+            USB_Out_Buffer[0] = 0xF2;
+            USB_Out_Buffer[1] = 0x02;
+            USB_Out_Buffer[2] = ring_USB_datain.data[(start+2)&ring_USB_datain.max];
+            USB_Out_Buffer[3] = calc_xor((BYTE*)USB_Out_Buffer, 3);
+            putUSBUSART((char*)USB_Out_Buffer, 4);
+        }
 	
 	#ifdef FERR_FEATURE
 	} else if ((ring_USB_datain.data[start] == 0xF1) &&
@@ -904,13 +914,15 @@ BOOL USB_parse_data(BYTE start, BYTE len)
 		// FERR is sent as response to 0xF1 0x05 0xF4 as 0xF4 0x05 FERR_HH FERR_H FERR_L XOR
 		ringRemoveFromMiddle((ring_generic*)&ring_USB_datain, start, 3);
 
-		USB_Out_Buffer[0] = 0xF4;
-		USB_Out_Buffer[1] = 0x05;
-		USB_Out_Buffer[2] = (ferr_in_10_s >> 16) & 0xFF;
-		USB_Out_Buffer[3] = (ferr_in_10_s >> 8) & 0xFF;
-		USB_Out_Buffer[4] = ferr_in_10_s & 0xFF;
-		USB_Out_Buffer[5] = calc_xor((BYTE*)USB_Out_Buffer, 5);
-		if (mUSBUSARTIsTxTrfReady()) putUSBUSART((char*)USB_Out_Buffer, 6);
+        if (mUSBUSARTIsTxTrfReady()) {
+            USB_Out_Buffer[0] = 0xF4;
+            USB_Out_Buffer[1] = 0x05;
+            USB_Out_Buffer[2] = (ferr_in_10_s >> 16) & 0xFF;
+            USB_Out_Buffer[3] = (ferr_in_10_s >> 8) & 0xFF;
+            USB_Out_Buffer[4] = ferr_in_10_s & 0xFF;
+    		USB_Out_Buffer[5] = calc_xor((BYTE*)USB_Out_Buffer, 5);
+    		if (mUSBUSARTIsTxTrfReady()) putUSBUSART((char*)USB_Out_Buffer, 6);
+        }
 	#endif
 
 	} else {
@@ -976,34 +988,42 @@ void dumpBufToUSB(ring_generic* buf)
 
 void respondOK(void)
 {
-	USB_Out_Buffer[0] = 0x01;
-	USB_Out_Buffer[1] = 0x04;
-	USB_Out_Buffer[2] = 0x05;
-	if (mUSBUSARTIsTxTrfReady()) putUSBUSART((char*)USB_Out_Buffer, 3);
+    if (mUSBUSARTIsTxTrfReady()) {
+        USB_Out_Buffer[0] = 0x01;
+        USB_Out_Buffer[1] = 0x04;
+        USB_Out_Buffer[2] = 0x05;
+        putUSBUSART((char*)USB_Out_Buffer, 3);
+    }
 }
 
 void respondXORerror(void)
 {
-	USB_Out_Buffer[0] = 0x01;
-	USB_Out_Buffer[1] = 0x03;
-	USB_Out_Buffer[2] = 0x02;
-	if (mUSBUSARTIsTxTrfReady()) putUSBUSART((char*)USB_Out_Buffer, 3);
+    if (mUSBUSARTIsTxTrfReady()) {
+        USB_Out_Buffer[0] = 0x01;
+        USB_Out_Buffer[1] = 0x03;
+    	USB_Out_Buffer[2] = 0x02;
+    	putUSBUSART((char*)USB_Out_Buffer, 3);
+    }
 }
 
 void respondBufferFull(void)
 {
-	USB_Out_Buffer[0] = 0x01;
-	USB_Out_Buffer[1] = 0x06;
-	USB_Out_Buffer[2] = 0x07;
-	if (mUSBUSARTIsTxTrfReady()) putUSBUSART((char*)USB_Out_Buffer, 3);
+    if (mUSBUSARTIsTxTrfReady()) {
+        USB_Out_Buffer[0] = 0x01;
+        USB_Out_Buffer[1] = 0x06;
+        USB_Out_Buffer[2] = 0x07;
+    	putUSBUSART((char*)USB_Out_Buffer, 3);
+    }
 }
 
 void respondCommandStationTimeout(void)
 {
-	USB_Out_Buffer[0] = 0x01;
-	USB_Out_Buffer[1] = 0x02;
-	USB_Out_Buffer[2] = 0x03;
-	if (mUSBUSARTIsTxTrfReady()) putUSBUSART((char*)USB_Out_Buffer, 3);
+    if (mUSBUSARTIsTxTrfReady()) {
+        USB_Out_Buffer[0] = 0x01;
+        USB_Out_Buffer[1] = 0x02;
+    	USB_Out_Buffer[2] = 0x03;
+    	putUSBUSART((char*)USB_Out_Buffer, 3);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
