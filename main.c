@@ -144,25 +144,22 @@ volatile BYTE USART_last_start = 0;
 
 
 /** P R I V A T E  P R O T O T Y P E S ***************************************/
-static void InitializeSystem(void);
-void USBDeviceTasks(void);
 void YourHighPriorityISRCode();
 void YourLowPriorityISRCode();
-void BlinkUSBStatus(void);
+
+static void InitializeSystem(void);
 void UserInit(void);
 
-//void USART_receive_main(void);
-void USART_receive_interrupt(void);
-//void USART_process_message(void);
-void USART_send(void);
-void USART_check_timeouts(void);
-
+void USBDeviceTasks(void);
 void USB_send(void);
 void USB_receive(void);
 BOOL USB_parse_data(BYTE start, BYTE len);
+
+void USART_receive_interrupt(void);
+void USART_send(void);
+void USART_check_timeouts(void);
+
 BYTE calc_xor(BYTE* data, BYTE len);
-void Timer2(void);
-void ProcessIO(void);
 void dumpBufToUSB(ring_generic* buf);
 void checkResponseToPC(BYTE header, BYTE id);
 void InitEEPROM(void);
