@@ -245,12 +245,14 @@ void respondCommandStationTimeout(void);
                 if (timeslot_timeout < TIMESLOT_LONG_MAX_TIMEOUT) timeslot_timeout++;
                 
                 // mLEDout timeout
-    			if (mLED_Out_Timeout < 2*MLED_OUT_MAX_TIMEOUT) {
-    				mLED_Out_Timeout++;
-    				if (mLED_Out_Timeout == MLED_OUT_MAX_TIMEOUT) {
-    					mLED_Out_Off();
-    				}
-    			}
+                #ifndef DEBUG
+        			if (mLED_Out_Timeout < 2*MLED_OUT_MAX_TIMEOUT) {
+        				mLED_Out_Timeout++;
+        				if (mLED_Out_Timeout == MLED_OUT_MAX_TIMEOUT) {
+        					mLED_Out_Off();
+        				}
+        			}
+                #endif
                 
     			#ifdef FERR_FEATURE
     				// framing error counting
@@ -262,13 +264,15 @@ void respondCommandStationTimeout(void);
     			#endif
                 
     			// mLEDIn timeout
-    			if (mLED_In_Timeout < 2*MLED_IN_MAX_TIMEOUT) {
-    				mLED_In_Timeout++;
-    				if (mLED_In_Timeout == MLED_IN_MAX_TIMEOUT) {
-    					mLED_In_On();
-    				}
-    			}
-			
+                #ifndef DEBUG
+        			if (mLED_In_Timeout < 2*MLED_IN_MAX_TIMEOUT) {
+        				mLED_In_Timeout++;
+        				if (mLED_In_Timeout == MLED_IN_MAX_TIMEOUT) {
+        					mLED_In_On();
+        				}
+        			}
+                #endif
+
     			// pwrLED toggling
     			pwr_led_base_counter++;
     			if (pwr_led_base_counter >= pwr_led_base_timeout) {
@@ -655,10 +659,12 @@ void USART_receive_interrupt(void)
 	#endif
     
     // toggle LED
-    if (mLED_In_Timeout >= 2*MLED_IN_MAX_TIMEOUT) {
-        mLED_In_Off();
-        mLED_In_Timeout = 0;
-    }
+    #ifndef DEBUG
+        if (mLED_In_Timeout >= 2*MLED_IN_MAX_TIMEOUT) {
+            mLED_In_Off();
+            mLED_In_Timeout = 0;
+        }
+    #endif
 }
 
 /* PROCESSING INPUT DATA (other than normal inquiry and request for ACK)
@@ -969,10 +975,12 @@ void USART_send(void)
 		PIE1bits.TXIE = 1;
 	}
     
-    if (mLED_Out_Timeout >= 2*MLED_OUT_MAX_TIMEOUT) {
-        mLED_Out_On();
-        mLED_Out_Timeout = 0;
-    }    
+    #ifndef DEBUG
+        if (mLED_Out_Timeout >= 2*MLED_OUT_MAX_TIMEOUT) {
+            mLED_Out_On();
+            mLED_Out_Timeout = 0;
+        }    
+    #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////

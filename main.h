@@ -11,6 +11,8 @@
 extern "C" {
 #endif
 
+#undef DEBUG    
+    
 #define DEFAULT_XPRESSNET_ADDR  29
 #define XN_EEPROM_ADDR          0x00
 
