@@ -12,7 +12,6 @@ typedef struct {
     BYTE data;
     BOOL ninth;
     BOOL FERR;
-    BOOL ready;
 } nine_data;
     
 void USARTInit(void);

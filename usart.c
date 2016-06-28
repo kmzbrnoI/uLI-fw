@@ -63,7 +63,6 @@ nine_data USARTReadByte(void)
 	// error in RCSTA
 	received.ninth = RCSTAbits.RX9D;	// ninth bit (most significant) must be read before reading RCREG
 	received.data  = RCREG;
-    received.ready = TRUE;
 	// RCSTAbits.ADDEN <- set to 1 to ignore messages with 9. bit "0" -- useful for address detecting, clean ADDEN after receiving first word for me
 	if (RCSTAbits.OERR) RCSTAbits.CREN = 0; // Overrun Error must be cleared manually
 	PIR1bits.RCIF = 0;
