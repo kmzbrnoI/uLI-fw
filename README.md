@@ -1,7 +1,7 @@
 # uLI
 Ultimate LI.
 
-uLI is XpressNET &#8596; USB convertor behaving as COM port in PC (CDC).
+uLI is XpressNET &#8596; USB converter behaving as COM port in PC (CDC).
 
 * Processor: PIC18F14K50
 * Programming language: C
@@ -28,7 +28,7 @@ driver to the [driver_win](driver_win/) directory of this repo.
 
 ## EEPROM
 
-PIC stores its xpressnet address at 0x00 in EEPROM. It is not ncecessary to
+PIC stores its xpressnet address at 0x00 in EEPROM. It is not necessary to
 init EEPROM with valid address. When invalid address is loaded from EEPROM,
 PIC sets its xpressnet address to `DEFAULT_XPRESSNET_ADDR` defined in `main.h`
 (usually `25`) and saves this address to EEPROM.
@@ -44,10 +44,10 @@ hex file.
 ## LEDs
 
 ### Input LED (green)
-This LED is turned on by default. It turns off for a few miliseconds when a
+This LED is turned on by default. It turns off for a few milliseconds when a
 command arrives from a command station to uLI. This LED usually blinks as it
-shows *normal inquiry* packets arriving. If this LED is permanenty turned on,
-the command station is not sending *normal inquiry* packets and sometrhing went
+shows *normal inquiry* packets arriving. If this LED is permanently turned on,
+the command station is not sending *normal inquiry* packets and something went
 really wring.
 
 ### Output LED (green)
@@ -78,14 +78,14 @@ follow in < 20 ms. Otherwise, the first part is removed from buffer and
 transmitted to PC.
 
 ### Timeslot timeouts
-- The command station should send *normal inquiry* to each xpressnet devide
+- The command station should send *normal inquiry* to each xpressnet device
   once a while. When uLI does not receive "normal inquiry" for **5 s** (this value is
   taken from LI specification) it sends *The Command Station is no longer providing
   the LI100 a timeslot for communication* to PC. At this point, USB → XpressNET
   buffer is cleared and no more data could be received from PC until command
   station sends *normal inquiry* to uLI.
 
-  When computer tries to send data in such a situation, uLI reponds
+  When computer tries to send data in such a situation, uLI responds
   *Buffer overflow in the LI100*.
 
 - uLI also listens for *service mode entry* and *normal operations resumed*

@@ -10,11 +10,11 @@
 #include "GenericTypeDefs.h"
 
 typedef struct {
-    BYTE max;      // Maximmum index (buffer of 8 items has max 7)
-    BYTE ptr_b;    // pointer to begin (for 8 items 0..7)
-    BYTE ptr_e;    // pointer to end (for 8 items 0..7)
-    BYTE data[32]; // data
-    BOOL empty;    // wheter buffer is empty
+	BYTE max;      // Maximmum index (buffer of 8 items has max 7)
+	BYTE ptr_b;    // pointer to begin (for 8 items 0..7)
+	BYTE ptr_e;    // pointer to end (for 8 items 0..7)
+	BYTE data[32]; // data
+	BOOL empty;    // wheter buffer is empty
 } ring_generic;
 
 /* Warning: ring buffer suffers from several problems, which
@@ -42,7 +42,7 @@ void ringSerialize(ring_generic* buf, BYTE* out, BYTE start, BYTE length);
 void ringRemoveFromMiddle(ring_generic* buf, BYTE start, BYTE length);
 void ringClear(ring_generic* buf);
 void ringAddToStart(ring_generic* buf, BYTE* data, BYTE len);
-    // this function probably misbihaves, 
+	// this function probably misbihaves, 
 
 //#define ringBufferAlloc(name, size) typedef struct { BYTE max; BYTE ptr_b; BYTE ptr_e; BYTE data[size]; } ## T ## name ; T ## name name;
 #define ringBufferInit(name, size) name ## . ## max = (size-1); name ## . ## ptr_b = 0; name ## . ## ptr_e = 0; name ## . ## empty = TRUE;
