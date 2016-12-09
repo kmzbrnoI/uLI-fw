@@ -218,8 +218,8 @@ void check_device_data_to_USB(void);
 			USART_send();
 		}
 
-		if ((PIE1bits.RCIE) && (PIR1bits.RCIF)) {
-			// receive interrupt just for first byte
+		// receive interrupt
+		if ((PIE1bits.RCIE) && (PIR1bits.RCIF)) {			
 			USART_receive_interrupt();
 		}
 
@@ -526,9 +526,7 @@ BYTE calc_xor(BYTE* data, BYTE len)
  * receive interrupt is fired and data are received in USART_receive_interrupt.
  * This function should be very fast, its main purpose is to start transmission
  * from uLI to command station very fast (< 80 us). This turned out to be quite
- * big problem. All bytes except the first are received in USART_receive_main,
- * which is called from main. So, first by is received in interrupt, all other
- * bytes are received in main.
+ * big problem.
  */
 
 /* CHECKING USART TIMEOUTS
@@ -587,7 +585,6 @@ void USART_receive_interrupt(void)
 	USART_received = USARTReadByte();
 
 	usart_timeout = 0;
-	// I do not care about the parity. No time!
 
 	#ifdef FERR_FEATURE
 		// increment framing eror counter in case of framing error
@@ -884,7 +881,7 @@ BOOL USB_parse_data(BYTE start, BYTE len)
 ////////////////////////////////////////////////////////////////////////////////
 /* Send data to USART.
  * How it works:
- *	This functino is called when TX is enabled and sends each byte manually.
+ *	This functinn is called when TX is enabled and sends each byte manually.
  *	It always sends message from beginning of the ring_USB_datain buffer.
  *	\to_send is index of byte in ring_USB_datain to be send next time.
  *	Note: if this function has anything to send, it has to send it,
