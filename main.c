@@ -1,7 +1,7 @@
 /******************************************************************************
  FileName:      main.c
  Processor:     PIC18F14K50
- Hardware:      uLI 2 - JH&MP 2015
+ Hardware:      uLI 2 - JH&MP 2015-2016
  Complier:      Microchip C18
  Author:        Jan Horacek, Michal Petrilak
 */
@@ -101,6 +101,7 @@ volatile char USB_Out_Buffer[32];                   // WARNING: this buffer shou
 
 volatile ring_generic ring_USB_datain;
 volatile ring_generic ring_USART_datain;
+volatile BYTE tmp_baud_rate;
 
 #pragma idata
 
@@ -147,6 +148,9 @@ volatile BOOL programming_mode = FALSE;
 
 volatile BYTE USART_last_start = 0;
 
+// messages waiting to be sent to PC
+volatile send_waiting pc_send_waiting = {0};
+
 /** PRIVATE  PROTOTYPES *******************************************************/
 
 void YourHighPriorityISRCode();
@@ -176,6 +180,7 @@ void respondOK(void);
 void respondXORerror(void);
 void respondBufferFull(void);
 void respondCommandStationTimeout(void);
+void check_device_data_to_USB(void);
 
 /** VECTOR REMAPPING **********************************************************/
 
@@ -335,6 +340,12 @@ void main(void)
 
 		CheckPwrLEDStatus();
 		CDCTxService();
+
+        if ((pc_send_waiting.all) && (USART_last_start == ring_USART_datain.ptr_e)) {
+    		// data are not being received -> check output buffers
+            check_device_data_to_USB();
+    		USART_last_start = ring_USART_datain.ptr_e;
+    	}
 	}//end while
 }//end main
 
@@ -829,13 +840,7 @@ BOOL USB_parse_data(BYTE start, BYTE len)
 	if (ring_USB_datain.data[start] == 0xF0) {
 		// Instruction for the determination of the version and code number of LI
 		ringRemoveFromMiddle((ring_generic*)&ring_USB_datain, start, 2);
-		if (mUSBUSARTIsTxTrfReady()) {
-			USB_Out_Buffer[0] = 0x02;
-			USB_Out_Buffer[1] = VERSION_HW;
-			USB_Out_Buffer[2] = VERSION_FW;
-			USB_Out_Buffer[3] = calc_xor((BYTE*)USB_Out_Buffer, 3);
-			putUSBUSART((char*)USB_Out_Buffer, 4);
-		}
+		pc_send_waiting.bits.version = TRUE;
 	} else if ((ring_USB_datain.data[start] == 0xF2) &&
 			(ring_USB_datain.data[(start+1)&ring_USB_datain.max] == 0x01)) {
 		// Instruction for setting the LI101’s XpressNet address
@@ -850,25 +855,14 @@ BOOL USB_parse_data(BYTE start, BYTE len)
 		// according to specification, when invalid address is passed to LI
 		// LI should not change its address, but respond with current address
 		// This allows PC to determine LI`s address.
-
-		if (mUSBUSARTIsTxTrfReady()) {
-			USB_Out_Buffer[0] = 0xF2;
-			USB_Out_Buffer[1] = 0x01;
-			USB_Out_Buffer[2] = xn_addr;
-			USB_Out_Buffer[3] = calc_xor((BYTE*)USB_Out_Buffer, 3);
-			putUSBUSART((char*)USB_Out_Buffer, 4);
-		}
+		pc_send_waiting.bits.addr = TRUE;
+		
 	} else if ((ring_USB_datain.data[start] == 0xF2) &&
 			(ring_USB_datain.data[(start+1)&ring_USB_datain.max] == 0x02)) {
 		// Instruction for setting the LI101 Baud Rate
 		ringRemoveFromMiddle((ring_generic*)&ring_USB_datain, start, 4);
-		if (mUSBUSARTIsTxTrfReady()) {
-			USB_Out_Buffer[0] = 0xF2;
-			USB_Out_Buffer[1] = 0x02;
-			USB_Out_Buffer[2] = ring_USB_datain.data[(start+2)&ring_USB_datain.max];
-			USB_Out_Buffer[3] = calc_xor((BYTE*)USB_Out_Buffer, 3);
-			putUSBUSART((char*)USB_Out_Buffer, 4);
-		}
+		tmp_baud_rate = ring_USB_datain.data[(start+2)&ring_USB_datain.max];
+		pc_send_waiting.bits.baud_rate = TRUE;
 
 	#ifdef FERR_FEATURE
 	} else if ((ring_USB_datain.data[start] == 0xF1) &&
@@ -876,16 +870,7 @@ BOOL USB_parse_data(BYTE start, BYTE len)
 		// special feture of uLI: framing error response
 		// FERR is sent as response to 0xF1 0x05 0xF4 as 0xF4 0x05 FERR_HH FERR_H FERR_L XOR
 		ringRemoveFromMiddle((ring_generic*)&ring_USB_datain, start, 3);
-
-		if (mUSBUSARTIsTxTrfReady()) {
-			USB_Out_Buffer[0] = 0xF4;
-			USB_Out_Buffer[1] = 0x05;
-			USB_Out_Buffer[2] = (ferr_in_10_s >> 16) & 0xFF;
-			USB_Out_Buffer[3] = (ferr_in_10_s >> 8) & 0xFF;
-			USB_Out_Buffer[4] = ferr_in_10_s & 0xFF;
-			USB_Out_Buffer[5] = calc_xor((BYTE*)USB_Out_Buffer, 5);
-			if (mUSBUSARTIsTxTrfReady()) putUSBUSART((char*)USB_Out_Buffer, 6);
-		}
+		pc_send_waiting.bits.ferr = TRUE;
 	#endif
 
 	} else {
@@ -942,13 +927,16 @@ void USART_send(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Debug function: dump eing buffer to USB
+// Debug function: dump ring buffer to USB
+
+#ifdef DEBUG
 void dumpBufToUSB(ring_generic* buf)
 {
 	int i;
 	for (i = 0; i <= buf->max; i++) USB_Out_Buffer[i] = buf->data[i];
 	putUSBUSART((char*)USB_Out_Buffer, buf->max+1);
 }
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -1077,6 +1065,62 @@ void CheckBroadcast(int xn_start_index)
 		programming_mode = FALSE;
 		usart_longer_timeout = FALSE;
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// This function is called periodically when to data are being received
+// to USART_input buffer.
+
+void check_device_data_to_USB(void)
+{
+	if (pc_send_waiting.bits.version) {
+		if (ringFreeSpace(ring_USART_datain) < 5) return;
+		PIE1bits.RCIE = 0; // temporary disable USART receive interrupt
+		pc_send_waiting.bits.version = FALSE;
+		ringAddByte((ring_generic*)&ring_USART_datain, 0);	// first byte is a virtual LI address (for this purpose zero is enough)
+		ringAddByte((ring_generic*)&ring_USART_datain, 0x02);
+		ringAddByte((ring_generic*)&ring_USART_datain, VERSION_HW);
+		ringAddByte((ring_generic*)&ring_USART_datain, VERSION_FW);
+		ringAddByte((ring_generic*)&ring_USART_datain, (0x02 ^ VERSION_HW ^ VERSION_FW));
+		PIE1bits.RCIE = 1;
+		
+	} else if (pc_send_waiting.bits.addr) {
+        if (ringFreeSpace(ring_USART_datain) < 5) return;
+		PIE1bits.RCIE = 0; // temporary disable USART receive interrupt
+        pc_send_waiting.bits.addr = FALSE;
+		ringAddByte((ring_generic*)&ring_USART_datain, 0);	// first byte is a virtual LI address (for this purpose zero is enough)
+		ringAddByte((ring_generic*)&ring_USART_datain, 0xF2);
+		ringAddByte((ring_generic*)&ring_USART_datain, 0x01);
+		ringAddByte((ring_generic*)&ring_USART_datain, xn_addr);
+		ringAddByte((ring_generic*)&ring_USART_datain, 0xF3 ^ xn_addr);
+		PIE1bits.RCIE = 1;
+		
+    } else if (pc_send_waiting.bits.baud_rate) {
+        if (ringFreeSpace(ring_USART_datain) < 5) return;
+		PIE1bits.RCIE = 0; // temporary disable USART receive interrupt
+		pc_send_waiting.bits.baud_rate = FALSE;
+		ringAddByte((ring_generic*)&ring_USART_datain, 0);	// first byte is a virtual LI address (for this purpose zero is enough)
+		ringAddByte((ring_generic*)&ring_USART_datain, 0xF2);
+		ringAddByte((ring_generic*)&ring_USART_datain, 0x02);
+		ringAddByte((ring_generic*)&ring_USART_datain, tmp_baud_rate);
+		ringAddByte((ring_generic*)&ring_USART_datain, 0xF0 ^ tmp_baud_rate);
+		PIE1bits.RCIE = 1;
+		
+	#ifdef FERR_FEATURE
+    } else if (pc_send_waiting.bits.ferr) {
+        if (ringFreeSpace(ring_USART_datain) < 7) return;		
+		PIE1bits.RCIE = 0; // temporary disable USART receive interrupt
+		pc_send_waiting.bits.ferr = FALSE;
+		ringAddByte((ring_generic*)&ring_USART_datain, 0);	// first byte is a virtual LI address (for this purpose zero is enough)
+		ringAddByte((ring_generic*)&ring_USART_datain, 0xF4);
+		ringAddByte((ring_generic*)&ring_USART_datain, 0x05);
+		ringAddByte((ring_generic*)&ring_USART_datain, (ferr_in_10_s >> 16) & 0xFF);
+		ringAddByte((ring_generic*)&ring_USART_datain, (ferr_in_10_s >> 8) & 0xFF);
+		ringAddByte((ring_generic*)&ring_USART_datain, ferr_in_10_s & 0xFF);
+		ringAddByte((ring_generic*)&ring_USART_datain, 0xF1 ^ ((ferr_in_10_s >> 16) & 0xFF) ^ ((ferr_in_10_s >> 8) & 0xFF) ^ (ferr_in_10_s & 0xFF));		
+		PIE1bits.RCIE = 1;
+	#endif
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
