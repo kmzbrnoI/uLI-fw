@@ -49,7 +49,7 @@ void ringRemoveFromMiddle(ring_generic* buf, BYTE start, BYTE length)
 {
 	int i;
 	for (i = start; i != ((buf->ptr_e-length)&buf->max); i++)
-		buf->data[i%buf->max] = buf->data[(i+length)&buf->max];
+		buf->data[i&buf->max] = buf->data[(i+length)&buf->max];
 	buf->ptr_e = i&buf->max;
 	if (buf->ptr_b == buf->ptr_e) buf->empty = TRUE;
 }
