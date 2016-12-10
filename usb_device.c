@@ -113,7 +113,7 @@
 /** INCLUDES *******************************************************/
 #include "GenericTypeDefs.h"
 #include "Compiler.h"
-#include "USB.h"
+#include "usb.h"
 #include "HardwareProfile.h"
 
 
