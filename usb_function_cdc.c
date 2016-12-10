@@ -387,6 +387,21 @@ BYTE getsUSBUSART(ring_generic *buffer, BYTE len)
     
 }//end getsUSBUSART
 
+/**********************************************************************************
+  Function:
+        BOOL CDCIsIncomingData()
+    
+  Summary:
+    CDCIsIncomingData returns true if and only if any data in Bulk OUT endpoint
+	available.
+                                                                                   
+  **********************************************************************************/
+BOOL CDCIsIncomingData()
+{
+	if (USBHandleBusy(CDCDataOutHandle)) return FALSE;
+	return !!USBHandleGetLength(CDCDataOutHandle);
+}
+
 /******************************************************************************
   Function:
 	void putUSBUSART(char *data, BYTE length)

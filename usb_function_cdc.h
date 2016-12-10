@@ -650,5 +650,6 @@ void putrsUSBUSART(const ROM char *data);
 void putUSBUSART(char *data, BYTE Length);
 void putsUSBUSART(char *data);
 void CDCTxService(void);
+BOOL CDCIsIncomingData();
 
 #endif //CDC_H

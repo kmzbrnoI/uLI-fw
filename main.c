@@ -768,16 +768,7 @@ void USB_receive(void)
 		return;
 	}
 
-
-	/* +++ "Lock" ring_USB_datain +++
-	 * End of USB ring buffer must be locked to prevent USART_RX_INTERRUPT to
-	 * send message, which is not intended for command station, but for LI.
-	 */ 
-	ring_USB_datain_backlocked = TRUE;
-	
-	received_len = getsUSBUSART((ring_generic*)&ring_USB_datain, ringFreeSpace(ring_USB_datain));
-		
-	if (received_len == 0) {
+	if (!CDCIsIncomingData()) {
 		// check for timeout
 		if ((usb_timeout >= USB_MAX_TIMEOUT) && (last_start != ring_USB_datain.ptr_e)) {
 			ring_USB_datain.ptr_e = last_start;
@@ -792,9 +783,17 @@ void USB_receive(void)
 				putUSBUSART((char*)USB_Out_Buffer, 3);
 			}
 		}
-		goto ret;
-	}
+		return;
+	}	
+
+	/* +++ "Lock" ring_USB_datain +++
+	 * End of USB ring buffer must be locked to prevent USART_RX_INTERRUPT to
+	 * send message, which is not intended for command station, but for LI.
+	 */ 
+	ring_USB_datain_backlocked = TRUE;
 	usb_timeout = 0;
+	
+	received_len = getsUSBUSART((ring_generic*)&ring_USB_datain, ringFreeSpace(ring_USB_datain));	
 
 	// data received -> parse data
 	while ((ringDistance(ring_USB_datain, last_start, ring_USB_datain.ptr_e) > 0) &&
