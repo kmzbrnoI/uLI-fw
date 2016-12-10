@@ -776,12 +776,7 @@ void USB_receive(void)
 			if (ring_USB_datain.ptr_e == ring_USB_datain.ptr_b) ring_USB_datain.empty = TRUE;
 
 			// inform PC about timeout
-			if (mUSBUSARTIsTxTrfReady()) {
-				USB_Out_Buffer[0] = 0x01;
-				USB_Out_Buffer[1] = 0x01;
-				USB_Out_Buffer[2] = 0x00;
-				putUSBUSART((char*)USB_Out_Buffer, 3);
-			}
+			pc_send_waiting.bits.pc_timeout = TRUE;
 		}
 		return;
 	}	
@@ -1123,6 +1118,16 @@ void check_device_data_to_USB(void)
 		ring_USART_datain.data[(my_start+1) & ring_USART_datain.max] = 0x01;
 		ring_USART_datain.data[(my_start+2) & ring_USART_datain.max] = 0x02;
 		ring_USART_datain.data[(my_start+3) & ring_USART_datain.max] = 0x03;
+
+	} else if (pc_send_waiting.bits.pc_timeout) {
+        if (ringFreeSpace(ring_USART_datain) < 3) return;
+		pc_send_waiting.bits.pc_timeout = FALSE;
+		ring_USART_datain.data[my_start] = 0;	// first byte is a virtual LI address (for this purpose zero is enough)
+		my_start = ring_USART_datain.ptr_e;
+		ring_USART_datain.ptr_e = (ring_USART_datain.ptr_e + 4) & ring_USART_datain.max;
+		ring_USART_datain.data[(my_start+1) & ring_USART_datain.max] = 0x01;
+		ring_USART_datain.data[(my_start+2) & ring_USART_datain.max] = 0x01;
+		ring_USART_datain.data[(my_start+3) & ring_USART_datain.max] = 0x00;
 		
 	#ifdef FERR_FEATURE
     } else if (pc_send_waiting.bits.ferr) {

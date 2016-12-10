@@ -31,8 +31,9 @@ typedef union {
         BOOL xor_error :1;
         BOOL cs_timeout :1;
         BOOL ok :1;
+        BOOL pc_timeout :1;
     } bits;
-    BYTE all;
+    WORD all;
 } send_waiting;
 
 #ifdef __cplusplus
