@@ -107,6 +107,16 @@ transmitted to PC.
   *Normal opeartions resumed* is transmitted to PC always after the timeout
   overflowed and the command station starts adressing uLI again.
 
+## Things good to know
+
+Sometimes, the ultimate LI might behave weirdly from your point of view, so it
+it is good to know why is is doing so.
+
+- uLI DOES NOT guarantee to preserve order of messages for command station and
+  uLI. E. g. when you send a mesage for command station and a message for uLI
+  (e. g. determine uLI version), version response might be (and probably will be)
+  the first response of uLI. Response from command station will follow.
+
 
 ## Further reading
 
