@@ -1039,10 +1039,11 @@ void CheckBroadcast(int xn_start_index)
 /* Check internal message "buffer" and send awaiting messages to PC.
  * This function is called periodically when no data are being received
  * to USART_input buffer.
- * Notice: this function MUST lock ring_USART_datain buffer, because it is
- * performing non-atomical insertions to this structure. Because USART_RX_INTERRUPT
- * is the only interrupt modifying ring_USART_datain, lock is made by simple
- * forbidding the interrupt temporary.
+ * Notice: this function must move ring_USART_datain.ptr_e before actually
+ * adding data to ring_USART_datain or make addition of ALL data to buffer
+ * atomic at once. Because at every time, this functon could be interrupted
+ * by USART_receive_interrupt function, which also uses ring_USART_datain buffer.
+ * It is important to keep these two functions in symbiosis.
  */
 
 // THis function relies on sensing data to PC in non-interrupt function!
