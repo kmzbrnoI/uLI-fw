@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-#undef DEBUG
+//#define DEBUG
 
 #define DEFAULT_XPRESSNET_ADDR  29
 #define XN_EEPROM_ADDR          0x00
@@ -27,6 +27,10 @@ typedef union {
         BOOL addr :1;
         BOOL baud_rate :1;
         BOOL ferr :1;
+        BOOL full_buffer :1;
+        BOOL xor_error :1;
+        BOOL cs_timeout :1;
+        BOOL ok :1;
     } bits;
     BYTE all;
 } send_waiting;
