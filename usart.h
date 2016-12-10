@@ -4,16 +4,16 @@
  */
 
 #ifndef USART_H
-#define	USART_H
+#define USART_H
 
-#include "GenericTypeDefs.h"    
-    
+#include "GenericTypeDefs.h"
+
 typedef struct {
-    BYTE data;
-    BOOL ninth;
-    BOOL FERR;
+	BYTE data;
+	BOOL ninth;
+	BOOL FERR;
 } nine_data;
-    
+
 void USARTInit(void);
 void USARTWriteByte(unsigned ninth, BYTE data);
 nine_data USARTReadByte(void);
@@ -23,5 +23,4 @@ BOOL USARTInputData(void);
 #define XPRESSNET_OUT       1
 #define XPRESSNET_IN        0
 
-#endif	/* USART_H */
-
+#endif /* USART_H */

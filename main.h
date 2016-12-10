@@ -5,13 +5,7 @@
  */
 
 #ifndef MAIN_H
-#define	MAIN_H
-
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
-//#define DEBUG
+#define MAIN_H
 
 #define DEFAULT_XPRESSNET_ADDR  29
 #define XN_EEPROM_ADDR          0x00
@@ -22,23 +16,18 @@ extern "C" {
 #define FERR_FEATURE                // undef to disable FERR feature
 
 typedef union {
-    struct {
-    	BOOL version :1;
-        BOOL addr :1;
-        BOOL baud_rate :1;
-        BOOL ferr :1;
-        BOOL full_buffer :1;
-        BOOL xor_error :1;
-        BOOL cs_timeout :1;
-        BOOL ok :1;
-        BOOL pc_timeout :1;
-    } bits;
-    WORD all;
+	struct {
+		BOOL version : 1;
+		BOOL addr : 1;
+		BOOL baud_rate : 1;
+		BOOL ferr : 1;
+		BOOL full_buffer : 1;
+		BOOL xor_error : 1;
+		BOOL cs_timeout : 1;
+		BOOL ok : 1;
+		BOOL pc_timeout : 1;
+	} bits;
+	WORD all;
 } send_waiting;
 
-#ifdef __cplusplus
-}
-#endif
-
 #endif /* MAIN_H */
-
