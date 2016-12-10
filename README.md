@@ -12,6 +12,7 @@ uLI is XpressNET &#8596; USB converter behaving as COM port in PC (CDC).
 
 - MPLAB X IDE v3.45 for Windows
 - C18 LITE v3.47 compiler for Windows
+- clang-format to format code
 
 ## Windows driver
 
