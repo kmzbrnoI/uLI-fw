@@ -162,6 +162,7 @@
         <property key="voltagevalue" value="3.25"/>
       </PK3OBPlatformTool>
       <Simulator>
+        <property key="W9603_COMP_CVREF_SOURCE_UNAVAILABLE" value="report"/>
         <property key="codecoverage.enabled" value="Disable"/>
         <property key="codecoverage.enableoutputtofile" value="false"/>
         <property key="codecoverage.outputfile" value=""/>

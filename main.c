@@ -520,16 +520,8 @@ void USART_check_timeouts(void) {
 		ringClear((ring_generic*)&ring_USART_datain);
 		ringClear((ring_generic*)&ring_USB_datain);
 
-		/* timeslot timeout -> connection to PC is probably without any data ->
-		 * we could send data to USB directly and assume mUSBUSARTIsTxTrfReady()
-		 * is always true.
-		 */
-		if (mUSBUSARTIsTxTrfReady()) {
-			USB_Out_Buffer[0] = 0x01;
-			USB_Out_Buffer[1] = 0x05;
-			USB_Out_Buffer[2] = 0x04;
-			putUSBUSART((char*)USB_Out_Buffer, 3);
-		}
+		// send info to PC
+		pc_send_waiting.bits.timeslot_timeout = TRUE;
 	}
 }
 
@@ -775,7 +767,7 @@ void USB_receive(void) {
 			// timeslot not available -> respond "Buffer full"
 			if (timeslot_err) {
 				ringRemoveFromMiddle((ring_generic*)&ring_USB_datain, last_start, USB_msg_len(last_start));
-				pc_send_waiting.bits.full_buffer = TRUE;
+				pc_send_waiting.bits.timeslot_timeout = TRUE;
 				goto ret;
 			}
 
@@ -1088,6 +1080,16 @@ void check_device_data_to_USB(void) {
 		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x01;
 		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x00;
 
+	} else if (pc_send_waiting.bits.timeslot_timeout) {
+		if (ringFreeSpace(ring_USART_datain) < 4) return;
+		pc_send_waiting.bits.timeslot_timeout = FALSE;
+		my_start = ring_USART_datain.ptr_e;
+		ring_USART_datain.ptr_e = (ring_USART_datain.ptr_e + 4) & ring_USART_datain.max;
+		ring_USART_datain.data[my_start] = 0; // first byte is a virtual LI address (for this purpose zero is enough)
+		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x01;
+		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x05;
+		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x04;
+		
 #ifdef FERR_FEATURE
 	} else if (pc_send_waiting.bits.ferr) {
 		if (ringFreeSpace(ring_USART_datain) < 7) return;
