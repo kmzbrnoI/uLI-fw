@@ -85,8 +85,7 @@
 #define TIMESLOT_LONG_MAX_TIMEOUT       9000        // 1:30 min (according to specification)
 #define FERR_TIMEOUT                    1000        // 10 s
 
-#define MLED_IN_MAX_TIMEOUT                5        // 50 ms
-#define MLED_OUT_MAX_TIMEOUT               7        // 70 ms
+#define MLED_IO_MAX_TIMEOUT                5        // 50 ms
 
 #define PWR_LED_SHORT_COUNT               15        // 150 ms
 #define PWR_LED_LONG_COUNT                40        // 400 ms
@@ -123,8 +122,7 @@ volatile UINT24 ferr_in_10_s = 0; // number of framing errors in 10 seconds
 volatile UINT24 ferr_counter = 0;
 #endif
 
-volatile BYTE mLED_In_Timeout = 2 * MLED_IN_MAX_TIMEOUT;
-volatile BYTE mLED_Out_Timeout = 2 * MLED_OUT_MAX_TIMEOUT;
+volatile BYTE mLED_IO_Timeout = 2 * MLED_IO_MAX_TIMEOUT;
 volatile BOOL usart_longer_timeout = FALSE;
 volatile BYTE xn_addr = DEFAULT_XPRESSNET_ADDR;
 volatile BOOL force_ok_response = FALSE;
@@ -244,11 +242,11 @@ void YourLowPriorityISRCode() {
 			if (timeslot_timeout < TIMESLOT_LONG_MAX_TIMEOUT) timeslot_timeout++;
 
 #ifndef DEBUG
-			// mLEDout timeout
-			if (mLED_Out_Timeout < 2 * MLED_OUT_MAX_TIMEOUT) {
-				mLED_Out_Timeout++;
-				if (mLED_Out_Timeout == MLED_OUT_MAX_TIMEOUT) {
-					mLED_Out_Off();
+			// mLEDIO timeout
+			if (mLED_IO_Timeout < 2 * MLED_IO_MAX_TIMEOUT) {
+				mLED_IO_Timeout++;
+				if (mLED_IO_Timeout == MLED_IO_MAX_TIMEOUT) {
+					mLED_IO_On();
 				}
 			}
 #endif
@@ -259,16 +257,6 @@ void YourLowPriorityISRCode() {
 			if (ferr_counter >= FERR_TIMEOUT) {
 				ferr_in_10_s = 0;
 				ferr_counter = 0;
-			}
-#endif
-
-#ifndef DEBUG
-			// mLEDIn timeout
-			if (mLED_In_Timeout < 2 * MLED_IN_MAX_TIMEOUT) {
-				mLED_In_Timeout++;
-				if (mLED_In_Timeout == MLED_IN_MAX_TIMEOUT) {
-					mLED_In_On();
-				}
 			}
 #endif
 
@@ -370,9 +358,8 @@ void UserInit(void) {
 
 	// Initialize all of the LED pins
 	mInitAllLEDs();
-	mLED_In_On();
+	mLED_IO_Off();
 	mLED_Pwr_Off();
-	mLED_Out_On();
 
 	// setup timer2 on 100 us
 	T2CONbits.T2CKPS = 0b11;    // prescaler 16x
@@ -415,14 +402,15 @@ void USBCBSuspend(void) {
 #endif
 
 	usb_configured = FALSE;
-	mLED_Out_On();
+	mLED_IO_Timeout = 2 * MLED_IO_MAX_TIMEOUT; // disable auto-turn-on
+	mLED_IO_Off();	
 	ringClear((ring_generic*)&ring_USART_datain);
 	ringClear((ring_generic*)&ring_USB_datain);
 }
 
 void USBCBWakeFromSuspend(void) {
 	usb_configured = TRUE;
-	mLED_Out_Off();
+	mLED_IO_On();
 }
 
 void USBCB_SOF_Handler(void) {
@@ -442,7 +430,7 @@ void USBCBStdSetDscHandler(void) {
 void USBCBInitEP(void) {
 	CDCInitEP();
 	usb_configured = TRUE;
-	mLED_Out_Off();
+	mLED_IO_On();
 }
 
 void USBCBSendResume(void) {
@@ -675,9 +663,9 @@ void USART_receive_interrupt(void) {
 
 #ifndef DEBUG
 	// toggle LED
-	if (mLED_In_Timeout >= 2 * MLED_IN_MAX_TIMEOUT) {
-		mLED_In_Off();
-		mLED_In_Timeout = 0;
+	if (usb_configured && mLED_IO_Timeout >= 2 * MLED_IO_MAX_TIMEOUT) {
+		mLED_IO_Off();
+		mLED_IO_Timeout = 0;
 	}
 #endif
 }
@@ -878,9 +866,9 @@ void USART_send(void) {
 	}
 
 #ifndef DEBUG
-	if (mLED_Out_Timeout >= 2 * MLED_OUT_MAX_TIMEOUT) {
-		mLED_Out_On();
-		mLED_Out_Timeout = 0;
+	if (usb_configured && mLED_IO_Timeout >= 2 * MLED_IO_MAX_TIMEOUT) {
+		mLED_IO_Off();
+		mLED_IO_Timeout = 0;
 	}
 #endif
 }
