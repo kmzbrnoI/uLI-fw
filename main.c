@@ -38,11 +38,11 @@
 // CONFIG2L
 #pragma config PWRTEN = ON      // Power-up Timer Enable bit (PWRT enabled)
 #pragma config BOREN = SBORDIS  // Brown-out Reset Enable bits (Brown-out Reset enabled in hardware only (SBOREN is disabled))
-#pragma config BORV = 27        // Brown-out Reset Voltage bits (VBOR set to 2.7 V nominal)
+#pragma config BORV = 30        // Brown-out Reset Voltage bits (VBOR set to 3.0 V nominal)
 
 // CONFIG2H
-#pragma config WDTEN = OFF      // Watchdog Timer Enable bit (WDT is controlled by SWDTEN bit of the WDTCON register)
-#pragma config WDTPS = 32768    // Watchdog Timer Postscale Select bits (1:32768)
+#pragma config WDTEN = ON       // Watchdog Timer Enable bit (WDT is enabled)
+#pragma config WDTPS = 16       // Watchdog Timer Postscale Select bits (1:16) ~ 64 ms timeout
 
 // CONFIG3H
 #pragma config HFOFST = OFF     // HFINTOSC Fast Start-up bit (The system clock is held off until the HFINTOSC is stable.)
@@ -334,6 +334,9 @@ void main(void) {
 			check_device_data_to_USB();
 			USART_last_start = ring_USART_datain.ptr_e;
 		}
+		
+		// clear watchdog timer
+		ClrWdt();
 	} //end while
 } //end main
 
