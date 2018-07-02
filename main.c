@@ -122,7 +122,10 @@ volatile UINT24 ferr_in_10_s = 0; // number of framing errors in 10 seconds
 volatile UINT24 ferr_counter = 0;
 #endif
 
-volatile BYTE mLED_IO_Timeout = 2 * MLED_IO_MAX_TIMEOUT;
+typedef enum {inquiry, data} TmLED_IO_Signal;
+
+volatile signed char mLED_IO_Timeout = 2 * MLED_IO_MAX_TIMEOUT;
+volatile TmLED_IO_Signal mLED_IO_Signal = inquiry;
 volatile BOOL usart_longer_timeout = FALSE;
 volatile BYTE xn_addr = DEFAULT_XPRESSNET_ADDR;
 volatile BOOL force_ok_response = FALSE;
@@ -524,6 +527,7 @@ void USART_receive_interrupt(void) {
 	static volatile BYTE xor = 0;
 	BYTE tmp;
 	nine_data USART_received;
+	TmLED_IO_Signal led_code = inquiry;
 
 	USART_received = USARTReadByte();
 
@@ -623,6 +627,8 @@ void USART_receive_interrupt(void) {
 			USART_last_start = ring_USART_datain.ptr_e;
 			xor = 0;
 			ringAddByte((ring_generic*)&ring_USART_datain, USART_received.data);
+			
+			led_code = data;
 		}
 	} else {
 
@@ -663,9 +669,14 @@ void USART_receive_interrupt(void) {
 
 #ifndef DEBUG
 	// toggle LED
-	if (usb_configured && mLED_IO_Timeout >= 2 * MLED_IO_MAX_TIMEOUT) {
+	if (usb_configured && (mLED_IO_Timeout >= 2 * MLED_IO_MAX_TIMEOUT ||
+						   (led_code == data && mLED_IO_Signal == inquiry))) {
 		mLED_IO_Off();
-		mLED_IO_Timeout = 0;
+		if (led_code == data)
+			mLED_IO_Timeout = -2 * MLED_IO_MAX_TIMEOUT;
+		else
+			mLED_IO_Timeout = 0;
+		mLED_IO_Signal = led_code;
 	}
 #endif
 }
@@ -769,6 +780,15 @@ void USB_receive(void) {
 
 ret:
 	ring_USB_datain_backlocked = FALSE;
+
+#ifndef DEBUG
+	if (usb_configured && (mLED_IO_Timeout >= 2 * MLED_IO_MAX_TIMEOUT ||
+						   mLED_IO_Signal == inquiry)) {
+		mLED_IO_Off();
+		mLED_IO_Timeout = -2 * MLED_IO_MAX_TIMEOUT;
+		mLED_IO_Signal = data;
+	}
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -864,13 +884,6 @@ void USART_send(void) {
 		// other-than-last byte sending
 		PIE1bits.TXIE = 1;
 	}
-
-#ifndef DEBUG
-	if (usb_configured && mLED_IO_Timeout >= 2 * MLED_IO_MAX_TIMEOUT) {
-		mLED_IO_Off();
-		mLED_IO_Timeout = 0;
-	}
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -45,17 +45,18 @@ hex file.
 
 ## LEDs
 
-### Input LED (green)
-This LED is turned on by default. It turns off for a few milliseconds when a
-command arrives from a command station to uLI. This LED usually blinks as it
-shows *normal inquiry* packets arriving. If this LED is permanently turned on,
-the command station is not sending *normal inquiry* packets and something went
-really wring.
+### IO LED (green)
 
-### Output LED (green)
-This LED is turned on before a valid connection with PC is established. After
-establishing the connection, this LED turns off and blinks only when a command
-is being sent from the uLI to the command station.
+This LED should normally blink. It indicates communication with PC and
+command station. At start, this LED is turned off and it turns on when USB
+communication is succesfully established. Every time communication with PC
+breaks, this LED turns off.
+
+Normally, LED turns off for a short time when a *normal inquiry* or *request
+acknowledgement* is received from a command station to uLI. When a data-message
+is received, LED turns off for a longer time.
+
+When a byte is received from PC the LED turns off for a longer time.
 
 ### Status LED (yellow)
 - 1 blink = normal operations
