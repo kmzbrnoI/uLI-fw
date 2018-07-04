@@ -45,17 +45,18 @@ hex file.
 
 ## LEDs
 
-### Input LED (green)
-This LED is turned on by default. It turns off for a few milliseconds when a
-command arrives from a command station to uLI. This LED usually blinks as it
-shows *normal inquiry* packets arriving. If this LED is permanently turned on,
-the command station is not sending *normal inquiry* packets and something went
-really wring.
+### XpressNET LED (green)
 
-### Output LED (green)
+This LED is turned on by default. It turns off for a few milliseconds when a
+*normal inquiry* or *request acknowledgement* arrives from a command station to
+*uLI. This LED usually blinks. If this LED is permanently turned on, the command
+*station is not sending *normal inquiry* packets and something went really wrong.
+
+### IO LED (green)
+
 This LED is turned on before a valid connection with PC is established. After
-establishing the connection, this LED turns off and blinks only when a command
-is being sent from the uLI to the command station.
+establishing the connection, this LED turns off and blinks only when a start of
+data message is received to uLI (either from command station or PC).
 
 ### Status LED (yellow)
 - 1 blink = normal operations
