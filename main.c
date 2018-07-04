@@ -110,7 +110,6 @@ volatile BYTE usb_timeout = 0;          // increment every 100 us -> 100 ms time
 volatile WORD usart_timeout = 0;        // increment every 100 us -> 100 ms timeout = 1 000
 volatile BYTE usart_to_send = 0;        // byte to send to USART
                                         // I rather made this public volatile variable, beacause it is accessed in interrupts and in main too.
-volatile BYTE usart_last_byte_sent = 0; // wheter the last byte of message to command station was sent and bus could be switched to IN direction
 volatile BYTE ten_ms_counter = 0;       // 10 ms counter
 
 // timeslot errors
@@ -295,12 +294,6 @@ void YourLowPriorityISRCode() {
 			// end of 10 ms counter
 		}
 
-		// XPRESSNET_DIR is set to XPRESSNET_IN after successful tranfer of last byte
-		if ((usart_last_byte_sent) && (TXSTAbits.TRMT)) {
-			XPRESSNET_DIR = XPRESSNET_IN;
-			usart_last_byte_sent = 0;
-		}
-
 		PIR1bits.TMR2IF = 0; // reset overflow flag
 	}
 
@@ -375,20 +368,20 @@ void UserInit(void) {
 	mLED_Out_On();
 
 	// setup timer2 on 100 us
-	T2CONbits.T2CKPS = 0b11;    // prescaler 16x
-	PR2 = 75;                   // setup timer period register to interrupt every 100 us
-	TMR2 = 0x00;                // reset timer counter
-	PIR1bits.TMR2IF = 0;        // reset overflow flag
-	PIE1bits.TMR2IE = 1;        // enable timer2 interrupts
+	T2CONbits.T2CKPS = 0b11;    // timer2 prescaler 16x
+	PR2 = 75;                   // timer2 setup period register to 100 us
+	TMR2 = 0x00;                // timer2 reset counter
+	PIR1bits.TMR2IF = 0;        // timer2 reset overflow flag
+	PIE1bits.TMR2IE = 1;        // timer2 enable interrupt
 	IPR1bits.TMR2IP = 0;        // timer2 interrupt low level
-
+	
 	RCONbits.IPEN = 1;          // enable high and low priority interrupts
 	INTCONbits.PEIE = 1;        // Enable peripheral interrupts (for usart)
 	INTCONbits.GIE = 1;         // enable global interrupts
 	INTCONbits.GIEH = 1;
 	INTCONbits.GIEL = 1;
 
-	T2CONbits.TMR2ON = 1;       // enable timer2
+	T2CONbits.TMR2ON = 1;       // timer2 enable	
 } //end UserInit
 
 // ******************************************************************************************************
@@ -868,10 +861,15 @@ void USART_send(void) {
 		ring_USB_datain.ptr_b = usart_to_send; // whole message sent
 		if (ring_USB_datain.ptr_b == ring_USB_datain.ptr_e) ring_USB_datain.empty = TRUE;
 
-		checkResponseToPC(head, id); // send OK response to PC
-
 		PIE1bits.TXIE = 0;
-		usart_last_byte_sent = 1;
+		
+		// XPRESSNET_DIR is set to XPRESSNET_IN after successful tranfer of last byte
+		// This part of function is usually called from high-priority interrupt, so nothing will overwrite us.
+		// It is really important to switch direction as soon as possible.
+		while (!TXSTAbits.TRMT);
+		XPRESSNET_DIR = XPRESSNET_IN;
+		
+		checkResponseToPC(head, id); // send OK response to PC		
 	} else {
 		// other-than-last byte sending
 		PIE1bits.TXIE = 1;
