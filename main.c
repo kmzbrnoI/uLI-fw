@@ -11,7 +11,6 @@
 #include <xc.h>
 #include <stdbool.h>
 
-#include "Compiler.h"
 #include "GenericTypeDefs.h"
 #include "HardwareProfile.h"
 #include "eeprom.h"
