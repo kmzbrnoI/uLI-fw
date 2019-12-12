@@ -94,6 +94,12 @@ typedef signed long int     INT32;
 typedef unsigned int        UINT;
 typedef unsigned char       UINT8;
 typedef unsigned short int  UINT16;
+
+/* 24-bit type only available on C18 */
+#if defined(__18CXX)
+	typedef unsigned short long UINT24;
+#endif
+
 typedef unsigned long int   UINT32;     /* other name for 32-bit integer */
 /* MPLAB C Compiler for PIC18 does not support 64-bit integers */
 
@@ -146,6 +152,48 @@ typedef union
         __EXTENSION UINT8 b15:1;
     } bits;
 } UINT16_VAL, UINT16_BITS;
+
+/* 24-bit type only available on C18 */
+#if defined(__18CXX)
+typedef union
+{
+    UINT24 Val;
+    UINT8 v[3] __PACKED;
+    struct __PACKED
+    {
+        UINT8 LB;
+        UINT8 HB;
+        UINT8 UB;
+    } byte;
+    struct __PACKED
+    {
+        __EXTENSION UINT8 b0:1;
+        __EXTENSION UINT8 b1:1;
+        __EXTENSION UINT8 b2:1;
+        __EXTENSION UINT8 b3:1;
+        __EXTENSION UINT8 b4:1;
+        __EXTENSION UINT8 b5:1;
+        __EXTENSION UINT8 b6:1;
+        __EXTENSION UINT8 b7:1;
+        __EXTENSION UINT8 b8:1;
+        __EXTENSION UINT8 b9:1;
+        __EXTENSION UINT8 b10:1;
+        __EXTENSION UINT8 b11:1;
+        __EXTENSION UINT8 b12:1;
+        __EXTENSION UINT8 b13:1;
+        __EXTENSION UINT8 b14:1;
+        __EXTENSION UINT8 b15:1;
+        __EXTENSION UINT8 b16:1;
+        __EXTENSION UINT8 b17:1;
+        __EXTENSION UINT8 b18:1;
+        __EXTENSION UINT8 b19:1;
+        __EXTENSION UINT8 b20:1;
+        __EXTENSION UINT8 b21:1;
+        __EXTENSION UINT8 b22:1;
+        __EXTENSION UINT8 b23:1;
+    } bits;
+} UINT24_VAL, UINT24_BITS;
+#endif
 
 typedef union
 {
