@@ -20,6 +20,9 @@
 
 /** DEFINES *******************************************************************/
 
+#define MIN(a,b) (((a) < (b)) ? (a) : (b))
+#define MAX(a,b) (((a) > (b)) ? (a) : (b))
+
 #define USB_msg_len(start)      ((ring_USB_datain.data[start] & 0x0F) + 2) // len WITH header byte and WITH xor byte
 #define USB_last_message_len    ringDistance(ring_USB_datain, last_start, ring_USB_datain.ptr_e)
 
@@ -100,7 +103,6 @@ volatile bool ring_USB_datain_backlocked = false;
 
 void init(void);
 
-void USBDeviceTasks(void);
 void USB_send(void);
 void USB_receive(void);
 bool USB_parse_data(uint8_t start, uint8_t len);
