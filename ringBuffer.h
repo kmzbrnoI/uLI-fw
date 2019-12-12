@@ -44,10 +44,10 @@ void ringClear(ring_generic* buf);
 void ringAddToStart(ring_generic* buf, BYTE* data, BYTE len);
 
 #define ringBufferInit(name, size) \
-	name##.##max = (size - 1);     \
-	name##.##ptr_b = 0;            \
-	name##.##ptr_e = 0;            \
-	name##.##empty = TRUE;
+	name.max = (size - 1);     \
+	name.ptr_b = 0;            \
+	name.ptr_e = 0;            \
+	name.empty = TRUE;
 
 // In some cases, it really matters wheter you call function or not.
 // C18 does not support inline functions -> defines.

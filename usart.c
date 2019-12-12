@@ -3,7 +3,8 @@
  * (c) Jan Horacek 2016
  */
 
-#include <p18f14k50.h>
+//#include <p18f14k50.h>
+#include <xc.h>
 
 #include "GenericTypeDefs.h"
 #include "usart.h"

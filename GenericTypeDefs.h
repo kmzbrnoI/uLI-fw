@@ -42,27 +42,38 @@
   1.4   08/08/08     Remove LSB/MSB Macros, adopted by Peripheral lib
   1.5   08/14/08     Simplify file header
   2.0   07/13/09     Updated for new release of coding standards
+  3.1   05/28/10     MiWi DE 3.1
 *******************************************************************/
 
 #ifndef __GENERIC_TYPE_DEFS_H_
 #define __GENERIC_TYPE_DEFS_H_
 
 /* Specify an extension for GCC based compilers */
+/* Specify an extension for GCC based compilers */
 #if defined(__GNUC__)
-#define __EXTENSION __extension__
+	#define __EXTENSION __extension__
 #else
-#define __EXTENSION
+	#define __EXTENSION
 #endif
 
 #if !defined(__PACKED)
-    #define __PACKED
+	#if defined(__CC_ARM)
+		#define __PACKED_P __packed
+	#else
+		#define __PACKED_P
+	#endif
+	#define __PACKED
 #endif
 
 /* get compiler defined type definitions (NULL, size_t, etc) */
 #include <stddef.h> 
 
 typedef enum _BOOL { FALSE = 0, TRUE } BOOL;    /* Undefined size */
-typedef enum _BIT { CLEAR = 0, SET } BIT;
+#if defined(__STM32F10X__)
+	typedef enum _BIT { CLEAR = 0 } BIT;
+#else
+	typedef enum _BIT { CLEAR = 0, SET } BIT;
+#endif
 
 #define PUBLIC                                  /* Function attributes */
 #define PROTECTED
@@ -76,21 +87,18 @@ typedef signed long int     INT32;
 
 /* MPLAB C Compiler for PIC18 does not support 64-bit integers */
 #if !defined(__18CXX)
-__EXTENSION typedef signed long long    INT64;
+	__EXTENSION typedef signed long long    INT64;
 #endif
 
 /* UINT is processor specific in length may vary in size */
 typedef unsigned int        UINT;
 typedef unsigned char       UINT8;
 typedef unsigned short int  UINT16;
-/* 24-bit type only available on C18 */
-#if defined(__18CXX)
-typedef unsigned short long UINT24;
-#endif
 typedef unsigned long int   UINT32;     /* other name for 32-bit integer */
 /* MPLAB C Compiler for PIC18 does not support 64-bit integers */
+
 #if !defined(__18CXX)
-__EXTENSION typedef unsigned long long  UINT64;
+	__EXTENSION typedef unsigned long long  UINT64;
 #endif
 
 typedef union
@@ -112,7 +120,7 @@ typedef union
 typedef union 
 {
     UINT16 Val;
-    UINT8 v[2] __PACKED;
+    __PACKED_P UINT8 v[2] __PACKED;
     struct __PACKED
     {
         UINT8 LB;
@@ -138,48 +146,6 @@ typedef union
         __EXTENSION UINT8 b15:1;
     } bits;
 } UINT16_VAL, UINT16_BITS;
-
-/* 24-bit type only available on C18 */
-#if defined(__18CXX)
-typedef union
-{
-    UINT24 Val;
-    UINT8 v[3] __PACKED;
-    struct __PACKED
-    {
-        UINT8 LB;
-        UINT8 HB;
-        UINT8 UB;
-    } byte;
-    struct __PACKED
-    {
-        __EXTENSION UINT8 b0:1;
-        __EXTENSION UINT8 b1:1;
-        __EXTENSION UINT8 b2:1;
-        __EXTENSION UINT8 b3:1;
-        __EXTENSION UINT8 b4:1;
-        __EXTENSION UINT8 b5:1;
-        __EXTENSION UINT8 b6:1;
-        __EXTENSION UINT8 b7:1;
-        __EXTENSION UINT8 b8:1;
-        __EXTENSION UINT8 b9:1;
-        __EXTENSION UINT8 b10:1;
-        __EXTENSION UINT8 b11:1;
-        __EXTENSION UINT8 b12:1;
-        __EXTENSION UINT8 b13:1;
-        __EXTENSION UINT8 b14:1;
-        __EXTENSION UINT8 b15:1;
-        __EXTENSION UINT8 b16:1;
-        __EXTENSION UINT8 b17:1;
-        __EXTENSION UINT8 b18:1;
-        __EXTENSION UINT8 b19:1;
-        __EXTENSION UINT8 b20:1;
-        __EXTENSION UINT8 b21:1;
-        __EXTENSION UINT8 b22:1;
-        __EXTENSION UINT8 b23:1;
-    } bits;
-} UINT24_VAL, UINT24_BITS;
-#endif
 
 typedef union
 {
@@ -366,16 +332,16 @@ typedef union
     } bits;
 } BYTE_VAL, BYTE_BITS;
 
-typedef union
+typedef __PACKED_P union
 {
-    WORD Val;
-    BYTE v[2] __PACKED;
-    struct __PACKED
+    __PACKED_P WORD Val;
+    __PACKED_P BYTE v[2] __PACKED;
+    __PACKED_P struct __PACKED
     {
         BYTE LB;
         BYTE HB;
     } byte;
-    struct __PACKED
+    __PACKED_P struct __PACKED
     {
         __EXTENSION BYTE b0:1;
         __EXTENSION BYTE b1:1;
@@ -396,29 +362,29 @@ typedef union
     } bits;
 } WORD_VAL, WORD_BITS;
 
-typedef union
+typedef __PACKED_P union
 {
     DWORD Val;
-    WORD w[2] __PACKED;
-    BYTE v[4] __PACKED;
-    struct __PACKED
+    __PACKED_P WORD w[2] __PACKED;
+    __PACKED_P BYTE v[4] __PACKED;
+    __PACKED_P struct __PACKED
     {
         WORD LW;
         WORD HW;
     } word;
-    struct __PACKED
+    __PACKED_P struct __PACKED
     {
         BYTE LB;
         BYTE HB;
         BYTE UB;
         BYTE MB;
     } byte;
-    struct __PACKED
+    __PACKED_P struct __PACKED
     {
         WORD_VAL low;
         WORD_VAL high;
-    }wordUnion;
-    struct __PACKED
+    } wordUnion;
+    __PACKED_P struct __PACKED
     {
         __EXTENSION BYTE b0:1;
         __EXTENSION BYTE b1:1;

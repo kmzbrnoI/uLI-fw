@@ -3,7 +3,8 @@
  */
 
 #include "eeprom.h"
-#include <p18f14k50.h>
+//#include <18f14k50.h>
+#include <xc.h>
 
 unsigned char ReadEEPROM(unsigned char address) {
 	EECON1 = 0; //ensure CFGS=0 and EEPGD=0

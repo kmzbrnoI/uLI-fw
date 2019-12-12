@@ -8,7 +8,8 @@
 
 /** INCLUDES ******************************************************************/
 
-#include <p18f14k50.h>
+#include <xc.h>
+#include <stdbool.h>
 
 #include "Compiler.h"
 #include "GenericTypeDefs.h"
@@ -17,10 +18,10 @@
 #include "main.h"
 #include "ringBuffer.h"
 #include "usart.h"
-#include "usb.h"
-#include "usb_config.h"
-#include "usb_device.h"
-#include "usb_function_cdc.h"
+#include "usb_stack/usb.h"
+#include "usb_stack/usb_config.h"
+#include "usb_stack/usb_device.h"
+#include "usb_stack/usb_device_cdc.h"
 
 /** CONFIGURATION *************************************************************/
 
@@ -114,19 +115,19 @@ volatile BYTE ten_ms_counter = 0;       // 10 ms counter
 
 // timeslot errors
 volatile WORD timeslot_timeout = 0; // timeslot timeout (1s = 100)
-volatile BOOL timeslot_err = TRUE;  // TRUE if timeslot error
+volatile bool timeslot_err = TRUE;  // TRUE if timeslot error
 
 // XpressNET framing error counting
 #ifdef FERR_FEATURE
-volatile UINT24 ferr_in_10_s = 0; // number of framing errors in 10 seconds
-volatile UINT24 ferr_counter = 0;
+volatile UINT32 ferr_in_10_s = 0; // number of framing errors in 10 seconds
+volatile UINT32 ferr_counter = 0;
 #endif
 
 volatile BYTE mLED_XN_Timeout = 2 * MLED_XN_MAX_TIMEOUT;
 volatile BYTE mLED_Data_Timeout = 2 * MLED_DATA_MAX_TIMEOUT;
-volatile BOOL usart_longer_timeout = FALSE;
+volatile bool usart_longer_timeout = FALSE;
 volatile BYTE xn_addr = DEFAULT_XPRESSNET_ADDR;
-volatile BOOL force_ok_response = FALSE;
+volatile bool force_ok_response = FALSE;
 
 // Power led blinks pwr_led_status times, then stays blank for some time
 //  and then repeats the whole cycle. This lets user to see software status.
@@ -135,8 +136,8 @@ volatile BYTE pwr_led_base_counter = 0;
 volatile BYTE pwr_led_status_counter = 0;
 volatile BYTE pwr_led_status = 1;
 
-volatile BOOL usb_configured = FALSE;
-volatile BOOL programming_mode = FALSE;
+volatile bool usb_configured = FALSE;
+volatile bool programming_mode = FALSE;
 
 volatile BYTE USART_last_start = 0;
 
@@ -149,20 +150,20 @@ volatile send_waiting pc_send_waiting = { 0 };
  * if you feel like having problems with performance, you could make this lock
  * actually lock only the last message in the buffer.
  */
-volatile BOOL ring_USB_datain_backlocked = FALSE;
+volatile bool ring_USB_datain_backlocked = FALSE;
 
 /** PRIVATE  PROTOTYPES *******************************************************/
 
 void YourHighPriorityISRCode();
 void YourLowPriorityISRCode();
 
-static void InitializeSystem(void);
+void InitializeSystem(void);
 void UserInit(void);
 
 void USBDeviceTasks(void);
 void USB_send(void);
 void USB_receive(void);
-BOOL USB_parse_data(BYTE start, BYTE len);
+bool USB_parse_data(BYTE start, BYTE len);
 
 void USART_receive_interrupt(void);
 void USART_send(void);
@@ -179,23 +180,14 @@ void check_device_data_to_USB(void);
 
 /** VECTOR REMAPPING **********************************************************/
 
-#if defined(__18CXX)
-#define REMAPPED_RESET_VECTOR_ADDRESS           0x00
-#define REMAPPED_HIGH_INTERRUPT_VECTOR_ADDRESS  0x08
-#define REMAPPED_LOW_INTERRUPT_VECTOR_ADDRESS   0x18
-#pragma code REMAPPED_HIGH_INTERRUPT_VECTOR = REMAPPED_HIGH_INTERRUPT_VECTOR_ADDRESS
-void Remapped_High_ISR(void) {
-	_asm goto YourHighPriorityISRCode _endasm
-}
-#pragma code REMAPPED_LOW_INTERRUPT_VECTOR = REMAPPED_LOW_INTERRUPT_VECTOR_ADDRESS
-void Remapped_Low_ISR(void) {
-	_asm goto YourLowPriorityISRCode _endasm
+void __interrupt(high_priority) MyHighIsr(void) {
+    YourHighPriorityISRCode();
 }
 
-#pragma code
+void __interrupt(low_priority) MyLowIsr(void) {
+    YourLowPriorityISRCode();
+}
 
-//These are your actual interrupt handling routines.
-#pragma interrupt YourHighPriorityISRCode
 void YourHighPriorityISRCode() {
 //Check which interrupt flag caused the interrupt.
 //Service the interrupt
@@ -217,7 +209,6 @@ void YourHighPriorityISRCode() {
 
 } //This return will be a "retfie fast", since this is in a #pragma interrupt section
 
-#pragma interruptlow YourLowPriorityISRCode
 void YourLowPriorityISRCode() {
 	//Check which interrupt flag caused the interrupt.
 	//Service the interrupt
@@ -298,8 +289,6 @@ void YourLowPriorityISRCode() {
 	}
 
 } //This return will be a "retfie", since this is in a #pragma interruptlow section
-
-#endif
 
 /** DECLARATIONS ***************************************************/
 #pragma code
@@ -446,7 +435,7 @@ void USBCBEP0DataReceived(void) {
 }
 #endif
 
-BOOL USER_USB_CALLBACK_EVENT_HANDLER(USB_EVENT event, void* pdata, WORD size) {
+bool USER_USB_CALLBACK_EVENT_HANDLER(USB_EVENT event, void* pdata, WORD size) {
 	switch (event) {
 	case EVENT_CONFIGURED:
 		USBCBInitEP();
@@ -525,7 +514,7 @@ void USART_check_timeouts(void) {
  * This function must be as fast as possible!
  */
 void USART_receive_interrupt(void) {
-	BOOL parity;
+	bool parity;
 	static volatile BYTE xor = 0;
 	BYTE tmp;
 	nine_data USART_received;
@@ -727,7 +716,16 @@ void USB_receive(void) {
 		return;
 	}
 
-	if (!CDCIsIncomingData()) {
+	/* +++ "Lock" ring_USB_datain +++
+	 * End of USB ring buffer must be locked to prevent USART_RX_INTERRUPT to
+	 * send message, which is not intended for command station, but for LI.
+	 */
+	ring_USB_datain_backlocked = TRUE;
+
+	received_len = getsUSBUSART((ring_generic*)&ring_USB_datain, ringFreeSpace(ring_USB_datain));
+
+	if (received_len == 0) {
+		ring_USB_datain_backlocked = false;
 		// check for timeout
 		if ((usb_timeout >= USB_MAX_TIMEOUT) && (last_start != ring_USB_datain.ptr_e)) {
 			ring_USB_datain.ptr_e = last_start;
@@ -740,14 +738,7 @@ void USB_receive(void) {
 		return;
 	}
 
-	/* +++ "Lock" ring_USB_datain +++
-	 * End of USB ring buffer must be locked to prevent USART_RX_INTERRUPT to
-	 * send message, which is not intended for command station, but for LI.
-	 */
-	ring_USB_datain_backlocked = TRUE;
 	usb_timeout = 0;
-
-	received_len = getsUSBUSART((ring_generic*)&ring_USB_datain, ringFreeSpace(ring_USB_datain));
 
 	// data received -> parse data
 	while ((ringDistance(ring_USB_datain, last_start, ring_USB_datain.ptr_e) > 0)
@@ -801,7 +792,7 @@ ret:
  * (otherwise the program will freeze)
  */
 
-BOOL USB_parse_data(BYTE start, BYTE len) {
+bool USB_parse_data(BYTE start, BYTE len) {
 	if (ring_USB_datain.data[start] == 0xF0) {
 		// Instruction for the determination of the version and code number of LI
 		ringRemoveFromMiddle((ring_generic*)&ring_USB_datain, start, 2);

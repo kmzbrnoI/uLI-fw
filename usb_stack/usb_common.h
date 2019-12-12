@@ -1,82 +1,42 @@
-/******************************************************************************
-
-  Common USB Library Definitions (Header File)
-
-Summary:
-    This file defines data types, constants, and macros that are common to
-    multiple layers of the Microchip USB Firmware Stack.
-
-Description:
-    This file defines data types, constants, and macros that are common to
-    multiple layers of the Microchip USB Firmware Stack.
-
-    This file is located in the "\<Install Directory\>\\Microchip\\Include\\USB"
-    directory.
-    
-    When including this file in a new project, this file can either be
-    referenced from the directory in which it was installed or copied
-    directly into the user application folder. If the first method is
-    chosen to keep the file located in the folder in which it is installed
-    then include paths need to be added so that the library and the
-    application both know where to reference each others files. If the
-    application folder is located in the same folder as the Microchip
-    folder (like the current demo folders), then the following include
-    paths need to be added to the application's project:
-    
-    .
-    ..\\..\\MicrochipInclude
-        
-    If a different directory structure is used, modify the paths as
-    required. An example using absolute paths instead of relative paths
-    would be the following:
-    
-    C:\\Microchip Solutions\\Microchip\\Include
-    
-    C:\\Microchip Solutions\\My Demo Application 
-*******************************************************************************/
-//DOM-IGNORE-BEGIN
+// DOM-IGNORE-BEGIN
 /*******************************************************************************
+Copyright 2015 Microchip Technology Inc. (www.microchip.com)
 
- FileName:        usb_common.h
- Dependencies:    See included files, below.
- Processor:       PIC18/PIC24/PIC32MX microcontrollers with USB module
- Compiler:        C18 v3.13+/C30 v2.01+/C32 v0.00.18+
- Company:         Microchip Technology, Inc.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-Software License Agreement
+    http://www.apache.org/licenses/LICENSE-2.0
 
-The software supplied herewith by Microchip Technology Incorporated
-(the “Company”) for its PICmicro® Microcontroller is intended and
-supplied to you, the Company’s customer, for use solely and
-exclusively on Microchip PICmicro Microcontroller products. The
-software is owned by the Company and/or its supplier, and is
-protected under applicable copyright laws. All rights are reserved.
-Any use in violation of the foregoing restrictions may subject the
-user to criminal sanctions under applicable laws, as well as to
-civil liability for the breach of the terms and conditions of this
-license.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
-THIS SOFTWARE IS PROVIDED IN AN “AS IS” CONDITION. NO WARRANTIES,
-WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED
-TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
-IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL OR
-CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
-
+To request to license the code under the MLA license (www.microchip.com/mla_license),
+please contact mla_licensing@microchip.com
 *******************************************************************************/
 //DOM-IGNORE-END
 
-//DOM-IGNORE-BEGIN
-/********************************************************************
- Change History:
-  Rev    Description
-  ----   -----------
-  2.6    Moved many of the USB events
-  2.6a   Changed the limit of USB_EVENT from UINT_MAX to INT_MAX
-  2.7    No change
-********************************************************************/
-//DOM-IGNORE-END
 
+/*******************************************************************************
+ Module for Microchip USB Library
+
+  Company:
+    Microchip Technology Inc.
+
+  File Name:
+    usb_common.h
+
+  Summary:
+    Defines types associated with both the USB host and USB device stacks but
+    not defined by the USB specification.
+
+  Description:
+    Defines types associated with both the USB host and USB device stacks but
+    not defined by the USB specification.
+*******************************************************************************/
 
 //DOM-IGNORE-BEGIN
 #ifndef _USB_COMMON_H_
@@ -84,6 +44,8 @@ CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
 //DOM-IGNORE-END
 
 #include <limits.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 // *****************************************************************************
 // *****************************************************************************
@@ -169,14 +131,14 @@ and properties of the data transfer.
 
 typedef union
 {
-    BYTE    bitmap;
+    uint8_t    bitmap;
     struct
     {
-        BYTE ep_num:    4;
-        BYTE zero_pkt:  1;
-        BYTE dts:       1;
-        BYTE force_dts: 1;
-        BYTE direction: 1;
+        uint8_t ep_num:    4;
+        uint8_t zero_pkt:  1;
+        uint8_t dts:       1;
+        uint8_t force_dts: 1;
+        uint8_t direction: 1;
     }field;
 
 } TRANSFER_FLAGS;
@@ -229,7 +191,7 @@ This macro can be used with the above bitmap constants to initialize a
 TRANSFER_FLAGS value.  It provides the correct data type to avoid compiler
 warnings.
 */
-#define XFLAGS(f) ((TRANSFER_FLAGS)((BYTE)(f)))             // Initialization Macro
+#define XFLAGS(f) ((TRANSFER_FLAGS)((uint8_t)(f)))             // Initialization Macro
 
 
 // *****************************************************************************
@@ -251,83 +213,126 @@ typedef enum
     EVENT_HOST_STACK_BASE = 100,
 
     // A USB hub has been attached.  Hub support is not currently available.
-    EVENT_HUB_ATTACH,           
-    
-    // A stall has occured.  This event is not used by the Host stack.
-    EVENT_STALL,                  
-    
-    // VBus SRP Pulse, (VBus > 2.0v),  Data: BYTE Port Number (For future support)
-    EVENT_VBUS_SES_REQUEST,     
-    
-    // The voltage on Vbus has dropped below 4.4V/4.7V.  The application is 
+    EVENT_HUB_ATTACH,
+
+    // A stall has occurred.  This event is not used by the Host stack.
+    EVENT_STALL,
+
+    // VBus SRP Pulse, (VBus > 2.0v),  Data: uint8_t Port Number (For future support)
+    EVENT_VBUS_SES_REQUEST,
+
+    // The voltage on Vbus has dropped below 4.4V/4.7V.  The application is
     // responsible for monitoring Vbus and calling USBHostVbusEvent() with this
     // event.  This event is not generated by the stack.
-    EVENT_VBUS_OVERCURRENT,     
-    
+    EVENT_VBUS_OVERCURRENT,
+
     // An enumerating device is requesting power.  The data associated with this
-    // event is of the data type USB_VBUS_POWER_EVENT_DATA.  Note that 
+    // event is of the data type USB_VBUS_POWER_EVENT_DATA.  Note that
     // the requested current is specified in 2mA units, identical to the power
     // specification in a device's Configuration Descriptor.
-    EVENT_VBUS_REQUEST_POWER,   
-    
+    EVENT_VBUS_REQUEST_POWER,
+
     // Release power from a detaching device. The data associated with this
     // event is of the data type USB_VBUS_POWER_EVENT_DATA.  The current value
     // specified in the data can be ignored.
-    EVENT_VBUS_RELEASE_POWER,   
-    
-    // The voltage on Vbus is good, and the USB OTG module can be powered on.  
-    // The application is responsible for monitoring Vbus and calling 
-    // USBHostVbusEvent() with this event.  This event is not generated by the 
+    EVENT_VBUS_RELEASE_POWER,
+
+    // The voltage on Vbus is good, and the USB OTG module can be powered on.
+    // The application is responsible for monitoring Vbus and calling
+    // USBHostVbusEvent() with this event.  This event is not generated by the
     // stack.  If the application issues an EVENT_VBUS_OVERCURRENT, then no
     // power will be applied to that port, and no device can attach to that
     // port, until the application issues the EVENT_VBUS_POWER_AVAILABLE for
     // the port.
-    EVENT_VBUS_POWER_AVAILABLE, 
-    
+    EVENT_VBUS_POWER_AVAILABLE,
+
     // The attached device is not supported by the application.  The attached
     // device is not allowed to enumerate.
-    EVENT_UNSUPPORTED_DEVICE,   
-    
+    EVENT_UNSUPPORTED_DEVICE,
+
     // Cannot enumerate the attached device.  This is generated if communication
     // errors prevent the device from enumerating.
-    EVENT_CANNOT_ENUMERATE,     
-    
-    // The client driver cannot initialize the the attached device.  The 
+    EVENT_CANNOT_ENUMERATE,
+
+    // The client driver cannot initialize the the attached device.  The
     // attached is not allowed to enumerate.
-    EVENT_CLIENT_INIT_ERROR,    
-    
+    EVENT_CLIENT_INIT_ERROR,
+
     // The Host stack does not have enough heap space to enumerate the device.
     // Check the amount of heap space allocated to the application.  In MPLAB,
     // select Project> Build Options...> Project.  Select the appropriate
     // linker tab, and inspect the "Heap size" entry.
-    EVENT_OUT_OF_MEMORY,        
-    
+    EVENT_OUT_OF_MEMORY,
+
     // Unspecified host error. (This error should not occur).
-    EVENT_UNSPECIFIED_ERROR,     
-             
+    EVENT_UNSPECIFIED_ERROR,
+
     // USB cable has been detached.  The data associated with this event is the
-    // address of detached device, a single BYTE.
-    EVENT_DETACH, 
-     
+    // address of detached device, a single uint8_t.
+    EVENT_DETACH,
+
     // A USB transfer has completed.  The data associated with this event is of
     // the data type HOST_TRANSFER_DATA if the event is generated from the host
     // stack.
     EVENT_TRANSFER,
-    
+
     // A USB Start of Frame token has been received.  This event is not
     // used by the Host stack.
-    EVENT_SOF,                  
-    
+    EVENT_SOF,
+
     // Device-mode resume received.  This event is not used by the Host stack.
     EVENT_RESUME,
-    
+
     // Device-mode suspend/idle event received.  This event is not used by the
     // Host stack.
     EVENT_SUSPEND,
-                  
-    // Device-mode bus reset received.  This event is not used by the Host 
-    // stack.                  
-    EVENT_RESET,  
+
+    // Device-mode bus reset received.  This event is not used by the Host
+    // stack.
+    EVENT_RESET,
+
+    // In Host mode, an isochronous data read has completed.  This event will only
+    // be passed to the DataEventHandler, which is only utilized if it is defined.
+    // Note that the DataEventHandler is called from within the USB interrupt, so
+    // it is critical that it return in time for the next isochronous data packet.
+    EVENT_DATA_ISOC_READ,
+
+    // In Host mode, an isochronous data write has completed.  This event will only
+    // be passed to the DataEventHandler, which is only utilized if it is defined.
+    // Note that the DataEventHandler is called from within the USB interrupt, so
+    // it is critical that it return in time for the next isochronous data packet.
+    EVENT_DATA_ISOC_WRITE,
+
+    // In Host mode, this event gives the application layer the option to reject
+    // a client driver that was selected by the stack.  This is needed when multiple
+    // devices are supported by class level support, but one configuration and client
+    // driver is preferred over another.  Since configuration number is not guaranteed,
+    // the stack cannot do this automatically.  This event is issued only when
+    // looking through configuration descriptors; the driver selected at the device
+    // level cannot be overridden, since there shouldn't be any other options to
+    // choose from.
+    EVENT_OVERRIDE_CLIENT_DRIVER_SELECTION,
+
+    // In host mode, this event is thrown for every millisecond that passes.  Like all
+    // events, this is thrown from the USBHostTasks() or USBTasks() routine so its
+    // timeliness will be determined by the rate that these functions are called.  If
+    // they are not called very often, then the 1ms events will build up and be
+    // dispatched as the USBTasks() or USBHostTasks() functions are called (one event
+    // per call to these functions.
+    EVENT_1MS,
+
+    // In device mode, this event is thrown when we receive a Set Interface request from
+    // the host.  The stack will automatically handle the interface switch, but the app
+    // may need to know about the interface switch for performing tasks such as powering
+    // up/down audio hardware.
+    EVENT_ALT_INTERFACE,
+
+    // If the application layer must do things to the device before the device is
+    // configured, they should be done at this point.  The application layer should
+    // return true to hold the USB state machine at this point, while any USB or other
+    // processing continues.  When the USB state machine can safely proceed, the application
+    // layer should return FALSE.
+    EVENT_HOLD_BEFORE_CONFIGURATION,
 
     // Class-defined event offsets start here:
     EVENT_GENERIC_BASE  = 400,      // Offset for Generic class events
@@ -337,19 +342,19 @@ typedef enum
     EVENT_HID_BASE      = 600,      // Offset for Human Interface Device class events
 
     EVENT_PRINTER_BASE  = 700,      // Offset for Printer class events
-    
+
     EVENT_CDC_BASE      = 800,      // Offset for CDC class events
 
     EVENT_CHARGER_BASE  = 900,      // Offset for Charger client driver events.
 
     EVENT_AUDIO_BASE    = 1000,      // Offset for Audio client driver events.
-        
+
 	EVENT_USER_BASE     = 10000,    // Add integral values to this event number
                                     // to create user-defined events.
 
     // There was a transfer error on the USB.  The data associated with this
     // event is of data type HOST_TRANSFER_DATA.
-    EVENT_BUS_ERROR     = INT_MAX  
+    EVENT_BUS_ERROR     = INT_MAX
 
 } USB_EVENT;
 
@@ -358,7 +363,7 @@ typedef enum
 /* EVENT_TRANSFER Data
 
 This data structure is passed to the appropriate layer's
-USB_EVENT_HANDLER when an EVT_XFER event has occured, indicating
+USB_EVENT_HANDLER when an EVT_XFER event has occurred, indicating
 that a transfer has completed on the USB.  It provides the endpoint,
 direction, and actual size of the transfer.
  */
@@ -366,8 +371,8 @@ direction, and actual size of the transfer.
 typedef struct _transfer_event_data
 {
     TRANSFER_FLAGS  flags;          // Transfer flags (see above)
-    UINT32          size;           // Actual number of bytes transferred
-    BYTE            pid;            // Packet ID
+    uint32_t          size;           // Actual number of bytes transferred
+    uint8_t            pid;            // Packet ID
 
 } USB_TRANSFER_EVENT_DATA;
 
@@ -377,14 +382,30 @@ typedef struct _transfer_event_data
 
 This data structure is passed to the appropriate layer's
 USB_EVENT_HANDLER when an EVENT_VBUS_REQUEST_POWER or EVENT_VBUS_RELEASE_POWER
-event has occured, indicating that a change in Vbus power is being requested.
+event has occurred, indicating that a change in Vbus power is being requested.
 */
 
 typedef struct _vbus_power_data
 {
-    BYTE            port;           // Physical port number
-    BYTE            current;        // Current in 2mA units
+    uint8_t            port;           // Physical port number
+    uint8_t            current;        // Current in 2mA units
 } USB_VBUS_POWER_EVENT_DATA;
+
+
+// *****************************************************************************
+/* USB_OVERRIDE_CLIENT_DRIVER_EVENT_DATA Data
+
+This data structure is passed to the application layer when a client driver is
+select, in case multiple client drivers can support a particular device.
+*/
+typedef struct _override_client_driver_data
+{
+    uint16_t idVendor;
+    uint16_t idProduct;
+    uint8_t bDeviceClass;
+    uint8_t bDeviceSubClass;
+    uint8_t bDeviceProtocol;
+} USB_OVERRIDE_CLIENT_DRIVER_EVENT_DATA;
 
 
 // *****************************************************************************
@@ -404,7 +425,7 @@ stalled (ie. bit 0 = EP0, bit 1 = EP1, etc.)
 
 /*******************************************************************************
     Function:
-        BOOL <Event-handling Function Name> ( USB_EVENT event,
+        bool <Event-handling Function Name> ( USB_EVENT event,
               void *data, unsigned int size )
 
     Description:
@@ -416,132 +437,30 @@ stalled (ie. bit 0 = EP0, bit 1 = EP1, etc.)
         or calls the layer above it to handle the event.  Events are
         identified by the "event" parameter and may have associated
         data.  If the higher layer was able to handle the event, it
-        should return TRUE.  If not, it should return FALSE.
-        
+        should return true.  If not, it should return false.
+
     Preconditions:
         USBInitialize must have been called to initialize the USB SW
         Stack.
-        
-    Paramters:
-        USB_EVENT event   - Identifies the bus event that occured
+
+    Parameters:
+        USB_EVENT event   - Identifies the bus event that occurred
         void *data        - Pointer to event-specific data
         unsigned int size - Size of the event-specific data
-        
+
     Return Values:
         None
-        
+
     Remarks:
         The function is name is defined by the layer that implements
         it.  A pointer to the function will be placed by into a table
         that the lower-layer will use to call it.  This requires the
         function to use a specific call "signature" (return data type
         and values and data parameter types and values).
- 
+
 *******************************************************************************/
 
-typedef BOOL (*USB_EVENT_HANDLER) ( USB_EVENT event, void *data, unsigned int size );
-
-
-// *****************************************************************************
-// *****************************************************************************
-// Section: USB Application Program Interface (API) Routines
-// *****************************************************************************
-// *****************************************************************************
-
-/****************************************************************************
-    Function:
-        BOOL USBInitialize ( unsigned long flags )
-
-    Summary:
-        This interface initializes the variables of the USB host stack.
-
-    Description:
-        This interface initializes the USB stack.
-
-    Precondition:
-        None
-
-    Parameters:
-        flags - reserved
-
-    Return Values:
-        TRUE  - Initialization successful
-        FALSE - Initialization failure
-
-    Remarks:
-        This interface is implemented as a macro that can be defined by the
-        application or by default is defined correctly for the stack mode.
-        
-  ***************************************************************************/
-
-#ifndef USBInitialize   
-    #if defined( USB_SUPPORT_DEVICE )
-        #if defined( USB_SUPPORT_HOST )
-            #if defined( USB_SUPPORT_OTG )
-                #error "USB OTG is not yet supported."
-            #else
-                #define USBInitialize(f) \
-                        (USBDEVInitialize(f) && USBHostInit(f)) ? \
-                        TRUE : FALSE
-            #endif
-        #else
-            #define USBInitialize(f) USBDeviceInit()
-        #endif
-    #else
-        #if defined( USB_SUPPORT_HOST )
-            #define USBInitialize(f) USBHostInit(f)
-        #else
-            #error "Application must define support mode in usb_config.h"
-        #endif
-    #endif
-#endif
-
-
-/****************************************************************************
-    Function:
-        void USBTasks( void )
-
-    Summary:
-        This function executes the tasks for USB operation.
-
-    Description:
-        This function executes the tasks for USB host operation.  It must be
-        executed on a regular basis to keep everything functioning.
-
-    Precondition:
-        USBInitialize() has been called.
-
-    Parameters:
-        None
-
-    Returns:
-        None
-
-    Remarks:
-        This interface is implemented as a macro that can be defined by the
-        application or by default is defined correctly for the stack mode.
-        
-  ***************************************************************************/
-
-#ifndef USBTasks    // Implemented as a macro that can be overridden.
-    #if defined( USB_SUPPORT_DEVICE )
-        #if defined( USB_SUPPORT_HOST )
-            #if defined( USB_SUPPORT_OTG )
-                #error "USB OTG is not yet supported."
-            #else
-                #define USBTasks() {USBHostTasks(); USBHALHandleBusEvent();}
-            #endif
-        #else
-            #define USBTasks() USBDeviceTasks()
-        #endif
-    #else
-        #if defined( USB_SUPPORT_HOST )
-            #define USBTasks() USBHostTasks()
-        #else
-            #error "Application must define support mode in usb_config.h"
-        #endif
-    #endif
-#endif
+typedef bool (*USB_EVENT_HANDLER) ( USB_EVENT event, void *data, unsigned int size );
 
 #define USB_PING_PONG__NO_PING_PONG         0x00    //0b00
 #define USB_PING_PONG__EP0_OUT_ONLY         0x01    //0b01

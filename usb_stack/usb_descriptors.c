@@ -155,7 +155,7 @@ state according to the definition in the USB specification.
  
 /** INCLUDES *******************************************************/
 #include "usb.h"
-#include "usb_function_cdc.h"
+#include "usb_device_cdc.h"
 
 /** CONSTANTS ******************************************************/
 #if defined(__18CXX)
