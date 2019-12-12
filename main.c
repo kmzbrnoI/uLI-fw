@@ -152,7 +152,7 @@ void __interrupt(low_priority) low_isr(void) {
 void main(void) {
 	init();
 
-	while (1) {
+	while (true) {
 		if (USB_BUS_SENSE && (USBGetDeviceState() == DETACHED_STATE))
 			USBDeviceAttach();
 
@@ -164,16 +164,9 @@ void main(void) {
 		CheckPwrLEDStatus();
 		CDCTxService();
 
-		if ((pc_send_waiting.all) && (USART_last_start == ring_USART_datain.ptr_e)) {
-			// data are not being received -> check output buffers
-			check_device_data_to_USB();
-			USART_last_start = ring_USART_datain.ptr_e;
-		}
-		
-		// clear watchdog timer
-		ClrWdt();
-	} //end while
-} //end main
+		ClrWdt(); // clear watchdog timer
+	}
+}
 
 void init(void) {
 #if (defined(__18CXX) & !defined(PIC18F87J50_PIM))
@@ -224,14 +217,14 @@ void init(void) {
 }
 
 void timer10ms(void) {
-	// usb receive timeout
-	if (usb_timeout < USB_MAX_TIMEOUT) usb_timeout++;
+	if (usb_timeout < USB_MAX_TIMEOUT)
+		usb_timeout++;
 
-	// usart receive timeout
-	if (usart_timeout < USART_MAX_TIMEOUT) usart_timeout++;
+	if (usart_timeout < USART_MAX_TIMEOUT)
+		usart_timeout++;
 
-	// timeslot timeout
-	if (timeslot_timeout < TIMESLOT_LONG_MAX_TIMEOUT) timeslot_timeout++;
+	if (timeslot_timeout < TIMESLOT_LONG_MAX_TIMEOUT)
+		timeslot_timeout++;
 
 #ifndef DEBUG
 	// mLEDout timeout
@@ -585,7 +578,8 @@ void USART_receive_interrupt(void) {
 // Check for data in ring_USART_datain and send complete data to USB.
 
 void USB_send(void) {
-	// check for USB ready
+	check_device_data_to_USB();
+
 	if (!mUSBUSARTIsTxTrfReady()) return;
 
 	if (((ringLength(ring_USART_datain)) >= 1) && (ringLength(ring_USART_datain) >= USART_msg_len(ring_USART_datain.ptr_b))) {
@@ -904,114 +898,68 @@ void CheckBroadcast(int xn_start_index) {
 // This function relies on sending data to PC in non-interrupt function!
 
 void check_device_data_to_USB(void) {
-	uint8_t my_start;
+	if (!mUSBUSARTIsTxTrfReady()) return;
 
 	if (pc_send_waiting.bits.version) {
-		if (ringFreeSpace(ring_USART_datain) < 5) return;
 		pc_send_waiting.bits.version = false;
-		my_start = ring_USART_datain.ptr_e;
-		ring_USART_datain.ptr_e = (ring_USART_datain.ptr_e + 5) & ring_USART_datain.max;
-		ring_USART_datain.data[my_start] = 0; // first byte is a virtual LI address (for this purpose zero is enough)
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x02;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = VERSION_HW;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = VERSION_FW;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = (0x02 ^ VERSION_HW ^ VERSION_FW);
+		uint8_t buf[4] = {0x02, VERSION_HW, VERSION_FW};
+		buf[3] = (buf[0] ^ buf[1] ^ buf[2]);
+		putUSBUSART(buf, 4);
 
 	} else if (pc_send_waiting.bits.addr) {
-		if (ringFreeSpace(ring_USART_datain) < 5) return;
 		pc_send_waiting.bits.addr = false;
-		my_start = ring_USART_datain.ptr_e;
-		ring_USART_datain.ptr_e = (ring_USART_datain.ptr_e + 5) & ring_USART_datain.max;
-		ring_USART_datain.data[my_start] = 0; // first byte is a virtual LI address (for this purpose zero is enough)
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0xF2;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x01;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = xn_addr;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0xF3 ^ xn_addr;
+		uint8_t buf[4] = {0xF2, 0x01, xn_addr};
+		buf[3] = (buf[0] ^ buf[1] ^ buf[2]);
+		putUSBUSART(buf, 4);
 
 	} else if (pc_send_waiting.bits.baud_rate) {
-		if (ringFreeSpace(ring_USART_datain) < 5) return;
 		pc_send_waiting.bits.baud_rate = false;
-		my_start = ring_USART_datain.ptr_e;
-		ring_USART_datain.ptr_e = (ring_USART_datain.ptr_e + 5) & ring_USART_datain.max;
-		ring_USART_datain.data[my_start] = 0; // first byte is a virtual LI address (for this purpose zero is enough)
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0xF2;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x02;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = tmp_baud_rate;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0xF0 ^ tmp_baud_rate;
+		uint8_t buf[4] = {0xF2, 0x02, tmp_baud_rate, 0};
+		buf[3] = (buf[0] ^ buf[1] ^ buf[2]);
+		putUSBUSART(buf, 4);
 
 	} else if (pc_send_waiting.bits.ok) {
-		if (ringFreeSpace(ring_USART_datain) < 4) return;
 		pc_send_waiting.bits.ok = false;
-		my_start = ring_USART_datain.ptr_e;
-		ring_USART_datain.ptr_e = (ring_USART_datain.ptr_e + 4) & ring_USART_datain.max;
-		ring_USART_datain.data[my_start] = 0; // first byte is a virtual LI address (for this purpose zero is enough)
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x01;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x04;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x05;
+		uint8_t buf[] = {0x01, 0x04, 0x05};
+		putUSBUSART(buf, 3);
 
 	} else if (pc_send_waiting.bits.xor_error) {
-		if (ringFreeSpace(ring_USART_datain) < 4) return;
 		pc_send_waiting.bits.xor_error = false;
-		my_start = ring_USART_datain.ptr_e;
-		ring_USART_datain.ptr_e = (ring_USART_datain.ptr_e + 4) & ring_USART_datain.max;
-		ring_USART_datain.data[my_start] = 0; // first byte is a virtual LI address (for this purpose zero is enough)
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x01;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x03;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x02;
+		uint8_t buf[] = {0x01, 0x03, 0x02};
+		putUSBUSART(buf, 3);
 
 	} else if (pc_send_waiting.bits.full_buffer) {
-		if (ringFreeSpace(ring_USART_datain) < 4) return;
 		pc_send_waiting.bits.full_buffer = false;
-		my_start = ring_USART_datain.ptr_e;
-		ring_USART_datain.ptr_e = (ring_USART_datain.ptr_e + 4) & ring_USART_datain.max;
-		ring_USART_datain.data[my_start] = 0; // first byte is a virtual LI address (for this purpose zero is enough)
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x01;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x06;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x07;
+		uint8_t buf[] = {0x01, 0x06, 0x07};
+		putUSBUSART(buf, 3);
 
 	} else if (pc_send_waiting.bits.cs_timeout) {
-		if (ringFreeSpace(ring_USART_datain) < 4) return;
 		pc_send_waiting.bits.cs_timeout = false;
-		my_start = ring_USART_datain.ptr_e;
-		ring_USART_datain.ptr_e = (ring_USART_datain.ptr_e + 4) & ring_USART_datain.max;
-		ring_USART_datain.data[my_start] = 0; // first byte is a virtual LI address (for this purpose zero is enough)
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x01;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x02;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x03;
+		uint8_t buf[] = {0x01, 0x02, 0x03};
+		putUSBUSART(buf, 3);
 
 	} else if (pc_send_waiting.bits.pc_timeout) {
-		if (ringFreeSpace(ring_USART_datain) < 4) return;
 		pc_send_waiting.bits.pc_timeout = false;
-		my_start = ring_USART_datain.ptr_e;
-		ring_USART_datain.ptr_e = (ring_USART_datain.ptr_e + 4) & ring_USART_datain.max;
-		ring_USART_datain.data[my_start] = 0; // first byte is a virtual LI address (for this purpose zero is enough)
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x01;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x01;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x00;
+		uint8_t buf[] = {0x01, 0x01, 0x00};
+		putUSBUSART(buf, 3);
 
 	} else if (pc_send_waiting.bits.timeslot_timeout) {
-		if (ringFreeSpace(ring_USART_datain) < 4) return;
 		pc_send_waiting.bits.timeslot_timeout = false;
-		my_start = ring_USART_datain.ptr_e;
-		ring_USART_datain.ptr_e = (ring_USART_datain.ptr_e + 4) & ring_USART_datain.max;
-		ring_USART_datain.data[my_start] = 0; // first byte is a virtual LI address (for this purpose zero is enough)
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x01;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x05;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x04;
-		
+		uint8_t buf[] = {0x01, 0x05, 0x04};
+		putUSBUSART(buf, 3);
+
 #ifdef FERR_FEATURE
 	} else if (pc_send_waiting.bits.ferr) {
-		if (ringFreeSpace(ring_USART_datain) < 7) return;
 		pc_send_waiting.bits.ferr = false;
-		my_start = ring_USART_datain.ptr_e;
-		ring_USART_datain.ptr_e = (ring_USART_datain.ptr_e + 7) & ring_USART_datain.max;
-		ring_USART_datain.data[my_start] = 0; // first byte is a virtual LI address (for this purpose zero is enough)
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0xF4;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0x05;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = (ferr_in_10_s >> 16) & 0xFF;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = (ferr_in_10_s >> 8) & 0xFF;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = ferr_in_10_s & 0xFF;
-		ring_USART_datain.data[(++my_start) & ring_USART_datain.max] = 0xF1 ^ ((ferr_in_10_s >> 16) & 0xFF) ^ ((ferr_in_10_s >> 8) & 0xFF) ^ (ferr_in_10_s & 0xFF);
+		uint8_t buf[6] = {
+			0xF4,
+			0x05,
+			(ferr_in_10_s >> 16) & 0xFF,
+			(ferr_in_10_s >> 8) & 0xFF,
+			ferr_in_10_s & 0xFF
+		};
+		buf[5] = buf[0] ^ buf[1] ^ buf[2] ^ buf[3] ^ buf[4];
+		putUSBUSART(buf, 6);
 #endif
 	}
 }
