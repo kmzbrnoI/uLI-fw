@@ -23,9 +23,6 @@
 #define USB_msg_len(start)      ((ring_USB_datain.data[start] & 0x0F) + 2) // len WITH header byte and WITH xor byte
 #define USB_last_message_len    ringDistance(ring_USB_datain, last_start, ring_USB_datain.ptr_e)
 
-#define MIN(a,b) (((a) < (b)) ? (a) : (b))
-#define MAX(a,b) (((a) > (b)) ? (a) : (b))
-
 #define USART_msg_len(start)    ((ring_USART_datain.data[(start + 1) & ring_USART_datain.max] & 0x0F)+3)    // length of xpressnet message is 4-lower bits in second byte
 #define USART_last_message_len  ringDistance(ring_USART_datain, USART_last_start, ring_USART_datain.ptr_e)
 #define USART_msg_to_send       (ringLength(ring_USB_datain) >= MAX(2, USB_msg_len(ring_USB_datain.ptr_b)))
