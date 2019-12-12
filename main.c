@@ -44,15 +44,11 @@
 
 /** VARIABLES *****************************************************************/
 
-#pragma udata
-
 volatile uint8_t USB_Out_Buffer[32]; // WARNING: this buffer should not be manipulated in interrupts!
 
 volatile ring_generic ring_USB_datain;
 volatile ring_generic ring_USART_datain;
 volatile uint8_t tmp_baud_rate;
-
-#pragma idata
 
 volatile uint8_t our_frame = 0;         // 0 = we cannot send messages
                                         // 1..80 = we can send messages
@@ -125,7 +121,9 @@ void CheckBroadcast(int xn_start_index);
 
 void check_device_data_to_USB(void);
 
-/** VECTOR REMAPPING **********************************************************/
+void timer10ms(void);
+
+/** INTERRUPTS ****************************************************************/
 
 void __interrupt(high_priority) MyHighIsr(void) {
 #if defined(USB_INTERRUPT)
@@ -144,83 +142,17 @@ void __interrupt(high_priority) MyHighIsr(void) {
 }
 
 void __interrupt(low_priority) MyLowIsr(void) {
-	// Timer2 on 100 us
 	if ((PIE1bits.TMR2IE) && (PIR1bits.TMR2IF)) {
+		// Timer2 on 100 us
 		if (ten_ms_counter < 100) {
 			ten_ms_counter++;
 		} else {
 			ten_ms_counter = 0;
-
-			// 10 ms overflow:
-
-			// usb receive timeout
-			if (usb_timeout < USB_MAX_TIMEOUT) usb_timeout++;
-
-			// usart receive timeout
-			if (usart_timeout < USART_MAX_TIMEOUT) usart_timeout++;
-
-			// timeslot timeout
-			if (timeslot_timeout < TIMESLOT_LONG_MAX_TIMEOUT) timeslot_timeout++;
-
-#ifndef DEBUG
-			// mLEDout timeout
-			if (mLED_Data_Timeout < 2 * MLED_DATA_MAX_TIMEOUT) {
-				mLED_Data_Timeout++;
-				if (mLED_Data_Timeout == MLED_DATA_MAX_TIMEOUT) {
-					mLED_Data_Off();
-				}
-			}
-#endif
-
-#ifdef FERR_FEATURE
-			// framing error counting
-			ferr_counter++;
-			if (ferr_counter >= FERR_TIMEOUT) {
-				ferr_in_10_s = 0;
-				ferr_counter = 0;
-			}
-#endif
-
-#ifndef DEBUG
-			// mLEDIn timeout
-			if (mLED_XN_Timeout < 2 * MLED_XN_MAX_TIMEOUT) {
-				mLED_XN_Timeout++;
-				if (mLED_XN_Timeout == MLED_XN_MAX_TIMEOUT) {
-					mLED_XN_On();
-				}
-			}
-#endif
-
-			// pwrLED toggling
-			pwr_led_base_counter++;
-			if (pwr_led_base_counter >= pwr_led_base_timeout) {
-				pwr_led_base_counter = 0;
-				pwr_led_status_counter++;
-
-				if (pwr_led_status_counter == 2 * pwr_led_status) {
-					// wait between cycles
-					pwr_led_base_timeout = PWR_LED_LONG_COUNT;
-					mLED_Pwr_Off();
-				} else if (pwr_led_status_counter > 2 * pwr_led_status) {
-					// new base cycle
-					pwr_led_base_timeout = PWR_LED_SHORT_COUNT;
-					pwr_led_status_counter = 0;
-					mLED_Pwr_On();
-				} else {
-					mLED_Pwr_Toggle();
-				}
-			}
-
-			// end of 10 ms counter
+			timer10ms();
 		}
-
 		PIR1bits.TMR2IF = 0; // reset overflow flag
 	}
-
-} //This return will be a "retfie", since this is in a #pragma interruptlow section
-
-/** DECLARATIONS ***************************************************/
-#pragma code
+}
 
 void main(void) {
 	InitializeSystem();
@@ -301,6 +233,66 @@ void UserInit(void) {
 
 	T2CONbits.TMR2ON = 1;       // timer2 enable	
 } //end UserInit
+
+void timer10ms(void) {
+	// usb receive timeout
+	if (usb_timeout < USB_MAX_TIMEOUT) usb_timeout++;
+
+	// usart receive timeout
+	if (usart_timeout < USART_MAX_TIMEOUT) usart_timeout++;
+
+	// timeslot timeout
+	if (timeslot_timeout < TIMESLOT_LONG_MAX_TIMEOUT) timeslot_timeout++;
+
+#ifndef DEBUG
+	// mLEDout timeout
+	if (mLED_Data_Timeout < 2 * MLED_DATA_MAX_TIMEOUT) {
+		mLED_Data_Timeout++;
+		if (mLED_Data_Timeout == MLED_DATA_MAX_TIMEOUT) {
+			mLED_Data_Off();
+		}
+	}
+#endif
+
+#ifdef FERR_FEATURE
+	// framing error counting
+	ferr_counter++;
+	if (ferr_counter >= FERR_TIMEOUT) {
+		ferr_in_10_s = 0;
+		ferr_counter = 0;
+	}
+#endif
+
+#ifndef DEBUG
+	// mLEDIn timeout
+	if (mLED_XN_Timeout < 2 * MLED_XN_MAX_TIMEOUT) {
+		mLED_XN_Timeout++;
+		if (mLED_XN_Timeout == MLED_XN_MAX_TIMEOUT) {
+			mLED_XN_On();
+		}
+	}
+#endif
+
+	// pwrLED toggling
+	pwr_led_base_counter++;
+	if (pwr_led_base_counter >= pwr_led_base_timeout) {
+		pwr_led_base_counter = 0;
+		pwr_led_status_counter++;
+
+		if (pwr_led_status_counter == 2 * pwr_led_status) {
+			// wait between cycles
+			pwr_led_base_timeout = PWR_LED_LONG_COUNT;
+			mLED_Pwr_Off();
+		} else if (pwr_led_status_counter > 2 * pwr_led_status) {
+			// new base cycle
+			pwr_led_base_timeout = PWR_LED_SHORT_COUNT;
+			pwr_led_status_counter = 0;
+			mLED_Pwr_On();
+		} else {
+			mLED_Pwr_Toggle();
+		}
+	}
+}
 
 // ******************************************************************************************************
 // ************** USB Callback Functions ****************************************************************
