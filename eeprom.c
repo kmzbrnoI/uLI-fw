@@ -1,10 +1,7 @@
-/*
- * EEPROM access implementation
- */
+/* EEPROM access implementation */
 
-#include "eeprom.h"
-//#include <18f14k50.h>
 #include <xc.h>
+#include "eeprom.h"
 
 unsigned char ReadEEPROM(unsigned char address) {
 	EECON1 = 0; //ensure CFGS=0 and EEPGD=0

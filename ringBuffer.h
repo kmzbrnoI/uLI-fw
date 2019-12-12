@@ -1,8 +1,4 @@
-/*
- * Ring buffer header file.
- * (c) Michal Petrilak, Jan Horacek 2016
- * Version: 1.0.1
- */
+/* Ring buffer header file. */
 
 #ifndef RINGBUFFER_H
 #define RINGBUFFER_H

@@ -1,10 +1,4 @@
-/******************************************************************************
- FileName:      main.c
- Processor:     PIC18F14K50
- Hardware:      uLI 2 - JH&MP 2015-2016
- Complier:      Microchip C18
- Author:        Jan Horacek, Michal Petrilak
-*/
+/* Main functionality of whole project */
 
 /** INCLUDES ******************************************************************/
 
@@ -65,7 +59,8 @@ volatile uint8_t our_frame = 0;         // 0 = we cannot send messages
 volatile uint8_t usb_timeout = 0;       // increment every 100 us -> 100 ms timeout = 1 000
 volatile WORD usart_timeout = 0;        // increment every 100 us -> 100 ms timeout = 1 000
 volatile uint8_t usart_to_send = 0;     // byte to send to USART
-                                        // I rather made this public volatile variable, beacause it is accessed in interrupts and in main too.
+                                        // I made this public volatile variable,
+                                        // beacause it is accessed in interrupts and in main too.
 volatile uint8_t ten_ms_counter = 0;    // 10 ms counter
 
 // timeslot errors

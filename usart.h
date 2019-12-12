@@ -1,7 +1,4 @@
-/*
- * Usart communication library header file
- * (c) Jan Horacek 2016
- */
+/* Usart communication library header file */
 
 #ifndef USART_H
 #define USART_H

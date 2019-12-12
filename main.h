@@ -1,8 +1,4 @@
-/*
- * Main header file.
- * (c) Michal Petrilak, Jan Horacek 2016
- * Version: 1.3
- */
+/* Main header file. */
 
 #ifndef MAIN_H
 #define MAIN_H

@@ -1,6 +1,4 @@
-/*
- * EEPROM access header file.
- */
+/* EEPROM access header file. */
 
 #ifndef EEPROM_H
 #define EEPROM_H

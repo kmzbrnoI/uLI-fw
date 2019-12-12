@@ -1,9 +1,5 @@
-/*
- * Usart communication library implementation
- * (c) Jan Horacek 2016
- */
+/* Usart communication library implementation */
 
-//#include <p18f14k50.h>
 #include <xc.h>
 
 #include "GenericTypeDefs.h"
