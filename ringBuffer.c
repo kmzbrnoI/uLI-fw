@@ -2,13 +2,13 @@
 
 #include "ringBuffer.h"
 
-void ringAddByte(ring_generic* buf, uint8_t data) {
+void ringAddByte(volatile ring_generic* buf, uint8_t data) {
 	buf->data[buf->ptr_e] = data;
 	buf->ptr_e = (buf->ptr_e + 1) & buf->max;
 	buf->empty = FALSE;
 }
 
-uint8_t ringRemoveByte(ring_generic* buf) {
+uint8_t ringRemoveByte(volatile ring_generic* buf) {
 	uint8_t result;
 	if (ringLength(*buf) == 0) return 0;
 	result = buf->data[buf->ptr_b];
@@ -17,7 +17,7 @@ uint8_t ringRemoveByte(ring_generic* buf) {
 	return result;
 }
 
-void ringRemoveFrame(ring_generic* buf, uint8_t num) {
+void ringRemoveFrame(volatile ring_generic* buf, uint8_t num) {
 	uint8_t x;
 	x = ringLength(*buf);
 	if (x > num) x = num;
@@ -25,19 +25,19 @@ void ringRemoveFrame(ring_generic* buf, uint8_t num) {
 	if (buf->ptr_b == buf->ptr_e) buf->empty = TRUE;
 }
 
-uint8_t ringReadByte(ring_generic* buf, uint8_t offset) {
+uint8_t ringReadByte(volatile ring_generic* buf, uint8_t offset) {
 	uint8_t pos;
 	pos = (buf->ptr_b + offset) & buf->max;
 	return buf->data[pos];
 }
 
-void ringSerialize(ring_generic* buf, uint8_t* out, uint8_t start, uint8_t length) {
+void ringSerialize(volatile ring_generic* buf, uint8_t* out, uint8_t start, uint8_t length) {
 	int i;
 	for (i = 0; i < length; i++)
 		out[i] = buf->data[(start + i) & buf->max];
 }
 
-void ringRemoveFromMiddle(ring_generic* buf, uint8_t start, uint8_t length) {
+void ringRemoveFromMiddle(volatile ring_generic* buf, uint8_t start, uint8_t length) {
 	int i;
 	for (i = start; i != ((buf->ptr_e - length) & buf->max); i++)
 		buf->data[i & buf->max] = buf->data[(i + length) & buf->max];
@@ -45,7 +45,7 @@ void ringRemoveFromMiddle(ring_generic* buf, uint8_t start, uint8_t length) {
 	if (buf->ptr_b == buf->ptr_e) buf->empty = TRUE;
 }
 
-void ringAddToStart(ring_generic* buf, uint8_t* data, uint8_t len) {
+void ringAddToStart(volatile ring_generic* buf, uint8_t* data, uint8_t len) {
 	int i;
 
 	// check full buffer
@@ -57,7 +57,7 @@ void ringAddToStart(ring_generic* buf, uint8_t* data, uint8_t len) {
 	if (len > 0) { buf->empty = FALSE; }
 }
 
-void ringClear(ring_generic* buf) {
+void ringClear(volatile ring_generic* buf) {
 	buf->ptr_b = buf->ptr_e;
 	buf->empty = TRUE;
 }

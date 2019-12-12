@@ -31,14 +31,14 @@ typedef struct {
  * Empty flag must be set when manipulating with ring buffer!
  */
 
-void ringAddByte(ring_generic* buf, uint8_t dat);
-uint8_t ringRemoveByte(ring_generic* buf);
-void ringRemoveFrame(ring_generic* buf, uint8_t num);
-uint8_t ringReadByte(ring_generic* buf, uint8_t offset);
-void ringSerialize(ring_generic* buf, uint8_t* out, uint8_t start, uint8_t length);
-void ringRemoveFromMiddle(ring_generic* buf, uint8_t start, uint8_t length);
-void ringClear(ring_generic* buf);
-void ringAddToStart(ring_generic* buf, uint8_t* data, uint8_t len);
+void ringAddByte(volatile ring_generic* buf, uint8_t dat);
+uint8_t ringRemoveByte(volatile ring_generic* buf);
+void ringRemoveFrame(volatile ring_generic* buf, uint8_t num);
+uint8_t ringReadByte(volatile ring_generic* buf, uint8_t offset);
+void ringSerialize(volatile ring_generic* buf, uint8_t* out, uint8_t start, uint8_t length);
+void ringRemoveFromMiddle(volatile ring_generic* buf, uint8_t start, uint8_t length);
+void ringClear(volatile ring_generic* buf);
+void ringAddToStart(volatile ring_generic* buf, uint8_t* data, uint8_t len);
 
 #define ringBufferInit(name, size) \
 	name.max = (size - 1);     \

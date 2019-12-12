@@ -9,6 +9,7 @@
 #include "GenericTypeDefs.h"
 #include "HardwareProfile.h"
 #include "eeprom.h"
+#include "config.h"
 #include "main.h"
 #include "ringBuffer.h"
 #include "usart.h"
@@ -130,14 +131,12 @@ void __interrupt(high_priority) MyHighIsr(void) {
 #endif
 
 	// USART send interrupt
-	if ((PIE1bits.TXIE) && (PIR1bits.TXIF)) {
+	if ((PIE1bits.TXIE) && (PIR1bits.TXIF))
 		USART_send();
-	}
 
-	// receive interrupt
-	if (PIR1bits.RCIF) {
+	// USART receive interrupt
+	if (PIR1bits.RCIF)
 		USART_receive_interrupt();
-	}
 }
 
 void __interrupt(low_priority) MyLowIsr(void) {
@@ -315,8 +314,8 @@ void USBCBSuspend(void) {
 
 	usb_configured = FALSE;
 	mLED_Data_On();
-	ringClear((ring_generic*)&ring_USART_datain);
-	ringClear((ring_generic*)&ring_USB_datain);
+	ringClear(&ring_USART_datain);
+	ringClear(&ring_USB_datain);
 }
 
 void USBCBWakeFromSuspend(void) {
@@ -419,8 +418,8 @@ void USART_check_timeouts(void) {
 		timeslot_err = TRUE;
 
 		// remove buffers
-		ringClear((ring_generic*)&ring_USART_datain);
-		ringClear((ring_generic*)&ring_USB_datain);
+		ringClear(&ring_USART_datain);
+		ringClear(&ring_USB_datain);
 
 		// send info to PC
 		pc_send_waiting.bits.timeslot_timeout = TRUE;
@@ -490,7 +489,7 @@ void USART_receive_interrupt(void) {
 			if (ringFreeSpace(ring_USB_datain) < 2) {
 				// This situation should not happen. 2 bytes in ring_USB_datain
 				// are always reserved for acknowledgement response.
-				ringClear((ring_generic*)&ring_USB_datain);
+				ringClear(&ring_USB_datain);
 			}
 
 			// add ACK to beginning of the buffer
@@ -533,7 +532,7 @@ void USART_receive_interrupt(void) {
 			RCSTAbits.ADDEN = 0; // receive all messages
 			USART_last_start = ring_USART_datain.ptr_e;
 			xor = 0;
-			ringAddByte((ring_generic*)&ring_USART_datain, USART_received.data);
+			ringAddByte(&ring_USART_datain, USART_received.data);
 			
 #ifndef DEBUG
 			if (mLED_Data_Timeout >= 2 * MLED_DATA_MAX_TIMEOUT) {
@@ -557,7 +556,7 @@ void USART_receive_interrupt(void) {
 
 			return;
 		}
-		ringAddByte((ring_generic*)&ring_USART_datain, USART_received.data);
+		ringAddByte(&ring_USART_datain, USART_received.data);
 		xor ^= USART_received.data;
 
 		if (USART_last_message_len >= USART_msg_len(USART_last_start)) {
@@ -597,9 +596,9 @@ void USB_send(void) {
 
 	if (((ringLength(ring_USART_datain)) >= 1) && (ringLength(ring_USART_datain) >= USART_msg_len(ring_USART_datain.ptr_b))) {
 		// send message
-		ringSerialize((ring_generic*)&ring_USART_datain, USB_Out_Buffer, ring_USART_datain.ptr_b, USART_msg_len(ring_USART_datain.ptr_b));
+		ringSerialize(&ring_USART_datain, USB_Out_Buffer, ring_USART_datain.ptr_b, USART_msg_len(ring_USART_datain.ptr_b));
 		putUSBUSART((uint8_t*)USB_Out_Buffer + 1, ((USB_Out_Buffer[1]) & 0x0F) + 2);
-		ringRemoveFrame((ring_generic*)&ring_USART_datain, ((USB_Out_Buffer[1]) & 0x0F) + 3);
+		ringRemoveFrame(&ring_USART_datain, ((USB_Out_Buffer[1]) & 0x0F) + 3);
 	}
 }
 
@@ -668,7 +667,7 @@ void USB_receive(void) {
 		if (xor != ring_USB_datain.data[(i + last_start) & ring_USB_datain.max]) {
 			// xor error
 			// here, we need to delete content in the middle of ring buffer
-			ringRemoveFromMiddle((ring_generic*)&ring_USB_datain, last_start, USB_msg_len(last_start));
+			ringRemoveFromMiddle(&ring_USB_datain, last_start, USB_msg_len(last_start));
 			pc_send_waiting.bits.xor_error = TRUE;
 			goto ret;
 		}
@@ -677,7 +676,7 @@ void USB_receive(void) {
 		if (USB_parse_data(last_start, USB_msg_len(last_start))) {
 			// timeslot not available -> respond "Buffer full"
 			if (timeslot_err) {
-				ringRemoveFromMiddle((ring_generic*)&ring_USB_datain, last_start, USB_msg_len(last_start));
+				ringRemoveFromMiddle(&ring_USB_datain, last_start, USB_msg_len(last_start));
 				pc_send_waiting.bits.timeslot_timeout = TRUE;
 				goto ret;
 			}
@@ -712,12 +711,12 @@ ret:
 bool USB_parse_data(uint8_t start, uint8_t len) {
 	if (ring_USB_datain.data[start] == 0xF0) {
 		// Instruction for the determination of the version and code number of LI
-		ringRemoveFromMiddle((ring_generic*)&ring_USB_datain, start, 2);
+		ringRemoveFromMiddle(&ring_USB_datain, start, 2);
 		pc_send_waiting.bits.version = TRUE;
 	} else if ((ring_USB_datain.data[start] == 0xF2)
 	    && (ring_USB_datain.data[(start + 1) & ring_USB_datain.max] == 0x01)) {
 		// Instruction for setting the LI101’s XpressNet address
-		ringRemoveFromMiddle((ring_generic*)&ring_USB_datain, start, 4);
+		ringRemoveFromMiddle(&ring_USB_datain, start, 4);
 
 		// set xpressnet addr
 		if ((ring_USB_datain.data[(start + 2) & ring_USB_datain.max] > 0)
@@ -734,7 +733,7 @@ bool USB_parse_data(uint8_t start, uint8_t len) {
 	} else if ((ring_USB_datain.data[start] == 0xF2)
 	    && (ring_USB_datain.data[(start + 1) & ring_USB_datain.max] == 0x02)) {
 		// Instruction for setting the LI101 Baud Rate
-		ringRemoveFromMiddle((ring_generic*)&ring_USB_datain, start, 4);
+		ringRemoveFromMiddle(&ring_USB_datain, start, 4);
 		tmp_baud_rate = ring_USB_datain.data[(start + 2) & ring_USB_datain.max];
 		pc_send_waiting.bits.baud_rate = TRUE;
 
@@ -743,7 +742,7 @@ bool USB_parse_data(uint8_t start, uint8_t len) {
 	    && (ring_USB_datain.data[(start + 1) & ring_USB_datain.max] == 0x05)) {
 		// special feture of uLI: framing error response
 		// FERR is sent as response to 0xF1 0x05 0xF4 as 0xF4 0x05 FERR_HH FERR_H FERR_L XOR
-		ringRemoveFromMiddle((ring_generic*)&ring_USB_datain, start, 3);
+		ringRemoveFromMiddle(&ring_USB_datain, start, 3);
 		pc_send_waiting.bits.ferr = TRUE;
 #endif
 
@@ -882,7 +881,7 @@ void CheckBroadcast(int xn_start_index) {
 	static uint8_t data[3];
 
 	// serialize data from buffer
-	ringSerialize((ring_generic*)&ring_USART_datain, data, xn_start_index, 4);
+	ringSerialize(&ring_USART_datain, data, xn_start_index, 4);
 
 	if ((data[0] == 0x60) && (data[1] == 0x61) && (data[2] == 0x02)) {
 		// service mode entry
