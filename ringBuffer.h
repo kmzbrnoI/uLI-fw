@@ -4,6 +4,7 @@
 #define RINGBUFFER_H
 
 #include <inttypes.h>
+#include <stdbool.h>
 #include "GenericTypeDefs.h"
 
 typedef struct {
@@ -44,7 +45,7 @@ void ringAddToStart(volatile ring_generic* buf, uint8_t* data, uint8_t len);
 	name.max = (size - 1);     \
 	name.ptr_b = 0;            \
 	name.ptr_e = 0;            \
-	name.empty = TRUE;
+	name.empty = true;
 
 // In some cases, it really matters wheter you call function or not.
 // C18 does not support inline functions -> defines.
