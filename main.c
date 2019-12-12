@@ -50,8 +50,6 @@
 
 /** VARIABLES *****************************************************************/
 
-volatile uint8_t USB_Out_Buffer[32]; // WARNING: this buffer should not be manipulated in interrupts!
-
 volatile ring_generic ring_USB_datain;
 volatile ring_generic ring_USART_datain;
 volatile uint8_t tmp_baud_rate;
@@ -599,10 +597,11 @@ void USB_send(void) {
 	if (((ringLength(ring_USART_datain)) >= 1) &&
 	    (ringLength(ring_USART_datain) >= USART_msg_len(ring_USART_datain.ptr_b))) {
 		// send message
-		ringSerialize(&ring_USART_datain, USB_Out_Buffer, ring_USART_datain.ptr_b,
+		static uint8_t buf[32];
+		ringSerialize(&ring_USART_datain, buf, ring_USART_datain.ptr_b,
 		              USART_msg_len(ring_USART_datain.ptr_b));
-		putUSBUSART((uint8_t*)(USB_Out_Buffer + 1), ((USB_Out_Buffer[1]) & 0x0F) + 2);
-		ringRemoveFrame(&ring_USART_datain, ((USB_Out_Buffer[1]) & 0x0F) + 3);
+		putUSBUSART((uint8_t*)(buf + 1), ((buf[1]) & 0x0F) + 2);
+		ringRemoveFrame(&ring_USART_datain, ((buf[1]) & 0x0F) + 3);
 	}
 }
 
@@ -810,10 +809,11 @@ void USART_send(void) {
 
 #ifdef DEBUG
 void dump_buf_to_USB(ring_generic* buf) {
-	int i;
-	for (i = 0; i <= buf->max; i++)
-		USB_Out_Buffer[i] = buf->data[(i + buf->ptr_b) & buf->max];
-	putUSBUSART((char*)USB_Out_Buffer, buf->max + 1);
+	static uint8_t usb_buf[32];
+	size_t i;
+	for (i = 0; i <= buf->max && i < 32; i++)
+		usb_buf[i] = buf->data[(i + buf->ptr_b) & buf->max];
+	putUSBUSART(usb_buf, buf->max + 1);
 }
 #endif
 
