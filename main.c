@@ -124,10 +124,8 @@ void timer10ms(void);
 
 /** INTERRUPTS ****************************************************************/
 
-void __interrupt(high_priority) MyHighIsr(void) {
-#if defined(USB_INTERRUPT)
+void __interrupt(high_priority) high_isr(void) {
 	USBDeviceTasks();
-#endif
 
 	// USART send interrupt
 	if ((PIE1bits.TXIE) && (PIR1bits.TXIF))
@@ -138,7 +136,7 @@ void __interrupt(high_priority) MyHighIsr(void) {
 		USART_receive_interrupt();
 }
 
-void __interrupt(low_priority) MyLowIsr(void) {
+void __interrupt(low_priority) low_isr(void) {
 	if ((PIE1bits.TMR2IE) && (PIR1bits.TMR2IF)) {
 		// Timer2 on 100 us
 		if (ten_ms_counter < 100) {
@@ -155,11 +153,8 @@ void main(void) {
 	init();
 
 	while (1) {
-#if defined(USB_INTERRUPT)
-		if (USB_BUS_SENSE && (USBGetDeviceState() == DETACHED_STATE)) {
+		if (USB_BUS_SENSE && (USBGetDeviceState() == DETACHED_STATE))
 			USBDeviceAttach();
-		}
-#endif
 
 		USART_check_timeouts();
 
