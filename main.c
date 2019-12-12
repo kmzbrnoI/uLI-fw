@@ -109,9 +109,6 @@ volatile bool ring_USB_datain_backlocked = FALSE;
 
 /** PRIVATE  PROTOTYPES *******************************************************/
 
-void YourHighPriorityISRCode();
-void YourLowPriorityISRCode();
-
 void InitializeSystem(void);
 void UserInit(void);
 
@@ -136,18 +133,6 @@ void check_device_data_to_USB(void);
 /** VECTOR REMAPPING **********************************************************/
 
 void __interrupt(high_priority) MyHighIsr(void) {
-    YourHighPriorityISRCode();
-}
-
-void __interrupt(low_priority) MyLowIsr(void) {
-    YourLowPriorityISRCode();
-}
-
-void YourHighPriorityISRCode() {
-//Check which interrupt flag caused the interrupt.
-//Service the interrupt
-//Clear the interrupt flag
-//Etc.
 #if defined(USB_INTERRUPT)
 	USBDeviceTasks();
 #endif
@@ -161,15 +146,9 @@ void YourHighPriorityISRCode() {
 	if (PIR1bits.RCIF) {
 		USART_receive_interrupt();
 	}
+}
 
-} //This return will be a "retfie fast", since this is in a #pragma interrupt section
-
-void YourLowPriorityISRCode() {
-	//Check which interrupt flag caused the interrupt.
-	//Service the interrupt
-	//Clear the interrupt flag
-	//Etc.
-
+void __interrupt(low_priority) MyLowIsr(void) {
 	// Timer2 on 100 us
 	if ((PIE1bits.TMR2IE) && (PIR1bits.TMR2IF)) {
 		if (ten_ms_counter < 100) {
