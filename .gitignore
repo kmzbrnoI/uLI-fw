@@ -1,43 +1,9 @@
-# Object files
-*.o
-*.ko
-*.obj
-*.elf
+nbproject/*.mk
+nbproject/*.properties
+nbproject/*.bash
+nbproject/private
+build
+dist
+debug
 
-# Precompiled Headers
-*.gch
-*.pch
-
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
-
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
-
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-
-# Debug files
-*.dSYM/
-
-*.err
-*.d
-
-private.xml
-uLI.X/nbproject/*.mk
-uLI.X/nbproject/*.properties
-uLI.X/nbproject/*.bash
-uLI.X/nbproject/private
-uLI.X/build
-uLI.X/dist
-uLI.X/debug
+*.swp
