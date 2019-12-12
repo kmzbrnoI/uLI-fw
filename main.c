@@ -798,7 +798,7 @@ void USART_send(void) {
 		while (!TXSTAbits.TRMT);
 		XPRESSNET_DIR = XPRESSNET_IN;
 
-		check_response_to_PC(head, id); // send OK response to PC		
+		check_response_to_PC(head, id); // send OK response to PC
 	} else {
 		// other-than-last byte sending
 		PIE1bits.TXIE = 1;
