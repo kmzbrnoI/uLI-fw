@@ -23,12 +23,17 @@
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
 
-#define USB_msg_len(start)      ((ring_USB_datain.data[start] & 0x0F) + 2) // len WITH header byte and WITH xor byte
+// len WITH header byte and WITH xor byte
+#define USB_msg_len(start)      ((ring_USB_datain.data[start] & 0x0F) + 2)
 #define USB_last_message_len    ringDistance(ring_USB_datain, last_start, ring_USB_datain.ptr_e)
 
-#define USART_msg_len(start)    ((ring_USART_datain.data[(start + 1) & ring_USART_datain.max] & 0x0F)+3)    // length of xpressnet message is 4-lower bits in second byte
-#define USART_last_message_len  ringDistance(ring_USART_datain, USART_last_start, ring_USART_datain.ptr_e)
-#define USART_msg_to_send       (ringLength(ring_USB_datain) >= MAX(2, USB_msg_len(ring_USB_datain.ptr_b)))
+// length of xpressnet message is 4-lower bits in second byte
+#define USART_msg_len(start) \
+	((ring_USART_datain.data[(start + 1) & ring_USART_datain.max] & 0x0F)+3)
+#define USART_last_message_len \
+	ringDistance(ring_USART_datain, USART_last_start, ring_USART_datain.ptr_e)
+#define USART_msg_to_send \
+	(ringLength(ring_USB_datain) >= MAX(2, USB_msg_len(ring_USB_datain.ptr_b)))
 
 #define USB_MAX_TIMEOUT                   10        // 100 ms
 #define USART_MAX_TIMEOUT                  2        // 20 ms
@@ -102,6 +107,7 @@ volatile bool ring_USB_datain_backlocked = false;
 /** PRIVATE  PROTOTYPES *******************************************************/
 
 void init(void);
+void init_EEPROM(void);
 
 void USB_send(void);
 void USB_receive(void);
@@ -111,16 +117,17 @@ void USART_receive_interrupt(void);
 void USART_send(void);
 void USART_check_timeouts(void);
 
-void dumpBufToUSB(ring_generic* buf);
-void checkResponseToPC(uint8_t header, uint8_t id);
-void InitEEPROM(void);
-void Check_XN_timeout_supress(uint8_t ring_USB_msg_start);
-void CheckPwrLEDStatus(void);
-void CheckBroadcast(int xn_start_index);
-
+#ifdef DEBUG
+void dump_buf_to_USB(ring_generic* buf);
+#endif
+void check_response_to_PC(uint8_t header, uint8_t id);
 void check_device_data_to_USB(void);
 
-void timer10ms(void);
+void check_XN_timeout_supress(uint8_t ring_USB_msg_start);
+void check_pwr_LED_status(void);
+void check_broadcast(int xn_start_index);
+
+void timer_10ms(void);
 
 /** INTERRUPTS ****************************************************************/
 
@@ -143,7 +150,7 @@ void __interrupt(low_priority) low_isr(void) {
 			ten_ms_counter++;
 		} else {
 			ten_ms_counter = 0;
-			timer10ms();
+			timer_10ms();
 		}
 		PIR1bits.TMR2IF = 0; // reset overflow flag
 	}
@@ -161,7 +168,7 @@ void main(void) {
 		USB_receive();
 		USB_send();
 
-		CheckPwrLEDStatus();
+		check_pwr_LED_status();
 		CDCTxService();
 
 		ClrWdt(); // clear watchdog timer
@@ -209,14 +216,14 @@ void init(void) {
 	INTCONbits.GIEH = 1;        // Enable high-level interrupts
 	INTCONbits.GIEL = 1;        // Enable low-level interrupts
 
-	InitEEPROM();
+	init_EEPROM();
 	USBDeviceInit();
 	USARTInit();
 
 	INTCONbits.GIE = 1;         // enable global interrupts
 }
 
-void timer10ms(void) {
+void timer_10ms(void) {
 	if (usb_timeout < USB_MAX_TIMEOUT)
 		usb_timeout++;
 
@@ -467,7 +474,8 @@ void USART_receive_interrupt(void) {
 			}
 			timeslot_timeout = 0;
 
-			if (USART_msg_to_send) { Check_XN_timeout_supress(ring_USB_datain.ptr_b); }
+			if (USART_msg_to_send)
+				check_XN_timeout_supress(ring_USB_datain.ptr_b);
 
 		} else if (((USART_received.data >> 5) & 0b11) == 0b00) {
 			// request acknowledgement
@@ -556,7 +564,7 @@ void USART_receive_interrupt(void) {
 				pc_send_waiting.bits.xor_error = true;
 			} else {
 				// xor ok
-				CheckBroadcast(USART_last_start);
+				check_broadcast(USART_last_start);
 				USART_last_start = ring_USART_datain.ptr_e; // whole message succesfully received
 			}
 
@@ -778,7 +786,7 @@ void USART_send(void) {
 		while (!TXSTAbits.TRMT);
 		XPRESSNET_DIR = XPRESSNET_IN;
 		
-		checkResponseToPC(head, id); // send OK response to PC		
+		check_response_to_PC(head, id); // send OK response to PC		
 	} else {
 		// other-than-last byte sending
 		PIE1bits.TXIE = 1;
@@ -789,7 +797,7 @@ void USART_send(void) {
 // Debug function: dump ring buffer to USB
 
 #ifdef DEBUG
-void dumpBufToUSB(ring_generic* buf) {
+void dump_buf_to_USB(ring_generic* buf) {
 	int i;
 	for (i = 0; i <= buf->max; i++)
 		USB_Out_Buffer[i] = buf->data[(i + buf->ptr_b) & buf->max];
@@ -802,7 +810,7 @@ void dumpBufToUSB(ring_generic* buf) {
  * transmitted from LI to command station. This function takes care about it
  */
 
-void checkResponseToPC(uint8_t header, uint8_t id) {
+void check_response_to_PC(uint8_t header, uint8_t id) {
 	static uint8_t respond_ok[] = { 0x22, 0x52, 0x83, 0x84, 0xE4, 0xE6, 0xE3 };
 	int i;
 
@@ -825,7 +833,7 @@ void checkResponseToPC(uint8_t header, uint8_t id) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void InitEEPROM(void) {
+void init_EEPROM(void) {
 	xn_addr = ReadEEPROM(XN_EEPROM_ADDR);
 	if ((xn_addr < 1) || (xn_addr > 31)) {
 		xn_addr = DEFAULT_XPRESSNET_ADDR;
@@ -850,7 +858,7 @@ void Check_XN_timeout_supress(uint8_t ring_USB_msg_start) {
 ////////////////////////////////////////////////////////////////////////////////
 // Update flasihing of power LED.
 
-void CheckPwrLEDStatus(void) {
+void check_pwr_LED_status(void) {
 	uint8_t new;
 	new = (ferr_in_10_s > PWR_LED_FERR_COUNT) << 1;
 	new |= ((ringLength(ring_USART_datain) >= (ring_USART_datain.max + 1) / 2)
@@ -865,7 +873,7 @@ void CheckPwrLEDStatus(void) {
  * set proper length of timeslot_timeout.
  */
 
-void CheckBroadcast(int xn_start_index) {
+void check_broadcast(int xn_start_index) {
 	static uint8_t data[3];
 
 	// serialize data from buffer
