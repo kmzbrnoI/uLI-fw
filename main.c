@@ -156,6 +156,8 @@ void __interrupt(low_priority) low_isr(void) {
 	}
 }
 
+/** FUNCTIONS *****************************************************************/
+
 void main(void) {
 	init();
 
@@ -394,7 +396,8 @@ void USART_check_timeouts(void) {
 	if ((USART_last_start != ring_USART_datain.ptr_e) && (usart_timeout >= USART_MAX_TIMEOUT)) {
 		// delete last incoming message and wait for next message
 		ring_USART_datain.ptr_e = USART_last_start;
-		if (ring_USART_datain.ptr_e == ring_USART_datain.ptr_b) ring_USART_datain.empty = true;
+		if (ring_USART_datain.ptr_e == ring_USART_datain.ptr_b)
+			ring_USART_datain.empty = true;
 		usart_timeout = 0;
 		RCSTAbits.ADDEN = 1; // receive just first message
 
@@ -406,8 +409,8 @@ void USART_check_timeouts(void) {
 
 	// check timeslot_timeout
 	// shorter timeout is default, longer timeout is for programming commands
-	if ((((timeslot_timeout >= TIMESLOT_MAX_TIMEOUT) && (!usart_longer_timeout)) || (timeslot_timeout >= TIMESLOT_LONG_MAX_TIMEOUT))
-	    && (!timeslot_err)) {
+	if ((((timeslot_timeout >= TIMESLOT_MAX_TIMEOUT) && (!usart_longer_timeout)) ||
+	     (timeslot_timeout >= TIMESLOT_LONG_MAX_TIMEOUT)) && (!timeslot_err)) {
 		// Command station is no longer providing timeslot for communication.
 		timeslot_err = true;
 
@@ -507,7 +510,8 @@ void USART_receive_interrupt(void) {
 			if (ring_USART_datain.ptr_e != USART_last_start) {
 				// beginning of new message received before previous mesage was completely received -> delete previous message
 				ring_USART_datain.ptr_e = USART_last_start;
-				if (ring_USART_datain.ptr_e == ring_USART_datain.ptr_b) ring_USART_datain.empty = true;
+				if (ring_USART_datain.ptr_e == ring_USART_datain.ptr_b)
+					ring_USART_datain.empty = true;
 
 				// send info to PC
 				pc_send_waiting.bits.cs_timeout = true;
@@ -528,13 +532,13 @@ void USART_receive_interrupt(void) {
 			USART_last_start = ring_USART_datain.ptr_e;
 			xor = 0;
 			ringAddByte(&ring_USART_datain, USART_received.data);
-			
+
 #ifndef DEBUG
 			if (mLED_Data_Timeout >= 2 * MLED_DATA_MAX_TIMEOUT) {
 				mLED_Data_On();
 				mLED_Data_Timeout = 0;
 			}
-#endif			
+#endif
 		}
 	} else {
 
@@ -544,7 +548,8 @@ void USART_receive_interrupt(void) {
 			// reset buffer and wait for next message
 			ring_USART_datain.ptr_e = USART_last_start;
 			RCSTAbits.ADDEN = 1;
-			if (ring_USART_datain.ptr_e == ring_USART_datain.ptr_b) ring_USART_datain.empty = true;
+			if (ring_USART_datain.ptr_e == ring_USART_datain.ptr_b)
+				ring_USART_datain.empty = true;
 
 			// inform PC about buffer overflow
 			pc_send_waiting.bits.full_buffer = true;
@@ -560,7 +565,8 @@ void USART_receive_interrupt(void) {
 			if (xor != 0) {
 				// xor error
 				ring_USART_datain.ptr_e = USART_last_start;
-				if (ring_USART_datain.ptr_e == ring_USART_datain.ptr_b) ring_USART_datain.empty = true;
+				if (ring_USART_datain.ptr_e == ring_USART_datain.ptr_b)
+					ring_USART_datain.empty = true;
 				pc_send_waiting.bits.xor_error = true;
 			} else {
 				// xor ok
@@ -590,10 +596,12 @@ void USB_send(void) {
 
 	if (!mUSBUSARTIsTxTrfReady()) return;
 
-	if (((ringLength(ring_USART_datain)) >= 1) && (ringLength(ring_USART_datain) >= USART_msg_len(ring_USART_datain.ptr_b))) {
+	if (((ringLength(ring_USART_datain)) >= 1) &&
+	    (ringLength(ring_USART_datain) >= USART_msg_len(ring_USART_datain.ptr_b))) {
 		// send message
-		ringSerialize(&ring_USART_datain, USB_Out_Buffer, ring_USART_datain.ptr_b, USART_msg_len(ring_USART_datain.ptr_b));
-		putUSBUSART((uint8_t*)USB_Out_Buffer + 1, ((USB_Out_Buffer[1]) & 0x0F) + 2);
+		ringSerialize(&ring_USART_datain, USB_Out_Buffer, ring_USART_datain.ptr_b,
+		              USART_msg_len(ring_USART_datain.ptr_b));
+		putUSBUSART((uint8_t*)(USB_Out_Buffer + 1), ((USB_Out_Buffer[1]) & 0x0F) + 2);
 		ringRemoveFrame(&ring_USART_datain, ((USB_Out_Buffer[1]) & 0x0F) + 3);
 	}
 }
@@ -620,7 +628,8 @@ void USB_receive(void) {
 	if (ringFreeSpace(ring_USB_datain) < 2) {
 		// delete last message
 		ring_USB_datain.ptr_e = last_start;
-		if (ring_USB_datain.ptr_b == ring_USB_datain.ptr_e) ring_USART_datain.empty = true;
+		if (ring_USB_datain.ptr_b == ring_USB_datain.ptr_e)
+			ring_USART_datain.empty = true;
 
 		// inform PC about full buffer
 		pc_send_waiting.bits.full_buffer = true;
@@ -642,7 +651,8 @@ void USB_receive(void) {
 		if ((usb_timeout >= USB_MAX_TIMEOUT) && (last_start != ring_USB_datain.ptr_e)) {
 			ring_USB_datain.ptr_e = last_start;
 			usb_timeout = 0;
-			if (ring_USB_datain.ptr_e == ring_USB_datain.ptr_b) ring_USB_datain.empty = true;
+			if (ring_USB_datain.ptr_e == ring_USB_datain.ptr_b)
+				ring_USB_datain.empty = true;
 
 			// inform PC about timeout
 			pc_send_waiting.bits.pc_timeout = true;
@@ -770,7 +780,8 @@ void USART_send(void) {
 	USARTWriteByte(0, ring_USB_datain.data[usart_to_send]);
 	usart_to_send = (usart_to_send + 1) & ring_USB_datain.max;
 
-	if (usart_to_send == ((ring_USB_datain.ptr_b + USB_msg_len(ring_USB_datain.ptr_b)) & ring_USB_datain.max)) {
+	if (usart_to_send ==
+	    ((ring_USB_datain.ptr_b + USB_msg_len(ring_USB_datain.ptr_b)) & ring_USB_datain.max)) {
 		// last byte sending
 		head = ring_USB_datain.data[ring_USB_datain.ptr_b];
 		id = ring_USB_datain.data[(ring_USB_datain.ptr_b + 1) & ring_USB_datain.max];
@@ -779,13 +790,14 @@ void USART_send(void) {
 		if (ring_USB_datain.ptr_b == ring_USB_datain.ptr_e) ring_USB_datain.empty = true;
 
 		PIE1bits.TXIE = 0;
-		
+
 		// XPRESSNET_DIR is set to XPRESSNET_IN after successful tranfer of last byte
-		// This part of function is usually called from high-priority interrupt, so nothing will overwrite us.
+		// This part of function is usually called from high-priority interrupt,
+		// so nothing will overwrite us.
 		// It is really important to switch direction as soon as possible.
 		while (!TXSTAbits.TRMT);
 		XPRESSNET_DIR = XPRESSNET_IN;
-		
+
 		check_response_to_PC(head, id); // send OK response to PC		
 	} else {
 		// other-than-last byte sending
@@ -812,15 +824,15 @@ void dump_buf_to_USB(ring_generic* buf) {
 
 void check_response_to_PC(uint8_t header, uint8_t id) {
 	static uint8_t respond_ok[] = { 0x22, 0x52, 0x83, 0x84, 0xE4, 0xE6, 0xE3 };
-	int i;
 
 	if ((header >= 0x90) && (header <= 0x9F)) {
 		pc_send_waiting.bits.ok = true;
 		return;
 	}
 
-	for (i = 0; i < sizeof(respond_ok); i++) {
-		if ((header == respond_ok[i]) && ((header != 0xE3) || (id == 0x44)) && ((header != 0x22) || (id == 0x22))) {
+	for (size_t i = 0; i < sizeof(respond_ok); i++) {
+		if ((header == respond_ok[i]) && ((header != 0xE3) || (id == 0x44)) &&
+		    ((header != 0x22) || (id == 0x22))) {
 			/* response is sent only if
 			 *  0x44 follows 0xE3
 			 *  0x22 follows 0x22
