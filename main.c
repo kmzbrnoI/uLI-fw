@@ -100,8 +100,7 @@ volatile bool ring_USB_datain_backlocked = FALSE;
 
 /** PRIVATE  PROTOTYPES *******************************************************/
 
-void InitializeSystem(void);
-void UserInit(void);
+void init(void);
 
 void USBDeviceTasks(void);
 void USB_send(void);
@@ -155,7 +154,7 @@ void __interrupt(low_priority) MyLowIsr(void) {
 }
 
 void main(void) {
-	InitializeSystem();
+	init();
 
 	while (1) {
 #if defined(USB_INTERRUPT)
@@ -183,7 +182,7 @@ void main(void) {
 	} //end while
 } //end main
 
-void InitializeSystem(void) {
+void init(void) {
 #if (defined(__18CXX) & !defined(PIC18F87J50_PIM))
 	ADCON1 |= 0x0F; // Default all pins to digital
 #endif
@@ -196,13 +195,6 @@ void InitializeSystem(void) {
 	tris_self_power = INPUT_PIN; // See HardwareProfile.h
 #endif
 
-	UserInit();
-	InitEEPROM();
-	USBDeviceInit();
-	USARTInit();
-}
-
-void UserInit(void) {
 	// init ring buffers
 	ringBufferInit(ring_USB_datain, 32);
 	ringBufferInit(ring_USART_datain, 32);
@@ -224,15 +216,19 @@ void UserInit(void) {
 	PIR1bits.TMR2IF = 0;        // timer2 reset overflow flag
 	PIE1bits.TMR2IE = 1;        // timer2 enable interrupt
 	IPR1bits.TMR2IP = 0;        // timer2 interrupt low level
-	
 	RCONbits.IPEN = 1;          // enable high and low priority interrupts
 	INTCONbits.PEIE = 1;        // Enable peripheral interrupts (for usart)
-	INTCONbits.GIE = 1;         // enable global interrupts
-	INTCONbits.GIEH = 1;
-	INTCONbits.GIEL = 1;
+	T2CONbits.TMR2ON = 1;       // timer2 enable
 
-	T2CONbits.TMR2ON = 1;       // timer2 enable	
-} //end UserInit
+	INTCONbits.GIEH = 1;        // Enable high-level interrupts
+	INTCONbits.GIEL = 1;        // Enable low-level interrupts
+
+	InitEEPROM();
+	USBDeviceInit();
+	USARTInit();
+
+	INTCONbits.GIE = 1;         // enable global interrupts
+}
 
 void timer10ms(void) {
 	// usb receive timeout
