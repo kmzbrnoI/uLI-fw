@@ -173,20 +173,20 @@
 	
 	// HI TECH specific defines
 	#if defined(COMPILER_HITECH_PICC18) || defined(COMPILER_HITECH_PICC)
-	    #define ROM                 	const
+		#define ROM						const
 		#define rom
-        #ifndef Nop()
-        #define Nop()               	asm("NOP");
-        #endif
-        #ifndef ClrWdt()
-        #define ClrWdt()				asm("CLRWDT");
-        #endif
-        #ifndef Reset()
-        #define Reset()					asm("RESET");
-        #endif
-        #ifndef Sleep()
-        #define Sleep()					asm("SLEEP");
-        #endif
+		#ifndef Nop()
+		#define Nop()					asm("NOP");
+		#endif
+		#ifndef ClrWdt()
+		#define ClrWdt()				asm("CLRWDT");
+		#endif
+		#ifndef Reset()
+		#define Reset()					asm("RESET");
+		#endif
+		#ifndef Sleep()
+		#define Sleep()					asm("SLEEP");
+		#endif
 	#endif
     
 // Definitions that apply to all 16-bit and 32-bit products

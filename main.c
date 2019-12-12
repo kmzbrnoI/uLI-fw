@@ -680,7 +680,7 @@ void USB_send(void) {
 	if (((ringLength(ring_USART_datain)) >= 1) && (ringLength(ring_USART_datain) >= USART_msg_len(ring_USART_datain.ptr_b))) {
 		// send message
 		ringSerialize((ring_generic*)&ring_USART_datain, (BYTE*)USB_Out_Buffer, ring_USART_datain.ptr_b, USART_msg_len(ring_USART_datain.ptr_b));
-		putUSBUSART((char*)USB_Out_Buffer + 1, ((USB_Out_Buffer[1]) & 0x0F) + 2);
+		putUSBUSART((uint8_t*)USB_Out_Buffer + 1, ((USB_Out_Buffer[1]) & 0x0F) + 2);
 		ringRemoveFrame((ring_generic*)&ring_USART_datain, ((USB_Out_Buffer[1]) & 0x0F) + 3);
 	}
 }
@@ -721,7 +721,7 @@ void USB_receive(void) {
 	 */
 	ring_USB_datain_backlocked = TRUE;
 
-	received_len = getsUSBUSART((ring_generic*)&ring_USB_datain, ringFreeSpace(ring_USB_datain));
+	received_len = getsUSBUSART((uint8_t*)&ring_USB_datain.data, ringFreeSpace(ring_USB_datain));
 
 	if (received_len == 0) {
 		ring_USB_datain_backlocked = false;
