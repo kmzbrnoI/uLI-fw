@@ -28,7 +28,7 @@ typedef union {
 		bool cs_timeout : 1;
 		bool ok : 1;
 		bool pc_timeout : 1;
-        bool timeslot_timeout : 1;
+		bool timeslot_timeout : 1;
 	} bits;
 	WORD all;
 } send_waiting;

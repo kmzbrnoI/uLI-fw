@@ -22,6 +22,7 @@
       <itemPath>main.h</itemPath>
       <itemPath>ringBuffer.h</itemPath>
       <itemPath>usart.h</itemPath>
+      <itemPath>config.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
