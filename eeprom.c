@@ -3,14 +3,14 @@
 #include <xc.h>
 #include "eeprom.h"
 
-unsigned char ReadEEPROM(unsigned char address) {
+unsigned char ReadEEPROM(uint8_t address) {
 	EECON1 = 0; //ensure CFGS=0 and EEPGD=0
 	EEADR = address;
 	EECON1bits.RD = 1;
 	return EEDATA;
 }
 
-void WriteEEPROM(unsigned char address, unsigned char data) {
+void WriteEEPROM(uint8_t address, uint8_t data) {
 	char SaveInt;
 	SaveInt = INTCON;           //save interrupt status
 	EECON1 = 0;                 //ensure CFGS=0 and EEPGD=0

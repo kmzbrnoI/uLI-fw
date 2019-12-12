@@ -43,7 +43,7 @@ void USARTWriteByte(unsigned ninth, uint8_t data) {
 }
 
 // Check if data waiting on input.
-BOOL USARTInputData(void) {
+bool USARTInputData(void) {
 	return PIR1bits.RCIF;
 }
 

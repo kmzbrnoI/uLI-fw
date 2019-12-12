@@ -26,7 +26,7 @@ typedef union {
 		bool pc_timeout : 1;
 		bool timeslot_timeout : 1;
 	} bits;
-	WORD all;
+	uint16_t all;
 } send_waiting;
 
 #endif /* MAIN_H */

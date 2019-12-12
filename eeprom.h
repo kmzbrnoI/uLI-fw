@@ -3,7 +3,9 @@
 #ifndef EEPROM_H
 #define EEPROM_H
 
-unsigned char ReadEEPROM(unsigned char address);
-void WriteEEPROM(unsigned char address, unsigned char data);
+#include <inttypes.h>
+
+unsigned char ReadEEPROM(uint8_t address);
+void WriteEEPROM(uint8_t address, uint8_t data);
 
 #endif /* EEPROM_H */

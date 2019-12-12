@@ -59,20 +59,20 @@ volatile uint8_t tmp_baud_rate;
 volatile uint8_t our_frame = 0;         // 0 = we cannot send messages
                                         // 1..80 = we can send messages
 volatile uint8_t usb_timeout = 0;       // increment every 100 us -> 100 ms timeout = 1 000
-volatile WORD usart_timeout = 0;        // increment every 100 us -> 100 ms timeout = 1 000
+volatile uint16_t usart_timeout = 0;    // increment every 100 us -> 100 ms timeout = 1 000
 volatile uint8_t usart_to_send = 0;     // byte to send to USART
                                         // I made this public volatile variable,
                                         // beacause it is accessed in interrupts and in main too.
 volatile uint8_t ten_ms_counter = 0;    // 10 ms counter
 
 // timeslot errors
-volatile WORD timeslot_timeout = 0; // timeslot timeout (1s = 100)
-volatile bool timeslot_err = true;  // true if timeslot error
+volatile uint16_t timeslot_timeout = 0; // timeslot timeout (1s = 100)
+volatile bool timeslot_err = true;      // true if timeslot error
 
 // XpressNET framing error counting
 #ifdef FERR_FEATURE
-volatile UINT32 ferr_in_10_s = 0; // number of framing errors in 10 seconds
-volatile UINT32 ferr_counter = 0;
+volatile uint32_t ferr_in_10_s = 0;     // number of framing errors in 10 seconds
+volatile uint32_t ferr_counter = 0;
 #endif
 
 volatile uint8_t mLED_XN_Timeout = 2 * MLED_XN_MAX_TIMEOUT;

@@ -16,7 +16,7 @@ typedef struct {
 void USARTInit(void);
 void USARTWriteByte(unsigned ninth, uint8_t data);
 nine_data USARTReadByte(void);
-BOOL USARTInputData(void);
+bool USARTInputData(void);
 
 #define XPRESSNET_DIR       LATBbits.LATB6
 #define XPRESSNET_OUT       1
