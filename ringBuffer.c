@@ -5,14 +5,14 @@
 
 #include "ringBuffer.h"
 
-void ringAddByte(ring_generic* buf, BYTE data) {
+void ringAddByte(ring_generic* buf, uint8_t data) {
 	buf->data[buf->ptr_e] = data;
 	buf->ptr_e = (buf->ptr_e + 1) & buf->max;
 	buf->empty = FALSE;
 }
 
-BYTE ringRemoveByte(ring_generic* buf) {
-	BYTE result;
+uint8_t ringRemoveByte(ring_generic* buf) {
+	uint8_t result;
 	if (ringLength(*buf) == 0) return 0;
 	result = buf->data[buf->ptr_b];
 	buf->ptr_b = (buf->ptr_b + 1) & buf->max;
@@ -20,27 +20,27 @@ BYTE ringRemoveByte(ring_generic* buf) {
 	return result;
 }
 
-void ringRemoveFrame(ring_generic* buf, BYTE num) {
-	BYTE x;
+void ringRemoveFrame(ring_generic* buf, uint8_t num) {
+	uint8_t x;
 	x = ringLength(*buf);
 	if (x > num) x = num;
 	buf->ptr_b = (buf->ptr_b + x) & buf->max;
 	if (buf->ptr_b == buf->ptr_e) buf->empty = TRUE;
 }
 
-BYTE ringReadByte(ring_generic* buf, BYTE offset) {
-	BYTE pos;
+uint8_t ringReadByte(ring_generic* buf, uint8_t offset) {
+	uint8_t pos;
 	pos = (buf->ptr_b + offset) & buf->max;
 	return buf->data[pos];
 }
 
-void ringSerialize(ring_generic* buf, BYTE* out, BYTE start, BYTE length) {
+void ringSerialize(ring_generic* buf, uint8_t* out, uint8_t start, uint8_t length) {
 	int i;
 	for (i = 0; i < length; i++)
 		out[i] = buf->data[(start + i) & buf->max];
 }
 
-void ringRemoveFromMiddle(ring_generic* buf, BYTE start, BYTE length) {
+void ringRemoveFromMiddle(ring_generic* buf, uint8_t start, uint8_t length) {
 	int i;
 	for (i = start; i != ((buf->ptr_e - length) & buf->max); i++)
 		buf->data[i & buf->max] = buf->data[(i + length) & buf->max];
@@ -48,7 +48,7 @@ void ringRemoveFromMiddle(ring_generic* buf, BYTE start, BYTE length) {
 	if (buf->ptr_b == buf->ptr_e) buf->empty = TRUE;
 }
 
-void ringAddToStart(ring_generic* buf, BYTE* data, BYTE len) {
+void ringAddToStart(ring_generic* buf, uint8_t* data, uint8_t len) {
 	int i;
 
 	// check full buffer

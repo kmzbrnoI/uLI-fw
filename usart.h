@@ -6,16 +6,18 @@
 #ifndef USART_H
 #define USART_H
 
+#include <inttypes.h>
+#include <stdbool.h>
 #include "GenericTypeDefs.h"
 
 typedef struct {
-	BYTE data;
-	BOOL ninth;
-	BOOL FERR;
+	uint8_t data;
+	bool ninth;
+	bool FERR;
 } nine_data;
 
 void USARTInit(void);
-void USARTWriteByte(unsigned ninth, BYTE data);
+void USARTWriteByte(unsigned ninth, uint8_t data);
 nine_data USARTReadByte(void);
 BOOL USARTInputData(void);
 

@@ -10,6 +10,7 @@
 
 #include <xc.h>
 #include <stdbool.h>
+#include <inttypes.h>
 
 #include "GenericTypeDefs.h"
 #include "HardwareProfile.h"
@@ -96,21 +97,21 @@
 
 #pragma udata
 
-volatile char USB_Out_Buffer[32]; // WARNING: this buffer should not be manipulated in interrupts!
+volatile uint8_t USB_Out_Buffer[32]; // WARNING: this buffer should not be manipulated in interrupts!
 
 volatile ring_generic ring_USB_datain;
 volatile ring_generic ring_USART_datain;
-volatile BYTE tmp_baud_rate;
+volatile uint8_t tmp_baud_rate;
 
 #pragma idata
 
-volatile BYTE our_frame = 0;            // 0 = we cannot send messages
+volatile uint8_t our_frame = 0;         // 0 = we cannot send messages
                                         // 1..80 = we can send messages
-volatile BYTE usb_timeout = 0;          // increment every 100 us -> 100 ms timeout = 1 000
+volatile uint8_t usb_timeout = 0;       // increment every 100 us -> 100 ms timeout = 1 000
 volatile WORD usart_timeout = 0;        // increment every 100 us -> 100 ms timeout = 1 000
-volatile BYTE usart_to_send = 0;        // byte to send to USART
+volatile uint8_t usart_to_send = 0;     // byte to send to USART
                                         // I rather made this public volatile variable, beacause it is accessed in interrupts and in main too.
-volatile BYTE ten_ms_counter = 0;       // 10 ms counter
+volatile uint8_t ten_ms_counter = 0;    // 10 ms counter
 
 // timeslot errors
 volatile WORD timeslot_timeout = 0; // timeslot timeout (1s = 100)
@@ -122,23 +123,23 @@ volatile UINT32 ferr_in_10_s = 0; // number of framing errors in 10 seconds
 volatile UINT32 ferr_counter = 0;
 #endif
 
-volatile BYTE mLED_XN_Timeout = 2 * MLED_XN_MAX_TIMEOUT;
-volatile BYTE mLED_Data_Timeout = 2 * MLED_DATA_MAX_TIMEOUT;
+volatile uint8_t mLED_XN_Timeout = 2 * MLED_XN_MAX_TIMEOUT;
+volatile uint8_t mLED_Data_Timeout = 2 * MLED_DATA_MAX_TIMEOUT;
 volatile bool usart_longer_timeout = FALSE;
-volatile BYTE xn_addr = DEFAULT_XPRESSNET_ADDR;
+volatile uint8_t xn_addr = DEFAULT_XPRESSNET_ADDR;
 volatile bool force_ok_response = FALSE;
 
 // Power led blinks pwr_led_status times, then stays blank for some time
 //  and then repeats the whole cycle. This lets user to see software status.
-volatile BYTE pwr_led_base_timeout = PWR_LED_SHORT_COUNT;
-volatile BYTE pwr_led_base_counter = 0;
-volatile BYTE pwr_led_status_counter = 0;
-volatile BYTE pwr_led_status = 1;
+volatile uint8_t pwr_led_base_timeout = PWR_LED_SHORT_COUNT;
+volatile uint8_t pwr_led_base_counter = 0;
+volatile uint8_t pwr_led_status_counter = 0;
+volatile uint8_t pwr_led_status = 1;
 
 volatile bool usb_configured = FALSE;
 volatile bool programming_mode = FALSE;
 
-volatile BYTE USART_last_start = 0;
+volatile uint8_t USART_last_start = 0;
 
 // messages waiting to be sent to PC
 volatile send_waiting pc_send_waiting = { 0 };
@@ -162,16 +163,16 @@ void UserInit(void);
 void USBDeviceTasks(void);
 void USB_send(void);
 void USB_receive(void);
-bool USB_parse_data(BYTE start, BYTE len);
+bool USB_parse_data(uint8_t start, uint8_t len);
 
 void USART_receive_interrupt(void);
 void USART_send(void);
 void USART_check_timeouts(void);
 
 void dumpBufToUSB(ring_generic* buf);
-void checkResponseToPC(BYTE header, BYTE id);
+void checkResponseToPC(uint8_t header, uint8_t id);
 void InitEEPROM(void);
-void Check_XN_timeout_supress(BYTE ring_USB_msg_start);
+void Check_XN_timeout_supress(uint8_t ring_USB_msg_start);
 void CheckPwrLEDStatus(void);
 void CheckBroadcast(int xn_start_index);
 
@@ -509,13 +510,13 @@ void USART_check_timeouts(void) {
 	}
 }
 
-/* RECEIVING A BYTE FROM USART
+/* RECEIVING A uint8_t FROM USART
  * This function must be as fast as possible!
  */
 void USART_receive_interrupt(void) {
 	bool parity;
-	static volatile BYTE xor = 0;
-	BYTE tmp;
+	static volatile uint8_t xor = 0;
+	uint8_t tmp;
 	nine_data USART_received;
 
 	USART_received = USARTReadByte();
@@ -679,7 +680,7 @@ void USB_send(void) {
 
 	if (((ringLength(ring_USART_datain)) >= 1) && (ringLength(ring_USART_datain) >= USART_msg_len(ring_USART_datain.ptr_b))) {
 		// send message
-		ringSerialize((ring_generic*)&ring_USART_datain, (BYTE*)USB_Out_Buffer, ring_USART_datain.ptr_b, USART_msg_len(ring_USART_datain.ptr_b));
+		ringSerialize((ring_generic*)&ring_USART_datain, USB_Out_Buffer, ring_USART_datain.ptr_b, USART_msg_len(ring_USART_datain.ptr_b));
 		putUSBUSART((uint8_t*)USB_Out_Buffer + 1, ((USB_Out_Buffer[1]) & 0x0F) + 2);
 		ringRemoveFrame((ring_generic*)&ring_USART_datain, ((USB_Out_Buffer[1]) & 0x0F) + 3);
 	}
@@ -695,9 +696,9 @@ void USB_send(void) {
  */
 
 void USB_receive(void) {
-	static BYTE last_start = 0;
-	BYTE xor, i;
-	BYTE received_len;
+	static uint8_t last_start = 0;
+	uint8_t xor, i;
+	uint8_t received_len;
 
 	if ((USBDeviceState < CONFIGURED_STATE) || (USBSuspendControl == 1)) return;
 
@@ -791,7 +792,7 @@ ret:
  * (otherwise the program will freeze)
  */
 
-bool USB_parse_data(BYTE start, BYTE len) {
+bool USB_parse_data(uint8_t start, uint8_t len) {
 	if (ring_USB_datain.data[start] == 0xF0) {
 		// Instruction for the determination of the version and code number of LI
 		ringRemoveFromMiddle((ring_generic*)&ring_USB_datain, start, 2);
@@ -851,7 +852,7 @@ bool USB_parse_data(BYTE start, BYTE len) {
  */
 
 void USART_send(void) {
-	static BYTE head = 0, id = 0;
+	static uint8_t head = 0, id = 0;
 
 	// according to specification, ninth bit is always 0
 	USARTWriteByte(0, ring_USB_datain.data[usart_to_send]);
@@ -897,8 +898,8 @@ void dumpBufToUSB(ring_generic* buf) {
  * transmitted from LI to command station. This function takes care about it
  */
 
-void checkResponseToPC(BYTE header, BYTE id) {
-	static BYTE respond_ok[] = { 0x22, 0x52, 0x83, 0x84, 0xE4, 0xE6, 0xE3 };
+void checkResponseToPC(uint8_t header, uint8_t id) {
+	static uint8_t respond_ok[] = { 0x22, 0x52, 0x83, 0x84, 0xE4, 0xE6, 0xE3 };
 	int i;
 
 	if ((header >= 0x90) && (header <= 0x9F)) {
@@ -930,7 +931,7 @@ void InitEEPROM(void) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Check_XN_timeout_supress(BYTE ring_USB_msg_start) {
+void Check_XN_timeout_supress(uint8_t ring_USB_msg_start) {
 	// 0x22 and 0x23 should move supress sending of "no longer providing timeslot" message
 	// however, "normal operations resumed" should be sent after normal operations resumed
 	// DO send OK in this cases HEADER: 0x91, 0x92, 0x9N, 0x22, 0x52, 0x83, 0x84, 0xE4, 0xE6, 0xE3
@@ -946,7 +947,7 @@ void Check_XN_timeout_supress(BYTE ring_USB_msg_start) {
 // Update flasihing of power LED.
 
 void CheckPwrLEDStatus(void) {
-	BYTE new;
+	uint8_t new;
 	new = (ferr_in_10_s > PWR_LED_FERR_COUNT) << 1;
 	new |= ((ringLength(ring_USART_datain) >= (ring_USART_datain.max + 1) / 2)
 	           || (ringLength(ring_USB_datain) >= (ring_USB_datain.max + 1) / 2)) << 2;
@@ -961,7 +962,7 @@ void CheckPwrLEDStatus(void) {
  */
 
 void CheckBroadcast(int xn_start_index) {
-	static BYTE data[3];
+	static uint8_t data[3];
 
 	// serialize data from buffer
 	ringSerialize((ring_generic*)&ring_USART_datain, data, xn_start_index, 4);
@@ -993,7 +994,7 @@ void CheckBroadcast(int xn_start_index) {
 // This function relies on sending data to PC in non-interrupt function!
 
 void check_device_data_to_USB(void) {
-	BYTE my_start;
+	uint8_t my_start;
 
 	if (pc_send_waiting.bits.version) {
 		if (ringFreeSpace(ring_USART_datain) < 5) return;

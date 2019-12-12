@@ -41,7 +41,7 @@ void USARTInit(void) {
 // Note: by setting PIE1bits.TXIE to 1, interrupt is called when a word is transmitted
 //	Use for transmitting of multiple words.
 //	And do not forget to set TXIE back to 0 after last character is transmitted.
-void USARTWriteByte(unsigned ninth, BYTE data) {
+void USARTWriteByte(unsigned ninth, uint8_t data) {
 	TXSTAbits.TX9D = ninth;
 	TXREG = data;
 }
