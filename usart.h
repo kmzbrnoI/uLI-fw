@@ -17,6 +17,8 @@ void USARTInit(void);
 void USARTWriteByte(unsigned ninth, uint8_t data);
 nine_data USARTReadByte(void);
 bool USARTInputData(void);
+void USARTEnableReceiveInterrupt(void);
+void USARTDisableReceiveInterrupt(void);
 
 #define XPRESSNET_DIR       LATBbits.LATB6
 #define XPRESSNET_OUT       1

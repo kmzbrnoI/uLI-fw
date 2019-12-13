@@ -30,7 +30,15 @@ void USARTInit(void) {
 	TXSTAbits.TXEN = 1;  // enable TX
 	                     //
 	IPR1bits.RCIP = 1;   // receive interrupt high priority
-	PIE1bits.RCIE = 1;   // enable read interrupt
+	USARTEnableReceiveInterrupt();
+}
+
+void USARTEnableReceiveInterrupt(void) {
+	PIE1bits.RCIE = 1;
+}
+
+void USARTDisableReceiveInterrupt(void) {
+	PIE1bits.RCIE = 0;
 }
 
 // Write byte to USART
