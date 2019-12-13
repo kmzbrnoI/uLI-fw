@@ -809,7 +809,7 @@ void init_EEPROM(void) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Check_XN_timeout_supress(uint8_t ring_USB_msg_start) {
+void check_XN_timeout_supress(uint8_t ring_USB_msg_start) {
 	// 0x22 and 0x23 should move supress sending of "no longer providing timeslot" message
 	// however, "normal operations resumed" should be sent after normal operations resumed
 	// DO send OK in this cases HEADER: 0x91, 0x92, 0x9N, 0x22, 0x52, 0x83, 0x84, 0xE4, 0xE6, 0xE3
