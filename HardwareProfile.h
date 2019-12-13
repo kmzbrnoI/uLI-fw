@@ -55,7 +55,7 @@
 #define GetSystemClock() CLOCK_FREQ
 
 /** LED ************************************************************/
-#define mInitAllLEDs()       TRISC &= 0xF8;
+#define mInitAllLEDs();      TRISC &= 0xF8;
 
 #define mLED_XN              PORTCbits.RC0
 #define mLED_Data            PORTCbits.RC1
