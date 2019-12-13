@@ -85,7 +85,6 @@ volatile uint8_t pwr_led_base_counter = 0;
 volatile uint8_t pwr_led_status_counter = 0;
 volatile uint8_t pwr_led_status = 1;
 
-volatile bool usb_configured = false;
 volatile bool programming_mode = false;
 
 volatile uint8_t USART_last_start = 0;
@@ -295,20 +294,17 @@ bool USER_USB_CALLBACK_EVENT_HANDLER(USB_EVENT event, void *pdata, uint16_t size
 			break;
 
 		case EVENT_SUSPEND:
-			usb_configured = false;
 			mLED_Data_On();
 			ringClear(&ring_USART_datain);
 			ringClear(&ring_USB_datain);
 			break;
 
 		case EVENT_RESUME:
-			usb_configured = true;
 			mLED_Data_Off();
 			break;
 
 		case EVENT_CONFIGURED:
 			CDCInitEP();
-			usb_configured = true;
 			mLED_Data_Off();
 			break;
 
@@ -471,7 +467,7 @@ void USART_receive_interrupt(void) {
 
 			// start of message for us (or broadcast)
 
-			if (!usb_configured) return;
+			if (USBGetDeviceState() != CONFIGURED_STATE) return;
 
 			// -> check space in buffer
 			if (ringFull(ring_USART_datain)) {
