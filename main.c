@@ -873,62 +873,60 @@ void check_device_data_to_USB(void) {
 
 	if (pc_send_waiting.bits.version) {
 		pc_send_waiting.bits.version = false;
-		uint8_t buf[4] = {0x02, VERSION_HW, VERSION_FW};
+		buf[0] = 0x02; buf[1] = VERSION_HW; buf[2] = VERSION_FW;
 		buf[3] = (buf[0] ^ buf[1] ^ buf[2]);
 		putUSBUSART(buf, 4);
 
 	} else if (pc_send_waiting.bits.addr) {
 		pc_send_waiting.bits.addr = false;
-		uint8_t buf[4] = {0xF2, 0x01, xn_addr};
+		buf[0] = 0xF2; buf[1] = 0x01; buf[2] = xn_addr;
 		buf[3] = (buf[0] ^ buf[1] ^ buf[2]);
 		putUSBUSART(buf, 4);
 
 	} else if (pc_send_waiting.bits.baud_rate) {
 		pc_send_waiting.bits.baud_rate = false;
-		uint8_t buf[4] = {0xF2, 0x02, tmp_baud_rate, 0};
+		buf[0] = 0xF2; buf[1] = 0x02; buf[2] = tmp_baud_rate;
 		buf[3] = (buf[0] ^ buf[1] ^ buf[2]);
 		putUSBUSART(buf, 4);
 
 	} else if (pc_send_waiting.bits.ok) {
 		pc_send_waiting.bits.ok = false;
-		uint8_t buf[] = {0x01, 0x04, 0x05};
+		buf[0] = 0x01; buf[1] = 0x04; buf[2] = 0x05;
 		putUSBUSART(buf, 3);
 
 	} else if (pc_send_waiting.bits.xor_error) {
 		pc_send_waiting.bits.xor_error = false;
-		uint8_t buf[] = {0x01, 0x03, 0x02};
+		buf[0] = 0x01; buf[1] = 0x03; buf[2] = 0x02;
 		putUSBUSART(buf, 3);
 
 	} else if (pc_send_waiting.bits.full_buffer) {
 		pc_send_waiting.bits.full_buffer = false;
-		uint8_t buf[] = {0x01, 0x06, 0x07};
+		buf[0] = 0x01; buf[1] = 0x06; buf[2] = 0x07;
 		putUSBUSART(buf, 3);
 
 	} else if (pc_send_waiting.bits.cs_timeout) {
 		pc_send_waiting.bits.cs_timeout = false;
-		uint8_t buf[] = {0x01, 0x02, 0x03};
+		buf[0] = 0x01; buf[1] = 0x02; buf[2] = 0x03;
 		putUSBUSART(buf, 3);
 
 	} else if (pc_send_waiting.bits.pc_timeout) {
 		pc_send_waiting.bits.pc_timeout = false;
-		uint8_t buf[] = {0x01, 0x01, 0x00};
+		buf[0] = 0x01; buf[1] = 0x01; buf[2] = 0x00;
 		putUSBUSART(buf, 3);
 
 	} else if (pc_send_waiting.bits.timeslot_timeout) {
 		pc_send_waiting.bits.timeslot_timeout = false;
-		uint8_t buf[] = {0x01, 0x05, 0x04};
+		buf[0] = 0x01; buf[1] = 0x05; buf[2] = 0x04;
 		putUSBUSART(buf, 3);
 
 #ifdef FERR_FEATURE
 	} else if (pc_send_waiting.bits.ferr) {
 		pc_send_waiting.bits.ferr = false;
-		uint8_t buf[6] = {
-			0xF4,
-			0x05,
-			(ferr_in_10_s >> 16) & 0xFF,
-			(ferr_in_10_s >> 8) & 0xFF,
-			ferr_in_10_s & 0xFF
-		};
+		buf[0] = 0xF4;
+		buf[1] = 0x05;
+		buf[2] = (ferr_in_10_s >> 16) & 0xFF;
+		buf[3] = (ferr_in_10_s >> 8) & 0xFF;
+		buf[4] = ferr_in_10_s & 0xFF;
 		buf[5] = buf[0] ^ buf[1] ^ buf[2] ^ buf[3] ^ buf[4];
 		putUSBUSART(buf, 6);
 #endif
