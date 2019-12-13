@@ -100,6 +100,8 @@ volatile send_waiting pc_send_waiting = { 0 };
  */
 volatile bool ring_USB_datain_backlocked = false;
 
+uint8_t buf[32]; // any-purpose buffer
+
 /** PRIVATE  PROTOTYPES *******************************************************/
 
 void init(void);
@@ -540,14 +542,14 @@ void USART_receive_interrupt(void) {
 // Check for data in ring_USART_datain and send complete data to USB.
 
 void USB_send(void) {
-	check_device_data_to_USB();
+	if (pc_send_waiting.all > 0)
+		check_device_data_to_USB();
 
 	if (!mUSBUSARTIsTxTrfReady()) return;
 
 	if (((ringLength(ring_USART_datain)) >= 1) &&
 	    (ringLength(ring_USART_datain) >= USART_msg_len(ring_USART_datain.ptr_b))) {
 		// send message
-		static uint8_t buf[32];
 		ringSerialize(&ring_USART_datain, buf, ring_USART_datain.ptr_b,
 		              USART_msg_len(ring_USART_datain.ptr_b));
 		putUSBUSART((uint8_t*)(buf + 1), ((buf[1]) & 0x0F) + 2);
