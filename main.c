@@ -61,7 +61,6 @@ volatile uint16_t usart_timeout = 0;    // increment every 100 us -> 100 ms time
 volatile uint8_t usart_to_send = 0;     // byte to send to USART
                                         // I made this public volatile variable,
                                         // beacause it is accessed in interrupts and in main too.
-volatile uint8_t ten_ms_counter = 0;    // 10 ms counter
 
 // timeslot errors
 volatile uint16_t timeslot_timeout = 0; // timeslot timeout (1s = 100)
@@ -142,6 +141,8 @@ void __interrupt(high_priority) high_isr(void) {
 }
 
 void __interrupt(low_priority) low_isr(void) {
+	static volatile uint8_t ten_ms_counter = 0;
+
 	if ((PIE1bits.TMR2IE) && (PIR1bits.TMR2IF)) {
 		// Timer2 on 100 us
 		if (ten_ms_counter < 100) {
