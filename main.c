@@ -210,7 +210,6 @@ void init(void) {
 	PIR1bits.TMR2IF = 0;        // timer2 reset overflow flag
 	PIE1bits.TMR2IE = 1;        // timer2 enable interrupt
 	IPR1bits.TMR2IP = 0;        // timer2 interrupt low level
-	RCONbits.IPEN = 1;          // enable high and low priority interrupts
 	INTCONbits.PEIE = 1;        // Enable peripheral interrupts (for usart)
 	T2CONbits.TMR2ON = 1;       // timer2 enable
 
@@ -220,6 +219,7 @@ void init(void) {
 
 	INTCONbits.GIEL = 1;        // Enable low-level interrupts
 	INTCONbits.GIEH = 1;        // Enable high-level interrupts
+	RCONbits.IPEN = 1;          // enable all interrupts
 }
 
 void timer_10ms(void) {
