@@ -15,19 +15,16 @@
         <itemPath>usb_stack/usb_hal.h</itemPath>
         <itemPath>usb_stack/usb_hal_pic18.h</itemPath>
       </logicalFolder>
-      <itemPath>Compiler.h</itemPath>
       <itemPath>GenericTypeDefs.h</itemPath>
       <itemPath>HardwareProfile.h</itemPath>
       <itemPath>eeprom.h</itemPath>
       <itemPath>main.h</itemPath>
       <itemPath>ringBuffer.h</itemPath>
       <itemPath>usart.h</itemPath>
-      <itemPath>config.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
                    projectFiles="true">
-      <itemPath>rm18F14K50.lkr</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
@@ -97,7 +94,7 @@
         <property key="default-bitfield-type" value="true"/>
         <property key="default-char-type" value="true"/>
         <property key="define-macros" value=""/>
-        <property key="disable-optimizations" value="true"/>
+        <property key="disable-optimizations" value="false"/>
         <property key="extra-include-directories" value=""/>
         <property key="favor-optimization-for" value="-speed,+space"/>
         <property key="garbage-collect-data" value="true"/>
@@ -111,7 +108,7 @@
         <property key="optimization-debug" value="false"/>
         <property key="optimization-invariant-enable" value="false"/>
         <property key="optimization-invariant-value" value="16"/>
-        <property key="optimization-level" value="-O0"/>
+        <property key="optimization-level" value="-O1"/>
         <property key="optimization-speed" value="false"/>
         <property key="optimization-stable-enable" value="false"/>
         <property key="pack-struct" value="true"/>
