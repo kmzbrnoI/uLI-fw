@@ -25,7 +25,7 @@
 
 // len WITH header byte and WITH xor byte
 #define USB_msg_len(start)      ((ring_USB_datain.data[start] & 0x0F) + 2)
-#define USB_last_message_len    ringDistance(ring_USB_datain, last_start, ring_USB_datain.ptr_e)
+#define USB_last_message_len()  ringDistance(ring_USB_datain, last_start, ring_USB_datain.ptr_e)
 
 // length of xpressnet message is 4-lower bits in second byte
 #define USART_msg_len(start) \
@@ -56,14 +56,14 @@ volatile uint8_t tmp_baud_rate;
 
 volatile uint8_t our_frame = 0;         // 0 = we cannot send messages
                                         // 1..80 = we can send messages
-volatile uint8_t usb_timeout = 0;       // increment every 100 us -> 100 ms timeout = 1 000
-volatile uint16_t usart_timeout = 0;    // increment every 100 us -> 100 ms timeout = 1 000
+volatile uint8_t usb_timeout = 0;       // increment every 10 ms -> 100 ms timeout = 10
+volatile uint8_t usart_timeout = 0;     // increment every 10 ms -> 20 ms timeout = 2
 volatile uint8_t usart_to_send = 0;     // byte to send to USART
                                         // I made this public volatile variable,
                                         // beacause it is accessed in interrupts and in main too.
 
 // timeslot errors
-volatile uint16_t timeslot_timeout = 0; // timeslot timeout (1s = 100)
+volatile uint16_t timeslot_timeout = 0; // timeslot timeout
 volatile bool timeslot_err = true;      // true if timeslot error
 
 // XpressNET framing error counting
