@@ -1,37 +1,23 @@
+/*******************************************************************************
+Copyright 2016 Microchip Technology Inc. (www.microchip.com)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+To request to license the code under the MLA license (www.microchip.com/mla_license), 
+please contact mla_licensing@microchip.com
+*******************************************************************************/
+
 /********************************************************************
- FileName:     	usb_descriptors.c
- Dependencies:	See INCLUDES section
- Processor:		PIC18 or PIC24 USB Microcontrollers
- Hardware:		The code is natively intended to be used on the following
- 				hardware platforms: PICDEM™ FS USB Demo Board, 
- 				PIC18F87J50 FS USB Plug-In Module, or
- 				Explorer 16 + PIC24 USB PIM.  The firmware may be
- 				modified for use on other USB platforms by editing the
- 				HardwareProfile.h file.
- Complier:  	Microchip C18 (for PIC18) or C30 (for PIC24)
- Company:		Microchip Technology, Inc.
-
- Software License Agreement:
-
- The software supplied herewith by Microchip Technology Incorporated
- (the “Company”) for its PICŽ Microcontroller is intended and
- supplied to you, the Company’s customer, for use solely and
- exclusively on Microchip PIC Microcontroller products. The
- software is owned by the Company and/or its supplier, and is
- protected under applicable copyright laws. All rights are reserved.
- Any use in violation of the foregoing restrictions may subject the
- user to criminal sanctions under applicable laws, as well as to
- civil liability for the breach of the terms and conditions of this
- license.
-
- THIS SOFTWARE IS PROVIDED IN AN “AS IS” CONDITION. NO WARRANTIES,
- WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED
- TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
- PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
- IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL OR
- CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
-
-*********************************************************************
 -usb_descriptors.c-
 -------------------------------------------------------------------
 Filling in the descriptor values in the usb_descriptors.c file:
@@ -44,7 +30,7 @@ needs to be the correct length for the data type of the entry.
 
 [Configuration Descriptors]
 The configuration descriptor was changed in v2.x from a structure
-to a BYTE array.  Given that the configuration is now a byte array
+to a uint8_t array.  Given that the configuration is now a byte array
 each byte of multi-byte fields must be listed individually.  This
 means that for fields like the total size of the configuration where
 the field is a 16-bit value "64,0," is the correct entry for a
@@ -60,7 +46,7 @@ _RWU tells the USB host that this device supports Remote Wakeup.
 
 [Endpoint Descriptors]
 Like the configuration descriptor, the endpoint descriptors were 
-changed in v2.x of the stack from a structure to a BYTE array.  As
+changed in v2.x of the stack from a structure to a uint8_t array.  As
 endpoint descriptors also has a field that are multi-byte entities,
 please be sure to specify both bytes of the field.  For example, for
 the endpoint size an endpoint that is 64 bytes needs to have the size
@@ -163,7 +149,7 @@ state according to the definition in the USB specification.
 #endif
 
 /* Device Descriptor */
-ROM USB_DEVICE_DESCRIPTOR device_dsc=
+const USB_DEVICE_DESCRIPTOR device_dsc=
 {
     0x12,                   // Size of this descriptor in bytes
     USB_DESCRIPTOR_DEVICE,  // DEVICE descriptor type
@@ -182,7 +168,7 @@ ROM USB_DEVICE_DESCRIPTOR device_dsc=
 };
 
 /* Configuration 1 Descriptor */
-ROM BYTE configDescriptor1[]={
+const uint8_t configDescriptor1[]={
     /* Configuration Descriptor */
     0x09,//sizeof(USB_CFG_DSC),    // Size of this descriptor in bytes
     USB_DESCRIPTOR_CONFIGURATION,                // CONFIGURATION descriptor type
@@ -231,9 +217,9 @@ ROM BYTE configDescriptor1[]={
     //sizeof(USB_EP_DSC),DSC_EP,_EP02_IN,_INT,CDC_INT_EP_SIZE,0x02,
     0x07,/*sizeof(USB_EP_DSC)*/
     USB_DESCRIPTOR_ENDPOINT,    //Endpoint Descriptor
-    _EP02_IN,            //EndpointAddress
+    _EP01_IN,            //EndpointAddress
     _INTERRUPT,                       //Attributes
-    0x08,0x00,                  //size
+    0x0A,0x00,                  //size
     0x02,                       //Interval
 
     /* Interface Descriptor */
@@ -251,7 +237,7 @@ ROM BYTE configDescriptor1[]={
     //sizeof(USB_EP_DSC),DSC_EP,_EP03_OUT,_BULK,CDC_BULK_OUT_EP_SIZE,0x00,
     0x07,/*sizeof(USB_EP_DSC)*/
     USB_DESCRIPTOR_ENDPOINT,    //Endpoint Descriptor
-    _EP03_OUT,            //EndpointAddress
+    _EP02_OUT,            //EndpointAddress
     _BULK,                       //Attributes
     0x40,0x00,                  //size
     0x00,                       //Interval
@@ -260,7 +246,7 @@ ROM BYTE configDescriptor1[]={
     //sizeof(USB_EP_DSC),DSC_EP,_EP03_IN,_BULK,CDC_BULK_IN_EP_SIZE,0x00
     0x07,/*sizeof(USB_EP_DSC)*/
     USB_DESCRIPTOR_ENDPOINT,    //Endpoint Descriptor
-    _EP03_IN,            //EndpointAddress
+    _EP02_IN,            //EndpointAddress
     _BULK,                       //Attributes
     0x40,0x00,                  //size
     0x00,                       //Interval
@@ -268,35 +254,50 @@ ROM BYTE configDescriptor1[]={
 
 
 //Language code string descriptor
-ROM struct{BYTE bLength;BYTE bDscType;WORD string[1];}sd000={
+const struct{uint8_t bLength;uint8_t bDscType;uint16_t string[1];}sd000={
 sizeof(sd000),USB_DESCRIPTOR_STRING,{0x0409}};
 
 //Manufacturer string descriptor
-ROM struct{BYTE bLength;BYTE bDscType;WORD string[25];}sd001={
+const struct{uint8_t bLength;uint8_t bDscType;uint16_t string[25];}sd001={
 sizeof(sd001),USB_DESCRIPTOR_STRING,
 {'M','i','c','r','o','c','h','i','p',' ',
 'T','e','c','h','n','o','l','o','g','y',' ','I','n','c','.'
 }};
 
 //Product string descriptor
-ROM struct{BYTE bLength;BYTE bDscType;WORD string[3];}sd002={
+const struct{uint8_t bLength;uint8_t bDscType;uint16_t string[25];}sd002={
 sizeof(sd002),USB_DESCRIPTOR_STRING,
 {'u','L','I'}
 };
 
+//Serial number string descriptor.  If a serial number string is implemented, 
+//it should be unique for every single device coming off the production assembly 
+//line.  Plugging two devices with the same serial number into a computer 
+//simultaneously will cause problems (in extreme cases BSOD).
+//Note: Common OSes put restrictions on the possible values that are allowed.
+//For best OS compatibility, the serial number string should only consist
+//of UNICODE encoded numbers 0 through 9 and capital letters A through F.
+//ROM struct{BYTE bLength;BYTE bDscType;WORD string[10];}sd003={
+//sizeof(sd003),USB_DESCRIPTOR_STRING,
+//{'0','1','2','3','4','5','6','7','8','9'}};
+
 //Array of configuration descriptors
-ROM BYTE *ROM USB_CD_Ptr[]=
+const uint8_t *const USB_CD_Ptr[]=
 {
-    (ROM BYTE *ROM)&configDescriptor1
+    (const uint8_t *const)&configDescriptor1
 };
 //Array of string descriptors
-ROM BYTE *ROM USB_SD_Ptr[USB_NUM_STRING_DESCRIPTORS]=
+const uint8_t *const USB_SD_Ptr[USB_NUM_STRING_DESCRIPTORS]=
 {
-    (ROM BYTE *ROM)&sd000,
-    (ROM BYTE *ROM)&sd001,
-    (ROM BYTE *ROM)&sd002
+    (const uint8_t *const)&sd000,
+    (const uint8_t *const)&sd001,
+    (const uint8_t *const)&sd002
+    //(const uint8_t *const)&sd003  //uncomment if implementing a serial number string descriptor named sd003
 };
 
-#pragma code
+#if defined(__18CXX)
+    #pragma code
+#endif
+
 #endif
 /** EOF usb_descriptors.c ****************************************************/
