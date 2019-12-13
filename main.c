@@ -566,10 +566,8 @@ void USB_send(void) {
 
 void USB_receive(void) {
 	static uint8_t last_start = 0;
-	uint8_t xor, i;
-	uint8_t received_len;
 
-	if ((USBDeviceState < CONFIGURED_STATE) || (USBSuspendControl == 1)) return;
+	if ((USBDeviceState != CONFIGURED_STATE) || (USBIsDeviceSuspended())) return;
 
 	// ring_USB_datain overflow check
 	// 2 bytes in the buffer are always reserved for the Acknowledgement
@@ -592,9 +590,13 @@ void USB_receive(void) {
 	 */
 	ring_USB_datain_backlocked = true;
 
-	received_len = getsUSBUSART((uint8_t*)&ring_USB_datain.data, ringFreeSpace(ring_USB_datain));
+	size_t available_continuous_len = ring_USB_datain.max - ring_USB_datain.ptr_e;
+	uint8_t received_len = getsUSBUSART(&ring_USB_datain.data + ring_USB_datain.ptr_e, available_continuous_len);
 
-	if (received_len == 0) {
+	if (received_len > 0) {
+		ring_USB_datain.empty = false;
+		ring_USB_datain.ptr_e = (ring_USB_datain.ptr_e + received_len) & ring_USB_datain.max;
+	} else {
 		ring_USB_datain_backlocked = false;
 		// check for timeout
 		if ((usb_timeout >= USB_MAX_TIMEOUT) && (last_start != ring_USB_datain.ptr_e)) {
@@ -612,32 +614,31 @@ void USB_receive(void) {
 	usb_timeout = 0;
 
 	// data received -> parse data
-	while ((ringDistance(ring_USB_datain, last_start, ring_USB_datain.ptr_e) > 0)
-	    && (USB_last_message_len >= USB_msg_len(last_start))) {
-
+	while ((USB_last_message_len() > 0) && (USB_last_message_len() >= USB_msg_len(last_start))) {
 		// whole message received -> check for xor
-		for (i = 0, xor = 0; i < USB_msg_len(last_start) - 1; i++)
+		uint8_t xor = 0;
+		for (uint8_t i = 0; i < USB_msg_len(last_start); i++)
 			xor ^= ring_USB_datain.data[(i + last_start) & ring_USB_datain.max];
 
-		if (xor != ring_USB_datain.data[(i + last_start) & ring_USB_datain.max]) {
+		if (xor != 0) {
 			// xor error
 			// here, we need to delete content in the middle of ring buffer
 			ringRemoveFromMiddle(&ring_USB_datain, last_start, USB_msg_len(last_start));
 			pc_send_waiting.bits.xor_error = true;
-			goto ret;
-		}
-
-		// xor ok -> parse data
-		if (USB_parse_data(last_start, USB_msg_len(last_start))) {
-			// timeslot not available -> respond "Buffer full"
-			if (timeslot_err) {
-				ringRemoveFromMiddle(&ring_USB_datain, last_start, USB_msg_len(last_start));
-				pc_send_waiting.bits.timeslot_timeout = true;
-				goto ret;
+		} else if (ring_USB_datain.data[last_start] == 0) {
+			ringRemoveFromMiddle(&ring_USB_datain, last_start, USB_msg_len(last_start));
+		} else {
+			// xor ok -> parse data
+			if (USB_parse_data(last_start, USB_msg_len(last_start))) {
+				// timeslot not available -> respond "Buffer full"
+				if (timeslot_err) {
+					ringRemoveFromMiddle(&ring_USB_datain, last_start, USB_msg_len(last_start));
+					pc_send_waiting.bits.timeslot_timeout = true;
+				} else {
+					// data waiting for sending to xpressnet -> move last_start
+					last_start = (last_start + USB_msg_len(last_start)) & ring_USB_datain.max;
+				}
 			}
-
-			// data waiting for sending to xpressnet -> move last_start
-			last_start = (last_start + USB_msg_len(last_start)) & ring_USB_datain.max;
 		}
 	}
 
