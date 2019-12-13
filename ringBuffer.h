@@ -15,11 +15,6 @@ typedef struct {
 	BOOL empty;    // wheter buffer is empty
 } ring_generic;
 
-/* Warning: ring buffer suffers from several problems, which
- * are very important to understand when working with ring buffer.
- * Read notes below.
- */
-
 /* ptr_b points to first byte
  * ptr_e points to byte after last byte
  * This specially implies that is it NOT POSSIBLE to differentiate empty and full buffer.
@@ -41,11 +36,11 @@ void ringRemoveFromMiddle(volatile ring_generic* buf, uint8_t start, uint8_t len
 void ringClear(volatile ring_generic* buf);
 void ringAddToStart(volatile ring_generic* buf, uint8_t* data, uint8_t len);
 
-#define ringBufferInit(name, size) \
+#define ringBufferInit(name, size) { \
 	name.max = (size - 1);     \
 	name.ptr_b = 0;            \
 	name.ptr_e = 0;            \
-	name.empty = true;
+	name.empty = true; }
 
 // In some cases, it really matters wheter you call function or not.
 // C18 does not support inline functions -> defines.
