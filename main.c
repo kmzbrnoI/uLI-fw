@@ -214,14 +214,12 @@ void init(void) {
 	INTCONbits.PEIE = 1;        // Enable peripheral interrupts (for usart)
 	T2CONbits.TMR2ON = 1;       // timer2 enable
 
-	INTCONbits.GIEH = 1;        // Enable high-level interrupts
-	INTCONbits.GIEL = 1;        // Enable low-level interrupts
-
 	init_EEPROM();
 	USBDeviceInit();
 	USARTInit();
 
-	INTCONbits.GIE = 1;         // enable global interrupts
+	INTCONbits.GIEL = 1;        // Enable low-level interrupts
+	INTCONbits.GIEH = 1;        // Enable high-level interrupts
 }
 
 void timer_10ms(void) {
