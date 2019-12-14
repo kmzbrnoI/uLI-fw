@@ -166,8 +166,8 @@ please contact mla_licensing@microchip.com
 
 #define CDC_DATA_INTF_ID        0x01
 #define CDC_DATA_EP             2
-#define CDC_DATA_OUT_EP_SIZE    64
-#define CDC_DATA_IN_EP_SIZE     64
+#define CDC_DATA_OUT_EP_SIZE    32
+#define CDC_DATA_IN_EP_SIZE     32
 
 //#define USB_CDC_SUPPORT_ABSTRACT_CONTROL_MANAGEMENT_CAPABILITIES_D2 //Send_Break command
 #define USB_CDC_SUPPORT_ABSTRACT_CONTROL_MANAGEMENT_CAPABILITIES_D1 //Set_Line_Coding, Set_Control_Line_State, Get_Line_Coding, and Serial_State commands
