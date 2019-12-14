@@ -591,13 +591,9 @@ void USB_receive(void) {
 	 */
 	ring_USB_datain_backlocked = true;
 
-	size_t available_continuous_len = ring_USB_datain.max - ring_USB_datain.ptr_e;
-	uint8_t received_len = getsUSBUSART(&ring_USB_datain.data + ring_USB_datain.ptr_e, available_continuous_len);
+	uint8_t received_len = getsUSBUSART(&ring_USB_datain, ringFreeSpace(ring_USB_datain));
 
-	if (received_len > 0) {
-		ring_USB_datain.empty = false;
-		ring_USB_datain.ptr_e = (ring_USB_datain.ptr_e + received_len) & ring_USB_datain.max;
-	} else {
+	if (received_len == 0) {
 		ring_USB_datain_backlocked = false;
 		// check for timeout
 		if ((usb_timeout >= USB_MAX_TIMEOUT) && (last_start != ring_USB_datain.ptr_e)) {
@@ -626,8 +622,6 @@ void USB_receive(void) {
 			// here, we need to delete content in the middle of ring buffer
 			ringRemoveFromMiddle(&ring_USB_datain, last_start, USB_msg_len(last_start));
 			pc_send_waiting.bits.xor_error = true;
-		} else if (ring_USB_datain.data[last_start] == 0) {
-			ringRemoveFromMiddle(&ring_USB_datain, last_start, USB_msg_len(last_start));
 		} else {
 			// xor ok -> parse data
 			if (USB_parse_data(last_start, USB_msg_len(last_start))) {

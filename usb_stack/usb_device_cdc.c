@@ -45,7 +45,7 @@ please contact mla_licensing@microchip.com
 ********************************************************************/
 
 /** I N C L U D E S **********************************************************/
-//#include "system.h"
+#include "../system.h"
 #include "usb.h"
 #include "usb_device_cdc.h"
 
@@ -446,7 +446,7 @@ bool USBCDCEventHandler(USB_EVENT event, void *pdata, uint16_t size)
 
 /**********************************************************************************
   Function:
-        uint8_t getsUSBUSART(char *buffer, uint8_t len)
+        uint8_t getsUSBUSART(ring_generic *buffer, uint8_t len)
 
   Summary:
     getsUSBUSART copies a string of BYTEs received through USB CDC Bulk OUT
@@ -483,7 +483,7 @@ bool USBCDCEventHandler(USB_EVENT event, void *pdata, uint16_t size)
     len -     The number of BYTEs expected.
 
   **********************************************************************************/
-uint8_t getsUSBUSART(uint8_t *buffer, uint8_t len)
+uint8_t getsUSBUSART(ring_generic *buffer, uint8_t len)
 {
     cdc_rx_len = 0;
 
@@ -499,8 +499,10 @@ uint8_t getsUSBUSART(uint8_t *buffer, uint8_t len)
         /*
          * Copy data from dual-ram buffer to user's buffer
          */
-        for(cdc_rx_len = 0; cdc_rx_len < len; cdc_rx_len++)
-            buffer[cdc_rx_len] = cdc_data_rx[cdc_rx_len];
+        for(cdc_rx_len = 0; cdc_rx_len < len; cdc_rx_len++) {
+            //buffer[cdc_rx_len] = cdc_data_rx[cdc_rx_len];
+            ringAddByte(buffer, cdc_data_rx[cdc_rx_len]);
+        }
 
         /*
          * Prepare dual-ram buffer for next OUT transaction
