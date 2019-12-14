@@ -115,9 +115,7 @@ void USART_receive_interrupt(void);
 void USART_send(void);
 void USART_check_timeouts(void);
 
-#ifdef DEBUG
 void dump_buf_to_USB(ring_generic* buf);
-#endif
 void check_response_to_PC(uint8_t header, uint8_t id);
 void check_device_data_to_USB(void);
 
@@ -753,15 +751,11 @@ void USART_send(void) {
 ////////////////////////////////////////////////////////////////////////////////
 // Debug function: dump ring buffer to USB
 
-#ifdef DEBUG
-void dump_buf_to_USB(ring_generic* buf) {
-	static uint8_t usb_buf[32];
-	size_t i;
-	for (i = 0; i <= buf->max && i < 32; i++)
-		usb_buf[i] = buf->data[(i + buf->ptr_b) & buf->max];
-	putUSBUSART(usb_buf, buf->max + 1);
+void dump_buf_to_USB(ring_generic* ring) {
+	for (size_t i = 0; i <= ring->max && i < 32; i++)
+		buf[i] = ring->data[(i + ring->ptr_b) & ring->max];
+	putUSBUSART(buf, ring->max + 1);
 }
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 /* LI is supposed to answer 01/04/05 when some commands were succesfully
