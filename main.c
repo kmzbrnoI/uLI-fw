@@ -284,6 +284,8 @@ void timer_10ms(void) {
 // ************** USB Callback Functions **************************************
 
 bool USER_USB_CALLBACK_EVENT_HANDLER(USB_EVENT event, void *pdata, uint16_t size) {
+	USBCDCEventHandler(event, pdata, size);
+
 	switch( (int) event )
 	{
 		case EVENT_TRANSFER:
