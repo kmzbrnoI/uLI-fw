@@ -8,7 +8,7 @@
 #define DEFAULT_XPRESSNET_ADDR  29
 #define XN_EEPROM_ADDR          0x00
 
-#define VERSION_FW      0x17        // firmware version 1.7
+#define VERSION_FW      0x20        // firmware version 2.0
 #define VERSION_HW      0x20        // hardware version 2.0
 
 #define FERR_FEATURE                // undef to disable FERR feature
