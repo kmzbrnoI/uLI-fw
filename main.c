@@ -158,11 +158,9 @@ void __interrupt(low_priority) low_isr(void) {
 
 void main(void) {
 	init();
+	USBDeviceAttach();
 
 	while (true) {
-		if (USB_BUS_SENSE && (USBGetDeviceState() == DETACHED_STATE))
-			USBDeviceAttach();
-
 		USART_check_timeouts();
 
 		USB_receive();
