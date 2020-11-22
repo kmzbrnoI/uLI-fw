@@ -5,22 +5,22 @@
                    displayName="Header Files"
                    projectFiles="true">
       <logicalFolder name="usb_stack" displayName="usb_stack" projectFiles="true">
-        <itemPath>usb_stack/usb.h</itemPath>
-        <itemPath>usb_stack/usb_ch9.h</itemPath>
-        <itemPath>usb_stack/usb_common.h</itemPath>
-        <itemPath>usb_stack/usb_config.h</itemPath>
-        <itemPath>usb_stack/usb_device.h</itemPath>
-        <itemPath>usb_stack/usb_device_cdc.h</itemPath>
-        <itemPath>usb_stack/usb_device_local.h</itemPath>
-        <itemPath>usb_stack/usb_hal.h</itemPath>
-        <itemPath>usb_stack/usb_hal_pic18.h</itemPath>
+        <itemPath>src/usb_stack/usb.h</itemPath>
+        <itemPath>src/usb_stack/usb_ch9.h</itemPath>
+        <itemPath>src/usb_stack/usb_common.h</itemPath>
+        <itemPath>src/usb_stack/usb_config.h</itemPath>
+        <itemPath>src/usb_stack/usb_device.h</itemPath>
+        <itemPath>src/usb_stack/usb_device_cdc.h</itemPath>
+        <itemPath>src/usb_stack/usb_device_local.h</itemPath>
+        <itemPath>src/usb_stack/usb_hal.h</itemPath>
+        <itemPath>src/usb_stack/usb_hal_pic18.h</itemPath>
       </logicalFolder>
-      <itemPath>GenericTypeDefs.h</itemPath>
-      <itemPath>HardwareProfile.h</itemPath>
-      <itemPath>eeprom.h</itemPath>
-      <itemPath>main.h</itemPath>
-      <itemPath>ringBuffer.h</itemPath>
-      <itemPath>usart.h</itemPath>
+      <itemPath>src/GenericTypeDefs.h</itemPath>
+      <itemPath>src/HardwareProfile.h</itemPath>
+      <itemPath>src/eeprom.h</itemPath>
+      <itemPath>src/main.h</itemPath>
+      <itemPath>src/ringBuffer.h</itemPath>
+      <itemPath>src/usart.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -30,14 +30,14 @@
                    displayName="Source Files"
                    projectFiles="true">
       <logicalFolder name="usb_stack" displayName="usb_stack" projectFiles="true">
-        <itemPath>usb_stack/usb_descriptors.c</itemPath>
-        <itemPath>usb_stack/usb_device.c</itemPath>
-        <itemPath>usb_stack/usb_device_cdc.c</itemPath>
+        <itemPath>src/usb_stack/usb_descriptors.c</itemPath>
+        <itemPath>src/usb_stack/usb_device.c</itemPath>
+        <itemPath>src/usb_stack/usb_device_cdc.c</itemPath>
       </logicalFolder>
-      <itemPath>eeprom.c</itemPath>
-      <itemPath>main.c</itemPath>
-      <itemPath>ringBuffer.c</itemPath>
-      <itemPath>usart.c</itemPath>
+      <itemPath>src/eeprom.c</itemPath>
+      <itemPath>src/main.c</itemPath>
+      <itemPath>src/ringBuffer.c</itemPath>
+      <itemPath>src/usart.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
