@@ -349,7 +349,8 @@ void USART_check_timeouts(void) {
 		RCSTAbits.ADDEN = 1; // receive just first message
 
 		// inform PC about timeout
-		pc_send_waiting.bits.cs_timeout = true;
+		if (USBGetDeviceState() == CONFIGURED_STATE)
+			pc_send_waiting.bits.cs_timeout = true;
 
 		return;
 	}
@@ -366,7 +367,8 @@ void USART_check_timeouts(void) {
 		ringClear(&ring_USB_datain);
 
 		// send info to PC
-		pc_send_waiting.bits.timeslot_timeout = true;
+		if (USBGetDeviceState() == CONFIGURED_STATE)
+			pc_send_waiting.bits.timeslot_timeout = true;
 	}
 }
 
@@ -420,7 +422,8 @@ void USART_receive_interrupt(void) {
 			if ((timeslot_timeout >= TIMESLOT_MAX_TIMEOUT) || (force_ok_response)) {
 				// ok response must be sent always after short timeout
 				if (force_ok_response) force_ok_response = false;
-				pc_send_waiting.bits.ok = true;
+				if (USBGetDeviceState() == CONFIGURED_STATE)
+					pc_send_waiting.bits.ok = true;
 			}
 			timeslot_timeout = 0;
 
@@ -461,7 +464,8 @@ void USART_receive_interrupt(void) {
 					ring_USART_datain.empty = true;
 
 				// send info to PC
-				pc_send_waiting.bits.cs_timeout = true;
+				if (USBGetDeviceState() == CONFIGURED_STATE)
+					pc_send_waiting.bits.cs_timeout = true;
 			}
 
 			// start of message for us (or broadcast)
