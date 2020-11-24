@@ -811,10 +811,13 @@ void check_XN_timeout_supress(uint8_t ring_USB_msg_start) {
 // Update flasihing of power LED.
 
 void check_pwr_LED_status(void) {
-	uint8_t new;
-	new = (ferr_in_10_s > PWR_LED_FERR_COUNT) << 1;
-	new |= ((ringLength(ring_USART_datain) >= (ring_USART_datain.max + 1) / 2)
-	           || (ringLength(ring_USB_datain) >= (ring_USB_datain.max + 1) / 2)) << 2;
+	uint8_t new = 0;
+	// new = (ferr_in_10_s > PWR_LED_FERR_COUNT) << 1;
+	if (ferr_in_10_s > PWR_LED_FERR_COUNT)
+		new |= 2;
+	if ((ringLength(ring_USART_datain) >= (ring_USART_datain.max + 1) / 2)
+	           || (ringLength(ring_USB_datain) >= (ring_USB_datain.max + 1) / 2))
+	    new |= 4;
 	if (new == 0) new = 1;
 	pwr_led_status = new;
 }
