@@ -121,7 +121,7 @@ void check_device_data_to_USB(void);
 
 void check_XN_timeout_supress(uint8_t ring_USB_msg_start);
 void check_pwr_LED_status(void);
-void check_broadcast(int xn_start_index);
+void check_broadcast(uint8_t xn_start_index);
 
 void timer_10ms(void);
 
@@ -717,7 +717,7 @@ bool USB_parse_data(uint8_t start, uint8_t len) {
  */
 
 void USART_send(void) {
-	static uint8_t head = 0, id = 0;
+	uint8_t head = 0, id = 0;
 
 	// according to specification, ninth bit is always 0
 	USARTWriteByte(0, ring_USB_datain.data[usart_to_send]);
@@ -828,11 +828,11 @@ void check_pwr_LED_status(void) {
  * set proper length of timeslot_timeout.
  */
 
-void check_broadcast(int xn_start_index) {
-	static uint8_t data[3];
+void check_broadcast(uint8_t xn_start_index) {
+	uint8_t data[3];
 
 	// serialize data from buffer
-	ringSerialize(&ring_USART_datain, data, xn_start_index, 4);
+	ringSerialize(&ring_USART_datain, data, xn_start_index, 3);
 
 	if ((data[0] == 0x60) && (data[1] == 0x61) && (data[2] == 0x02)) {
 		// service mode entry
