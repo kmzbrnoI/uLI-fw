@@ -483,7 +483,7 @@ bool USBCDCEventHandler(USB_EVENT event, void *pdata, uint16_t size)
     len -     The number of BYTEs expected.
 
   **********************************************************************************/
-uint8_t getsUSBUSART(ring_generic *buffer, uint8_t len)
+uint8_t getsUSBUSART(volatile ring_generic *buffer, uint8_t len)
 {
     cdc_rx_len = 0;
 

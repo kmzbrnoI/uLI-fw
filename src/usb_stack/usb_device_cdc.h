@@ -651,7 +651,7 @@ bool USBCDCEventHandler(USB_EVENT event, void *pdata, uint16_t size);
               indicates that no new CDC bulk OUT endpoint data was available.
 
   **********************************************************************************/
-uint8_t getsUSBUSART(ring_generic *buffer, uint8_t len);
+uint8_t getsUSBUSART(volatile ring_generic *buffer, uint8_t len);
 
 /******************************************************************************
   Function:
