@@ -14,7 +14,7 @@ typedef struct {
 } nine_data;
 
 void USARTInit(void);
-void USARTWriteByte(unsigned ninth, uint8_t data);
+void USARTWriteByte(bool ninth, uint8_t data);
 nine_data USARTReadByte(void);
 bool USARTInputData(void);
 void USARTEnableReceiveInterrupt(void);
