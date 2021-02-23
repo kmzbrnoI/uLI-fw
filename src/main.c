@@ -406,6 +406,7 @@ void USART_receive_interrupt(void) {
 		if ((tmp != xn_addr) && (tmp != 0)) return;
 
 		// new message for us -> check for parity
+		parity = false;
 		if ((tmp = USART_received.data) & 1) parity = !parity;
 		if ((tmp = tmp >> 1) & 1) parity = !parity;
 		if ((tmp = tmp >> 1) & 1) parity = !parity;
@@ -537,7 +538,7 @@ void USART_receive_interrupt(void) {
 			RCSTAbits.ADDEN = 1;
 		}
 	}
-
+	
 #ifndef DEBUG
 	// toggle LED
 	if (mLED_XN_Timeout >= 2 * MLED_XN_MAX_TIMEOUT) {
