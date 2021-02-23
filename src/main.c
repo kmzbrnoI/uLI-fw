@@ -100,6 +100,9 @@ volatile send_waiting pc_send_waiting = { 0 };
  */
 volatile bool ring_USB_datain_backlocked = false;
 
+#define USB_NONREADY_TIMEOUT 10 // 100 ms
+volatile uint8_t usb_nonready_counter = 0;
+
 uint8_t buf[32]; // any-purpose buffer
 
 /** PRIVATE  PROTOTYPES *******************************************************/
@@ -110,6 +113,7 @@ void init_EEPROM(void);
 void USB_send(void);
 void USB_receive(void);
 bool USB_parse_data(uint8_t start, uint8_t len);
+static bool USB_connected(void);
 
 void USART_receive_interrupt(void);
 void USART_send(void);
@@ -120,7 +124,7 @@ void check_response_to_PC(uint8_t header, uint8_t id);
 void check_device_data_to_USB(void);
 
 void check_XN_timeout_supress(uint8_t ring_USB_msg_start);
-void check_pwr_LED_status(void);
+void update_pwr_LED_status(void);
 void check_broadcast(uint8_t xn_start_index);
 
 void timer_10ms(void);
@@ -164,9 +168,7 @@ void main(void) {
 		USART_check_timeouts();
 
 		USB_receive();
-		USB_send();
-
-		check_pwr_LED_status();
+		USB_send();		
 		CDCTxService();
 
 		ClrWdt(); // clear watchdog timer
@@ -267,16 +269,22 @@ void timer_10ms(void) {
 		if (pwr_led_status_counter == 2 * pwr_led_status) {
 			// wait between cycles
 			pwr_led_base_timeout = PWR_LED_LONG_COUNT;
-			mLED_Pwr_Off();
+			mLED_Pwr_Off();			
 		} else if (pwr_led_status_counter > 2 * pwr_led_status) {
 			// new base cycle
 			pwr_led_base_timeout = PWR_LED_SHORT_COUNT;
 			pwr_led_status_counter = 0;
-			mLED_Pwr_On();
+			update_pwr_LED_status();
+			mLED_Pwr_On();			
 		} else {
 			mLED_Pwr_Toggle();
 		}
 	}
+	
+	if (mUSBUSARTIsTxTrfReady())
+		usb_nonready_counter = 0;
+	 else if (usb_nonready_counter < USB_NONREADY_TIMEOUT)
+		usb_nonready_counter++;
 }
 
 // ************** USB Callback Functions **************************************
@@ -349,7 +357,7 @@ void USART_check_timeouts(void) {
 		RCSTAbits.ADDEN = 1; // receive just first message
 
 		// inform PC about timeout
-		if (USBGetDeviceState() == CONFIGURED_STATE)
+		if (USB_connected())
 			pc_send_waiting.bits.cs_timeout = true;
 
 		return;
@@ -367,7 +375,7 @@ void USART_check_timeouts(void) {
 		ringClear(&ring_USB_datain);
 
 		// send info to PC
-		if (USBGetDeviceState() == CONFIGURED_STATE)
+		if (USB_connected())
 			pc_send_waiting.bits.timeslot_timeout = true;
 	}
 }
@@ -422,7 +430,7 @@ void USART_receive_interrupt(void) {
 			if ((timeslot_timeout >= TIMESLOT_MAX_TIMEOUT) || (force_ok_response)) {
 				// ok response must be sent always after short timeout
 				if (force_ok_response) force_ok_response = false;
-				if (USBGetDeviceState() == CONFIGURED_STATE)
+				if (USB_connected())
 					pc_send_waiting.bits.ok = true;
 			}
 			timeslot_timeout = 0;
@@ -458,19 +466,19 @@ void USART_receive_interrupt(void) {
 			// normal message
 
 			if (ring_USART_datain.ptr_e != USART_last_start) {
-				// beginning of new message received before previous mesage was completely received -> delete previous message
+				// beginning of new message received before previous message was completely received -> delete previous message
 				ring_USART_datain.ptr_e = USART_last_start;
 				if (ring_USART_datain.ptr_e == ring_USART_datain.ptr_b)
 					ring_USART_datain.empty = true;
 
 				// send info to PC
-				if (USBGetDeviceState() == CONFIGURED_STATE)
+				if (USB_connected())
 					pc_send_waiting.bits.cs_timeout = true;
 			}
 
 			// start of message for us (or broadcast)
 
-			if (USBGetDeviceState() != CONFIGURED_STATE) return;
+			if (!USB_connected()) return;
 
 			// -> check space in buffer
 			if (ringFull(ring_USART_datain)) {
@@ -546,14 +554,17 @@ void USB_send(void) {
 	if (pc_send_waiting.all > 0)
 		check_device_data_to_USB();
 
-	if (!mUSBUSARTIsTxTrfReady()) return;
-
 	if (((ringLength(ring_USART_datain)) >= 1) &&
 	    (ringLength(ring_USART_datain) >= USART_msg_len(ring_USART_datain.ptr_b))) {
 		// send message
-		ringSerialize(&ring_USART_datain, buf, ring_USART_datain.ptr_b,
-		              USART_msg_len(ring_USART_datain.ptr_b));
-		putUSBUSART((uint8_t*)(buf + 1), ((buf[1]) & 0x0F) + 2);
+		if (USB_connected()) {
+			usb_nonready_counter = 0;
+			ringSerialize(&ring_USART_datain, buf, ring_USART_datain.ptr_b,
+			              USART_msg_len(ring_USART_datain.ptr_b));
+			putUSBUSART((uint8_t*)(buf + 1), ((buf[1]) & 0x0F) + 2);
+		}
+		// Remove message event if not connected to USB
+		// This ensures internal buffer in emptied when USB is doconnected
 		ringRemoveFrame(&ring_USART_datain, ((buf[1]) & 0x0F) + 3);
 	}
 }
@@ -814,15 +825,18 @@ void check_XN_timeout_supress(uint8_t ring_USB_msg_start) {
 ////////////////////////////////////////////////////////////////////////////////
 // Update flasihing of power LED.
 
-void check_pwr_LED_status(void) {
+void update_pwr_LED_status(void) {
 	uint8_t new = 0;
 	// new = (ferr_in_10_s > PWR_LED_FERR_COUNT) << 1;
 	if (ferr_in_10_s > PWR_LED_FERR_COUNT)
-		new |= 2;
+		new += 2;
 	if ((ringLength(ring_USART_datain) >= (ring_USART_datain.max + 1) / 2)
 	           || (ringLength(ring_USB_datain) >= (ring_USB_datain.max + 1) / 2))
-	    new |= 4;
-	if (new == 0) new = 1;
+	    new += 4;
+	if (!mUSBUSARTIsTxTrfReady())
+		new += 3;
+	if (new == 0)
+		new = 1;
 	pwr_led_status = new;
 }
 
@@ -927,6 +941,10 @@ void check_device_data_to_USB(void) {
 		putUSBUSART(buf, 6);
 #endif
 	}
+}
+
+static bool USB_connected(void) {
+	return (USBGetDeviceState() == CONFIGURED_STATE) && (usb_nonready_counter < USB_NONREADY_TIMEOUT);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
