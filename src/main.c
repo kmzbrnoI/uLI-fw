@@ -384,7 +384,6 @@ void USART_check_timeouts(void) {
  * This function must be as fast as possible!
  */
 void USART_receive_interrupt(void) {
-	bool parity;
 	static volatile uint8_t xor = 0;
 	uint8_t tmp;
 	nine_data USART_received;
@@ -406,16 +405,11 @@ void USART_receive_interrupt(void) {
 		if ((tmp != xn_addr) && (tmp != 0)) return;
 
 		// new message for us -> check for parity
-		parity = false;
-		if ((tmp = USART_received.data) & 1) parity = !parity;
-		if ((tmp = tmp >> 1) & 1) parity = !parity;
-		if ((tmp = tmp >> 1) & 1) parity = !parity;
-		if ((tmp = tmp >> 1) & 1) parity = !parity;
-		if ((tmp = tmp >> 1) & 1) parity = !parity;
-		if ((tmp = tmp >> 1) & 1) parity = !parity;
-		if ((tmp = tmp >> 1) & 1) parity = !parity;
-		if ((tmp = tmp >> 1) & 1) parity = !parity;
-		if (parity != 0) return;
+		tmp = USART_received.data;
+		tmp ^= tmp>>1;
+		tmp ^= tmp>>2;
+		tmp ^= tmp>>4;
+		if (tmp&1) return;
 
 		if (((USART_received.data >> 5) & 0b11) == 0b10) {
 			// normal inquiry
