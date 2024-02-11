@@ -132,8 +132,6 @@ void timer_10ms(void);
 /** INTERRUPTS ****************************************************************/
 
 void __interrupt(high_priority) high_isr(void) {
-	USBDeviceTasks();
-
 	// USART send interrupt
 	if ((PIE1bits.TXIE) && (PIR1bits.TXIF))
 		USART_send();
@@ -165,6 +163,7 @@ void main(void) {
 	USBDeviceAttach();
 
 	while (true) {
+		USBDeviceTasks();
 		USART_check_timeouts();
 
 		USB_receive();
