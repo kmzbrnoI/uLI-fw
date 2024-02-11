@@ -431,12 +431,12 @@ void USART_receive_interrupt(void) {
 				check_XN_timeout_supress(ring_USB_datain.ptr_b);
 
 		} else if (((USART_received.data >> 5) & 0b11) == 0b00) {
-			// request acknowledgement
-			// send Acknowledgement Response to command station (this should be done by LI)
+			// request acknowledgment
+			// send Acknowledgment Response to command station (this should be done by LI)
 
 			if (ringFreeSpace(ring_USB_datain) < 2) {
 				// This situation should not happen. 2 bytes in ring_USB_datain
-				// are always reserved for acknowledgement response.
+				// are always reserved for acknowledgment response.
 				ringClear(&ring_USB_datain);
 			}
 
@@ -567,7 +567,7 @@ void USB_send(void) {
  * WARNING! This function cannot rely on ring_USB_datain.ptr_b value!
  * ring_USB_datain.ptr_b could be changed in interrupt called at any time!
  * More specifically, USART_receive_interrupt could add data at beginning of
- * the USB buffer. It is necessarry to keep this information always in mind.
+ * the USB buffer. It is necessary to keep this information always in mind.
  */
 
 void USB_receive(void) {
@@ -576,7 +576,7 @@ void USB_receive(void) {
 	if ((USBDeviceState != CONFIGURED_STATE) || (USBIsDeviceSuspended())) return;
 
 	// ring_USB_datain overflow check
-	// 2 bytes in the buffer are always reserved for the Acknowledgement
+	// 2 bytes in the buffer are always reserved for the Acknowledgment
 	// response.
 	if (ringFreeSpace(ring_USB_datain) < 2) {
 		// delete last message
@@ -696,7 +696,7 @@ bool USB_parse_data(uint8_t start, uint8_t len) {
 #ifdef FERR_FEATURE
 	} else if ((ring_USB_datain.data[start] == 0xF1)
 	    && (ring_USB_datain.data[(start + 1) & ring_USB_datain.max] == 0x05)) {
-		// special feture of uLI: framing error response
+		// special feature of uLI: framing error response
 		// FERR is sent as response to 0xF1 0x05 0xF4 as 0xF4 0x05 FERR_HH FERR_H FERR_L XOR
 		ringRemoveFromMiddle(&ring_USB_datain, start, 3);
 		pc_send_waiting.bits.ferr = true;
@@ -713,7 +713,7 @@ bool USB_parse_data(uint8_t start, uint8_t len) {
 ////////////////////////////////////////////////////////////////////////////////
 /* Send data to USART.
  * How it works:
- *  This functinn is called when TX is enabled and sends each byte manually.
+ *  This function is called when TX is enabled and sends each byte manually.
  *  It always sends message from beginning of the ring_USB_datain buffer.
  *  \to_send is index of byte in ring_USB_datain to be send next time.
  *  Notice: if this function has anything to send, it has to send it,
@@ -741,7 +741,7 @@ void USART_send(void) {
 
 		PIE1bits.TXIE = 0;
 
-		// XPRESSNET_DIR is set to XPRESSNET_IN after successful tranfer of last byte
+		// XPRESSNET_DIR is set to XPRESSNET_IN after successful transfer of last byte
 		// This part of function is usually called from high-priority interrupt,
 		// so nothing will overwrite us.
 		// It is really important to switch direction as soon as possible.
@@ -803,9 +803,8 @@ void init_EEPROM(void) {
 ////////////////////////////////////////////////////////////////////////////////
 
 void check_XN_timeout_supress(uint8_t ring_USB_msg_start) {
-	// 0x22 and 0x23 should move supress sending of "no longer providing timeslot" message
-	// however, "normal operations resumed" should be sent after normal operations resumed
-	// DO send OK in this cases HEADER: 0x91, 0x92, 0x9N, 0x22, 0x52, 0x83, 0x84, 0xE4, 0xE6, 0xE3
+	// 0x22 and 0x23 should suppress sending of a "no longer providing timeslot" message.
+	// "normal operations resumed" should be sent after normal operations resumed
 
 	if ((ring_USB_datain.data[ring_USB_msg_start] == 0x22)
 	    || (ring_USB_datain.data[ring_USB_msg_start] == 0x23)) {
@@ -815,7 +814,7 @@ void check_XN_timeout_supress(uint8_t ring_USB_msg_start) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Update flasihing of power LED.
+// Update flashing of power LED.
 
 void update_pwr_LED_status(void) {
 	uint8_t new = 0;
@@ -863,7 +862,7 @@ void check_broadcast(uint8_t xn_start_index) {
  * to USART_input buffer.
  * Notice: this function must move ring_USART_datain.ptr_e before actually
  * adding data to ring_USART_datain or make addition of ALL data to buffer
- * atomic at once. Because at every time, this functon could be interrupted
+ * atomic at once. Because at every time, this function could be interrupted
  * by USART_receive_interrupt function, which also uses ring_USART_datain buffer.
  * It is important to keep these two functions in symbiosis.
  */
