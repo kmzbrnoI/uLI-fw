@@ -105,27 +105,27 @@ uint8_t buf[32]; // any-purpose buffer
 
 /** PRIVATE  PROTOTYPES *******************************************************/
 
-void init(void);
-void init_EEPROM(void);
+static void init(void);
+static void init_EEPROM(void);
 
-void USB_send(void);
-void USB_receive(void);
-bool USB_parse_data(uint8_t start, uint8_t len);
+static void USB_send(void);
+static void USB_receive(void);
+static bool USB_parse_data(uint8_t start, uint8_t len);
 static bool USB_connected(void);
 
-void USART_receive_interrupt(void);
-void USART_send(void);
-void USART_check_timeouts(void);
+static void USART_receive_interrupt(void);
+static void USART_send(void);
+static void USART_check_timeouts(void);
 
-void dump_buf_to_USB(ring_generic* buf);
-void check_response_to_PC(uint8_t header, uint8_t id);
-void check_device_data_to_USB(void);
+static void dump_buf_to_USB(ring_generic* buf);
+static void check_response_to_PC(uint8_t header, uint8_t id);
+static void check_device_data_to_USB(void);
 
-void check_XN_timeout_supress(uint8_t ring_USB_msg_start);
-void update_pwr_LED_status(void);
-void check_broadcast(uint8_t xn_start_index);
+static void check_XN_timeout_supress(uint8_t ring_USB_msg_start);
+static void update_pwr_LED_status(void);
+static void check_broadcast(uint8_t xn_start_index);
 
-void timer_10ms(void);
+static void timer_10ms(void);
 
 /** INTERRUPTS ****************************************************************/
 
