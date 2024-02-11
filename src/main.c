@@ -74,7 +74,7 @@ volatile uint8_t mLED_XN_Timeout = 2 * MLED_XN_MAX_TIMEOUT;
 volatile uint8_t mLED_Data_Timeout = 2 * MLED_DATA_MAX_TIMEOUT;
 volatile bool usart_longer_timeout = false;
 volatile uint8_t xn_addr = DEFAULT_XPRESSNET_ADDR;
-volatile bool force_ok_response = false;
+volatile bool ok_response_pending = false;
 
 // Power led blinks pwr_led_status times, then stays blank for some time
 //  and then repeats the whole cycle. This lets user to see software status.
@@ -118,7 +118,6 @@ static void USART_send(void);
 static void USART_check_timeouts(void);
 
 static void dump_buf_to_USB(ring_generic* buf);
-static void check_response_to_PC(uint8_t header, uint8_t id);
 static void check_device_data_to_USB(void);
 
 static void check_XN_timeout_supress(uint8_t ring_USB_msg_start);
@@ -419,9 +418,9 @@ void USART_receive_interrupt(void) {
 
 			timeslot_err = false;
 			usart_longer_timeout = programming_mode;
-			if ((timeslot_timeout >= TIMESLOT_MAX_TIMEOUT) || (force_ok_response)) {
+			if ((timeslot_timeout >= TIMESLOT_MAX_TIMEOUT) || (ok_response_pending)) {
 				// ok response must be sent always after short timeout
-				if (force_ok_response) force_ok_response = false;
+				ok_response_pending = false;
 				if (USB_connected())
 					pc_send_waiting.bits.ok = true;
 			}
@@ -469,6 +468,7 @@ void USART_receive_interrupt(void) {
 			}
 
 			// start of message for us (or broadcast)
+			ok_response_pending = false;
 
 			if (!USB_connected()) return;
 
@@ -522,7 +522,7 @@ void USART_receive_interrupt(void) {
 			} else {
 				// xor ok
 				check_broadcast(USART_last_start);
-				USART_last_start = ring_USART_datain.ptr_e; // whole message succesfully received
+				USART_last_start = ring_USART_datain.ptr_e; // whole message successfully received
 			}
 
 			// listen for beginning of message (9. bit == 1)
@@ -748,7 +748,7 @@ void USART_send(void) {
 		while (!TXSTAbits.TRMT);
 		XPRESSNET_DIR = XPRESSNET_IN;
 
-		check_response_to_PC(head, id); // send OK response to PC
+		ok_response_pending = true; // Send back "OK" as soon as Normal Inquiry is received
 	} else {
 		// other-than-last byte sending
 		PIE1bits.TXIE = 1;
@@ -762,32 +762,6 @@ void dump_buf_to_USB(ring_generic* ring) {
 	for (size_t i = 0; i <= ring->max && i < 32; i++)
 		buf[i] = ring->data[(i + ring->ptr_b) & ring->max];
 	putUSBUSART(buf, ring->max + 1);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/* LI is supposed to answer 01/04/05 when some commands were succesfully
- * transmitted from LI to command station. This function takes care about it
- */
-
-void check_response_to_PC(uint8_t header, uint8_t id) {
-	static uint8_t respond_ok[] = { 0x22, 0x52, 0x83, 0x84, 0xE4, 0xE6, 0xE3 };
-
-	if ((header >= 0x90) && (header <= 0x9F)) {
-		pc_send_waiting.bits.ok = true;
-		return;
-	}
-
-	for (size_t i = 0; i < sizeof(respond_ok); i++) {
-		if ((header == respond_ok[i]) && ((header != 0xE3) || (id == 0x44)) &&
-		    ((header != 0x22) || (id == 0x22))) {
-			/* response is sent only if
-			 *  0x44 follows 0xE3
-			 *  0x22 follows 0x22
-			 */
-			pc_send_waiting.bits.ok = true;
-			return;
-		}
-	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -809,7 +783,6 @@ void check_XN_timeout_supress(uint8_t ring_USB_msg_start) {
 	if ((ring_USB_datain.data[ring_USB_msg_start] == 0x22)
 	    || (ring_USB_datain.data[ring_USB_msg_start] == 0x23)) {
 		usart_longer_timeout = true;
-		force_ok_response = true;
 	}
 }
 
