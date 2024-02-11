@@ -21,6 +21,7 @@
       <itemPath>src/main.h</itemPath>
       <itemPath>src/ringBuffer.h</itemPath>
       <itemPath>src/usart.h</itemPath>
+      <itemPath>src/common.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

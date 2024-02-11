@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <inttypes.h>
 
+#include "common.h"
 #include "GenericTypeDefs.h"
 #include "HardwareProfile.h"
 #include "eeprom.h"
@@ -19,9 +20,6 @@
 #include "usb_stack/usb_device_cdc.h"
 
 /** DEFINES *******************************************************************/
-
-#define MIN(a,b) (((a) < (b)) ? (a) : (b))
-#define MAX(a,b) (((a) > (b)) ? (a) : (b))
 
 // len WITH header byte and WITH xor byte
 #define USB_msg_len(start)      ((ring_USB_datain.data[start] & 0x0F) + 2)
@@ -937,7 +935,7 @@ void check_device_data_to_USB(void) {
 	}
 }
 
-static bool USB_connected(void) {
+bool USB_connected(void) {
 	return (USBGetDeviceState() == CONFIGURED_STATE) && (usb_nonready_counter < USB_NONREADY_TIMEOUT);
 }
 
