@@ -164,7 +164,7 @@ void main(void) {
 		USART_check_timeouts();
 
 		USB_receive();
-		USB_send();		
+		USB_send();
 		CDCTxService();
 
 		ClrWdt(); // clear watchdog timer
@@ -265,13 +265,13 @@ void timer_10ms(void) {
 		if (pwr_led_status_counter == 2 * pwr_led_status) {
 			// wait between cycles
 			pwr_led_base_timeout = PWR_LED_LONG_COUNT;
-			mLED_Pwr_Off();			
+			mLED_Pwr_Off();
 		} else if (pwr_led_status_counter > 2 * pwr_led_status) {
 			// new base cycle
 			pwr_led_base_timeout = PWR_LED_SHORT_COUNT;
 			pwr_led_status_counter = 0;
 			update_pwr_LED_status();
-			mLED_Pwr_On();			
+			mLED_Pwr_On();
 		} else {
 			mLED_Pwr_Toggle();
 		}
