@@ -79,8 +79,8 @@
 
 /** IO ************************************************************/
 
-#define mLED_XN_Toggle()     { mLED_XN = !mLED_XN; }
-#define mLED_Data_Toggle()   { mLED_Data = !mLED_Data; }
-#define mLED_Pwr_Toggle()    { mLED_Pwr = !mLED_Pwr; }
+#define IO_HW_VERSION_PORT   PORTCbits.RC7
+#define IO_HW_VERSION_TRIS   TRISC
+#define IO_HW_VERSION_MASK   0x80
 
 #endif  //HARDWARE_PROFILE_H

@@ -103,6 +103,8 @@ volatile uint8_t usb_nonready_counter = 0;
 
 uint8_t buf[32]; // any-purpose buffer
 
+uint8_t version_hw;
+
 /** PRIVATE  PROTOTYPES *******************************************************/
 
 static void init(void);
@@ -125,6 +127,7 @@ static void update_pwr_LED_status(void);
 static void check_broadcast(uint8_t xn_start_index);
 
 static void timer_10ms(void);
+static uint8_t detect_hw_version(void);
 
 /** INTERRUPTS ****************************************************************/
 
@@ -211,6 +214,8 @@ void init(void) {
 	init_EEPROM();
 	USBDeviceInit();
 	USARTInit();
+
+	version_hw = detect_hw_version();
 
 	INTCONbits.GIEL = 1;        // Enable low-level interrupts
 	INTCONbits.GIEH = 1;        // Enable high-level interrupts
@@ -847,7 +852,7 @@ void check_device_data_to_USB(void) {
 
 	if (pc_send_waiting.bits.version) {
 		pc_send_waiting.bits.version = false;
-		buf[0] = 0x02; buf[1] = VERSION_HW; buf[2] = VERSION_FW;
+		buf[0] = 0x02; buf[1] = version_hw; buf[2] = VERSION_FW;
 		buf[3] = (buf[0] ^ buf[1] ^ buf[2]);
 		putUSBUSART(buf, 4);
 
@@ -909,6 +914,19 @@ void check_device_data_to_USB(void) {
 
 bool USB_connected(void) {
 	return (USBGetDeviceState() == CONFIGURED_STATE) && (usb_nonready_counter < USB_NONREADY_TIMEOUT);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+uint8_t detect_hw_version(void) {
+	// HW v5.0 contains pull-down on IO_HW_VERSION pin
+	// In HW <v5.0 the pin is floating
+	IO_OUT(IO_HW_VERSION_TRIS, IO_HW_VERSION_MASK);
+	IO_HW_VERSION_PORT = 1;
+	IO_IN(IO_HW_VERSION_TRIS, IO_HW_VERSION_MASK);
+	NOP();
+	NOP();
+	return IO_HW_VERSION_PORT ? VERSION_HW_OLD : VERSION_HW_5;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -9,7 +9,9 @@
 #define XN_EEPROM_ADDR          0x00
 
 #define VERSION_FW      0x23        // firmware version 2.3
-#define VERSION_HW      0x20        // hardware version 2.0
+extern uint8_t version_hw;
+#define VERSION_HW_OLD  0x20
+#define VERSION_HW_5    0x50
 
 #define FERR_FEATURE                // undef to disable FERR feature
 
