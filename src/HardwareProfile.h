@@ -54,20 +54,30 @@
 #define CLOCK_FREQ 48000000
 #define GetSystemClock() CLOCK_FREQ
 
-/** LED ************************************************************/
+#define IO_OUT(TRIS, MASK) { TRIS &= ~MASK; }
+#define IO_IN(TRIS, MASK) { TRIS |= MASK; }
+
+/** LEDs ***********************************************************/
+
 #define mInitAllLEDs()       { TRISC &= 0xF8; }
 
-#define mLED_XN              PORTCbits.RC0
-#define mLED_Data            PORTCbits.RC1
-#define mLED_Pwr             PORTCbits.RC2
+#define mLED_XN_PORT         PORTCbits.RC0
+#define mLED_DATA_PORT       PORTCbits.RC1
+#define mLED_PWR_PORT        PORTCbits.RC2
 
-#define mLED_XN_On()         { mLED_XN = 1; }
-#define mLED_Data_On()       { mLED_Data = 1; }
-#define mLED_Pwr_On()        { mLED_Pwr = 1; }
+#define mLED_XN_On()         { mLED_XN_PORT = 1; }
+#define mLED_Data_On()       { mLED_DATA_PORT = 1; }
+#define mLED_Pwr_On()        { mLED_PWR_PORT = 1; }
 
-#define mLED_XN_Off()        { mLED_XN = 0; }
-#define mLED_Data_Off()      { mLED_Data = 0; }
-#define mLED_Pwr_Off()       { mLED_Pwr = 0; }
+#define mLED_XN_Off()        { mLED_XN_PORT = 0; }
+#define mLED_Data_Off()      { mLED_DATA_PORT = 0; }
+#define mLED_Pwr_Off()       { mLED_PWR_PORT = 0; }
+
+#define mLED_XN_Toggle()     { mLED_XN_PORT = !mLED_XN_PORT; }
+#define mLED_Data_Toggle()   { mLED_DATA_PORT = !mLED_DATA_PORT; }
+#define mLED_Pwr_Toggle()    { mLED_PWR_PORT = !mLED_PWR_PORT; }
+
+/** IO ************************************************************/
 
 #define mLED_XN_Toggle()     { mLED_XN = !mLED_XN; }
 #define mLED_Data_Toggle()   { mLED_Data = !mLED_Data; }
