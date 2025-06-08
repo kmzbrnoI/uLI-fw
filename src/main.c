@@ -386,7 +386,6 @@ void USART_check_timeouts(void) {
  */
 void USART_receive_interrupt(void) {
 	static volatile uint8_t xor = 0;
-	uint8_t tmp;
 	nine_data USART_received;
 
 	USART_received = USARTReadByte();
@@ -402,11 +401,11 @@ void USART_receive_interrupt(void) {
 		// 9 bit is 1 -> header byte
 		// we are waiting for call byte with our address
 
-		tmp = (USART_received.data & 0x1F);
-		if ((tmp != xn_addr) && (tmp != 0)) return;
+		uint8_t addr = (USART_received.data & 0x1F);
+		if ((addr != xn_addr) && (addr != 0)) return;
 
 		// new message for us -> check for parity
-		tmp = USART_received.data;
+		uint8_t tmp = USART_received.data;
 		tmp ^= tmp>>1;
 		tmp ^= tmp>>2;
 		tmp ^= tmp>>4;
@@ -472,8 +471,9 @@ void USART_receive_interrupt(void) {
 					pc_send_waiting.bits.cs_timeout = true;
 			}
 
-			// start of message for us (or broadcast)
-			ok_response_pending = false;
+			// start of message for us (not a broadcast!)
+			if (addr != 0)
+				ok_response_pending = false;
 
 			if (!USB_connected()) return;
 

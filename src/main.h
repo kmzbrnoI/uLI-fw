@@ -8,7 +8,7 @@
 #define DEFAULT_XPRESSNET_ADDR  29
 #define XN_EEPROM_ADDR          0x00
 
-#define VERSION_FW      0x23        // firmware version 2.3
+#define VERSION_FW      0x24        // firmware version 2.4
 extern uint8_t version_hw;
 #define VERSION_HW_OLD  0x20
 #define VERSION_HW_5    0x50
