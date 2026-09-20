@@ -25,7 +25,7 @@ please contact mla_licensing@microchip.com
 /** I N C L U D E S **********************************************************/
 #include "usb.h"
 #include "usb_config.h"
-#include "../ringBuffer.h"
+#include "ringBuffer.h"
 
 /** D E F I N I T I O N S ****************************************************/
 

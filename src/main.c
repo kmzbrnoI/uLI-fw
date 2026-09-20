@@ -13,10 +13,10 @@
 #include "main.h"
 #include "ringBuffer.h"
 #include "usart.h"
-#include "usb_stack/usb.h"
-#include "usb_stack/usb_config.h"
-#include "usb_stack/usb_device.h"
-#include "usb_stack/usb_device_cdc.h"
+#include "usb.h"
+#include "usb_config.h"
+#include "usb_device.h"
+#include "usb_device_cdc.h"
 
 /** DEFINES *******************************************************************/
 
