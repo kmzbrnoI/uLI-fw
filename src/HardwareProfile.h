@@ -42,17 +42,6 @@
 //#define PROGRAMMABLE_WITH_USB_HID_BOOTLOADER	
 
 /** Board definition ***********************************************/
-//These defintions will tell the main() function which board is
-//  currently selected.  This will allow the application to add
-//  the correct configuration bits as wells use the correct
-//  initialization functions for the board.  These defitions are only
-//  required in the stack provided demos.  They are not required in
-//  final application design.
-
-#define DEMO_BOARD LOW_PIN_COUNT_USB_DEVELOPMENT_KIT
-#define LOW_PIN_COUNT_USB_DEVELOPMENT_KIT
-#define CLOCK_FREQ 48000000
-#define GetSystemClock() CLOCK_FREQ
 
 #define IO_OUT(TRIS, MASK) { TRIS &= ~MASK; }
 #define IO_IN(TRIS, MASK) { TRIS |= MASK; }

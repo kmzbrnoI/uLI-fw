@@ -12,7 +12,7 @@ typedef struct {
 	uint8_t ptr_b;    // pointer to begin (for 8 items 0..7)
 	uint8_t ptr_e;    // pointer to end (for 8 items 0..7)
 	uint8_t data[32]; // data
-	BOOL empty;    // wheter buffer is empty
+	bool empty;    // wheter buffer is empty
 } ring_generic;
 
 /* ptr_b points to first byte
