@@ -16,19 +16,19 @@ extern uint8_t version_hw;
 #define FERR_FEATURE                // undef to disable FERR feature
 
 typedef union {
-	struct {
-		bool version : 1;
-		bool addr : 1;
-		bool baud_rate : 1;
-		bool ferr : 1;
-		bool full_buffer : 1;
-		bool xor_error : 1;
-		bool cs_timeout : 1;
-		bool ok : 1;
-		bool pc_timeout : 1;
-		bool timeslot_timeout : 1;
-	} bits;
-	uint16_t all;
+    struct {
+        bool version : 1;
+        bool addr : 1;
+        bool baud_rate : 1;
+        bool ferr : 1;
+        bool full_buffer : 1;
+        bool xor_error : 1;
+        bool cs_timeout : 1;
+        bool ok : 1;
+        bool pc_timeout : 1;
+        bool timeslot_timeout : 1;
+    } bits;
+    uint16_t all;
 } send_waiting;
 
 #endif /* MAIN_H */

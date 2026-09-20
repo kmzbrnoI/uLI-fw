@@ -8,9 +8,9 @@
 #include "GenericTypeDefs.h"
 
 typedef struct {
-	uint8_t data;
-	bool ninth;
-	bool FERR;
+    uint8_t data;
+    bool ninth;
+    bool FERR;
 } nine_data;
 
 void USARTInit(void);
