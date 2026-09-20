@@ -19,25 +19,17 @@ void USARTInit(void) {
 
     XPRESSNET_DIR = XPRESSNET_IN; // switch bus for read
 
-    TXSTAbits.SYNC = 0;  // enable async mode
-    RCSTAbits.SPEN = 1;  // enable async mode
-    TXSTAbits.TX9 = 1;   // 9-bit sending
-    RCSTAbits.RX9 = 1;   // 9-bit receiving
+    WPUBbits.WPUB5 = 1; // enable pull-up on read pin
+    TXSTAbits.SYNC = 0; // enable async mode
+    RCSTAbits.SPEN = 1; // enable async mode
+    TXSTAbits.TX9 = 1; // 9-bit sending
+    RCSTAbits.RX9 = 1; // 9-bit receiving
     RCSTAbits.ADDEN = 1; // enable address detection
                          // TX interrupt must be in high level (otherwise will not match 80 us window)
     RCSTAbits.CREN = 1;  // enable RX
-    TXSTAbits.TXEN = 1;  // enable TX
-                         //
-    IPR1bits.RCIP = 1;   // receive interrupt high priority
-    USARTEnableReceiveInterrupt();
-}
-
-void USARTEnableReceiveInterrupt(void) {
-    PIE1bits.RCIE = 1;
-}
-
-void USARTDisableReceiveInterrupt(void) {
-    PIE1bits.RCIE = 0;
+    TXSTAbits.TXEN = 1; // enable TX
+    IPR1bits.RCIP = 1; // receive interrupt high priority
+    PIE1bits.RCIE = 1; // enable receice interrupt
 }
 
 // Write byte to USART
