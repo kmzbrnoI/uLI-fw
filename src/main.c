@@ -194,11 +194,8 @@ void init(void) {
     ANSEL = 0x00;
     ANSELH = 0x00;
 
-    // Initialize all of the LED pins
-    mInitAllLEDs();
-    mLED_XN_On();
-    mLED_Pwr_Off();
-    mLED_Data_On();
+    // Initialize all GPIO
+    IO_init();
 
     // setup timer2 on 100 us
     T2CONbits.T2CKPS = 0b11;    // timer2 prescaler 16x
@@ -235,9 +232,8 @@ void timer_10ms(void) {
     // mLEDout timeout
     if (mLED_Data_Timeout < 2 * MLED_DATA_MAX_TIMEOUT) {
         mLED_Data_Timeout++;
-        if (mLED_Data_Timeout == MLED_DATA_MAX_TIMEOUT) {
-            mLED_Data_Off();
-        }
+        if (mLED_Data_Timeout == MLED_DATA_MAX_TIMEOUT)
+            IO_LED_Data_Off();
     }
 #endif
 
@@ -254,9 +250,8 @@ void timer_10ms(void) {
     // mLEDIn timeout
     if (mLED_XN_Timeout < 2 * MLED_XN_MAX_TIMEOUT) {
         mLED_XN_Timeout++;
-        if (mLED_XN_Timeout == MLED_XN_MAX_TIMEOUT) {
-            mLED_XN_On();
-        }
+        if (mLED_XN_Timeout == MLED_XN_MAX_TIMEOUT)
+            IO_LED_XN_On();
     }
 #endif
 
@@ -269,15 +264,15 @@ void timer_10ms(void) {
         if (pwr_led_status_counter == 2 * pwr_led_status) {
             // wait between cycles
             pwr_led_base_timeout = PWR_LED_LONG_COUNT;
-            mLED_Pwr_Off();
+            IO_LED_Pwr_Off();
         } else if (pwr_led_status_counter > 2 * pwr_led_status) {
             // new base cycle
             pwr_led_base_timeout = PWR_LED_SHORT_COUNT;
             pwr_led_status_counter = 0;
             update_pwr_LED_status();
-            mLED_Pwr_On();
+            IO_LED_Pwr_On();
         } else {
-            mLED_Pwr_Toggle();
+            IO_LED_Pwr_Toggle();
         }
     }
     
@@ -301,18 +296,18 @@ bool USER_USB_CALLBACK_EVENT_HANDLER(USB_EVENT event, void *pdata, uint16_t size
             break;
 
         case EVENT_SUSPEND:
-            mLED_Data_On();
+            IO_LED_Data_On();
             ringClear(&ring_USART_datain);
             ringClear(&ring_USB_datain);
             break;
 
         case EVENT_RESUME:
-            mLED_Data_Off();
+            IO_LED_Data_Off();
             break;
 
         case EVENT_CONFIGURED:
             CDCInitEP();
-            mLED_Data_Off();
+            IO_LED_Data_Off();
             break;
 
         case EVENT_SET_DESCRIPTOR:
@@ -490,7 +485,7 @@ void USART_receive_interrupt(void) {
 
 #ifndef DEBUG
             if (mLED_Data_Timeout >= 2 * MLED_DATA_MAX_TIMEOUT) {
-                mLED_Data_On();
+                IO_LED_Data_On();
                 mLED_Data_Timeout = 0;
             }
 #endif
@@ -537,7 +532,7 @@ void USART_receive_interrupt(void) {
 #ifndef DEBUG
     // toggle LED
     if (mLED_XN_Timeout >= 2 * MLED_XN_MAX_TIMEOUT) {
-        mLED_XN_Off();
+        IO_LED_XN_Off();
         mLED_XN_Timeout = 0;
     }
 #endif
@@ -651,7 +646,7 @@ ret:
 
 #ifndef DEBUG
     if (mLED_Data_Timeout >= 2 * MLED_DATA_MAX_TIMEOUT) {
-        mLED_Data_On();
+        IO_LED_Data_On();
         mLED_Data_Timeout = 0;
     }
 #endif

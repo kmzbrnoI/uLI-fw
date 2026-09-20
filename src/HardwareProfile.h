@@ -48,28 +48,35 @@
 
 /** LEDs ***********************************************************/
 
-#define mInitAllLEDs()       { TRISC &= 0xF8; }
+#define IO_LED_XN_LAT          LATCbits.LC0
+#define IO_LED_XN_On()          { IO_LED_XN_LAT = 1; }
+#define IO_LED_XN_Off()        { IO_LED_XN_LAT = 0; }
+#define IO_LED_XN_Toggle()     { IO_LED_XN_LAT = !IO_LED_XN_LAT; }
 
-#define mLED_XN_PORT         PORTCbits.RC0
-#define mLED_DATA_PORT       PORTCbits.RC1
-#define mLED_PWR_PORT        PORTCbits.RC2
+#define IO_LED_DATA_LAT        LATCbits.LC1
+#define IO_LED_Data_On()       { IO_LED_DATA_LAT = 1; }
+#define IO_LED_Data_Off()      { IO_LED_DATA_LAT = 0; }
+#define IO_LED_Data_Toggle()   { IO_LED_DATA_LAT = !IO_LED_DATA_LAT; }
 
-#define mLED_XN_On()         { mLED_XN_PORT = 1; }
-#define mLED_Data_On()       { mLED_DATA_PORT = 1; }
-#define mLED_Pwr_On()        { mLED_PWR_PORT = 1; }
-
-#define mLED_XN_Off()        { mLED_XN_PORT = 0; }
-#define mLED_Data_Off()      { mLED_DATA_PORT = 0; }
-#define mLED_Pwr_Off()       { mLED_PWR_PORT = 0; }
-
-#define mLED_XN_Toggle()     { mLED_XN_PORT = !mLED_XN_PORT; }
-#define mLED_Data_Toggle()   { mLED_DATA_PORT = !mLED_DATA_PORT; }
-#define mLED_Pwr_Toggle()    { mLED_PWR_PORT = !mLED_PWR_PORT; }
+#define IO_LED_PWR_LAT         LATCbits.LC2
+#define IO_LED_Pwr_On()        { IO_LED_PWR_LAT = 1; }
+#define IO_LED_Pwr_Off()       { IO_LED_PWR_LAT = 0; }
+#define IO_LED_Pwr_Toggle()    { IO_LED_PWR_LAT = !IO_LED_PWR_LAT; }
 
 /** IO ************************************************************/
 
-#define IO_HW_VERSION_PORT   PORTCbits.RC7
-#define IO_HW_VERSION_TRIS   TRISC
-#define IO_HW_VERSION_MASK   0x80
+#define IO_HW_VERSION_PORT     PORTCbits.RC7
+#define IO_HW_VERSION_TRIS     TRISC
+#define IO_HW_VERSION_MASK     0x80
+
+static inline void IO_init(void) {
+    TRISCbits.TRISC0 = 0;
+    TRISCbits.TRISC1 = 0;
+    TRISCbits.TRISC2 = 0;
+
+    IO_LED_XN_On();
+    IO_LED_Data_On();
+    IO_LED_Pwr_On();
+}
 
 #endif  //HARDWARE_PROFILE_H
