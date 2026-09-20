@@ -5,7 +5,6 @@
 
 #include <inttypes.h>
 #include <stdbool.h>
-#include "GenericTypeDefs.h"
 
 typedef struct {
     uint8_t data;

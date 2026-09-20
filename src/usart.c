@@ -2,7 +2,6 @@
 
 #include <xc.h>
 
-#include "GenericTypeDefs.h"
 #include "usart.h"
 
 void USARTInit(void) {

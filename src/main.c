@@ -7,7 +7,6 @@
 #include <inttypes.h>
 
 #include "common.h"
-#include "GenericTypeDefs.h"
 #include "HardwareProfile.h"
 #include "eeprom.h"
 #include "config.h"
