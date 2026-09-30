@@ -15,7 +15,6 @@
         <itemPath>src/usb_stack/usb_hal.h</itemPath>
         <itemPath>src/usb_stack/usb_hal_pic18.h</itemPath>
       </logicalFolder>
-      <itemPath>src/GenericTypeDefs.h</itemPath>
       <itemPath>src/HardwareProfile.h</itemPath>
       <itemPath>src/eeprom.h</itemPath>
       <itemPath>src/main.h</itemPath>
